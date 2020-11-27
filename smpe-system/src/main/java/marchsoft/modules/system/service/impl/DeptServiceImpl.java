@@ -135,7 +135,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     public List<DeptDTO> getSuperior(DeptDTO deptDto, List<Dept> depts) {
         LambdaQueryWrapper<Dept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Dept::getEnabled, true);
-        if (deptDto.getPid() == null) {
+        if (deptDto.getPid() == 0) {
             queryWrapper.isNull(Dept::getPid);
             depts.addAll(list(queryWrapper));
             return deptMapStruct.toDto(depts);
@@ -153,11 +153,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         boolean isChild;
         for (DeptDTO DeptDTO : deptDtos) {
             isChild = false;
-            if (DeptDTO.getPid() == null) {
+            if (DeptDTO.getPid() == 0) {
                 trees.add(DeptDTO);
             }
             for (DeptDTO it : deptDtos) {
-                if (it.getPid() != null && DeptDTO.getId().equals(it.getPid())) {
+                if (it.getPid() != 0 && DeptDTO.getId().equals(it.getPid())) {
                     isChild = true;
                     if (DeptDTO.getChildren() == null) {
                         DeptDTO.setChildren(new ArrayList<>());
@@ -167,7 +167,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(DeptDTO);
-            } else if (DeptDTO.getPid() != null && !deptNames.contains(findById(DeptDTO.getPid()).getName())) {
+            } else if (DeptDTO.getPid() != 0 && !deptNames.contains(findById(DeptDTO.getPid()).getName())) {
                 depts.add(DeptDTO);
             }
         }
@@ -186,8 +186,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     public void create(Dept dept) {
         save(dept.setSubCount(0));
         //清理缓存
-        redisUtils.del("dept::pid" + (dept.getPid() == null ? 0 : dept.getPid()));
-        updateSubCnt(dept.getPid());
+//        redisUtils.del("dept::pid" + (dept.getPid() == null ? 0 : dept.getPid()));
+        updateSubCnt(ObjectUtil.isNull(dept.getPid()) ? 0 : dept.getPid());
     }
 
     /**
@@ -199,7 +199,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * @date 2020/11/26 21:09
      **/
     private void updateSubCnt(Long deptId) {
-        if (deptId != null) {
+        if (deptId != 0) {
             LambdaQueryWrapper<Dept> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Dept::getPid, deptId);
             int count = count(queryWrapper);
@@ -215,7 +215,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         // 旧部门 pid
         Long oldPid = findById(resources.getId()).getPid();
         Long newPid = resources.getPid();
-        if (resources.getPid() != null && resources.getId().equals(resources.getPid())) {
+        if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
             throw new BadRequestException("上级不能为自己");
         }
         Dept dept = getById(resources.getId());
@@ -313,8 +313,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             // 查询父部门为pid
             wrapper.eq(Dept::getPid, criteria.getPid());
         } else if (!ObjectUtil.isNull(criteria.getPidIsNull())) {
-            // 查询父部门为空的（即：顶层部门）
-            wrapper.isNull(Dept::getPid);
+            // 查询父部门为0的（即：顶层部门）
+            wrapper.eq(Dept::getPid, 0L);
         }
         if (!ObjectUtil.isNull(criteria.getStratTime())) {
             // 如果只有开始时间，就默认从开始到现在
