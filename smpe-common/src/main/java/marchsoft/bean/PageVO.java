@@ -54,7 +54,7 @@ public class PageVO {
      * 每页大小默认为10
      */
     public Integer getSize() {
-        return size = (size == null || size <= 0) ? 10 : size;
+        return size = (size == null || size == 0) ? 10 : size;
     }
 
     /**
