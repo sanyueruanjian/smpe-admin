@@ -1,0 +1,27 @@
+spring:
+  freemarker:
+    check-template-location: false
+  profiles:
+    active: dev
+  jackson:
+    time-zone: Asia/Shanghai
+    serialization:
+      # Date返回前端转时间戳 但不能解决LocalDateTime转时间戳（JacksonCustomizerConfig类解决）
+      write-dates-as-timestamps: true
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+  aop:
+    proxy-target-class: true
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true  # 开启驼峰命名规则的转换
+    call-setters-on-nulls: true # 如果查询结果中包含空值的列，则 mybatis 在映射的时候，不会映射这个字段
+    cache-enabled: true # 开启二级缓存
