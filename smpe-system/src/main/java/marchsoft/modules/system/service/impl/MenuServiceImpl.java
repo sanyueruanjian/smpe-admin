@@ -109,8 +109,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     public List<MenuDTO> queryAll(MenuQueryCriteria criteria, Boolean isQuery) {
         LambdaQueryWrapper<Menu> menuDtoQueryWrapper = new LambdaQueryWrapper<>();
         if (isQuery) {
-            criteria.setPidIsNull(true);
-            menuDtoQueryWrapper.isNull(Menu::getPid);
+            menuDtoQueryWrapper.eq(Menu::getPid, 0L);
         }
         // 判断是否添加菜单标题or菜单组件or菜单权限模糊查询条件
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
@@ -187,7 +186,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         List<MenuDTO> trees = new ArrayList<>();
         Set<Long> ids = new HashSet<>();
         for (MenuDTO menuDTO : menuDtos) {
-            if (menuDTO.getPid() == null) {
+            if (menuDTO.getPid().equals(0L)) {
                 trees.add(menuDTO);
             }
             for (MenuDTO it : menuDtos) {
@@ -224,11 +223,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                         menuVo.setName(ObjectUtil.isNotEmpty(menuDTO.getComponentName()) ?
                                 menuDTO.getComponentName() : menuDTO.getTitle());
                         // 一级目录需要加斜杠，不然会报警告
-                        menuVo.setPath(menuDTO.getPid() == null ? "/" + menuDTO.getPath() : menuDTO.getPath());
+                        menuVo.setPath(menuDTO.getPid().equals(0L) ? "/" + menuDTO.getPath() : menuDTO.getPath());
                         menuVo.setHidden(menuDTO.getHidden());
                         // 如果不是外链
                         if (! menuDTO.getIFrame()) {
-                            if (menuDTO.getPid() == null) {
+                            if (menuDTO.getPid().equals(0L)) {
                                 menuVo.setComponent(StrUtil.isEmpty(menuDTO.getComponent()) ? "Layout" :
                                         menuDTO.getComponent());
                             } else if (! StrUtil.isEmpty(menuDTO.getComponent())) {
@@ -241,7 +240,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                             menuVo.setRedirect("noredirect");
                             menuVo.setChildren(buildMenus(menuDtoList));
                             // 处理是一级菜单并且没有子菜单的情况
-                        } else if (menuDTO.getPid() == null) {
+                        } else if (menuDTO.getPid().equals(0L)) {
                             MenuVo menuVo1 = new MenuVo();
                             menuVo1.setMeta(menuVo.getMeta());
                             // 非外链
@@ -278,8 +277,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     @Override
     public List<MenuDTO> getSuperior(MenuDTO menuDto, List<Menu> menus) {
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
-        if (menuDto.getPid() == null) {
-            queryWrapper.eq(Menu::getPid, null);
+        if (menuDto.getPid().equals(0L)) {
+            queryWrapper.eq(Menu::getPid, 0L);
             menus.addAll(list(queryWrapper));
             return menuMapStruct.toDto(menus);
         }
@@ -314,9 +313,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                 throw new BadRequestException("组件名称已存在");
             }
         }
-        if (menu.getPid().equals(0L)) {
-            menu.setPid(null);
-        }
+//        if (menu.getPid().equals(0L)) {
+//            menu.setPid(null);
+//        }
         if (menu.getIFrame()) {
             String http = "http://", https = "https://";
             if (! (menu.getPath().toLowerCase().startsWith(http) || menu.getPath().toLowerCase().startsWith(https))) {
@@ -398,9 +397,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             }
         }
 
-        if (resources.getPid().equals(0L)) {
-            resources.setPid(null);
-        }
+//        if (resources.getPid().equals(0L)) {
+//            resources.setPid(null);
+//        }
 
         // 记录的父节点ID
         Long oldPid = menu.getPid();
