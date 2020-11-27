@@ -45,11 +45,29 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     private final RedisUtils redisUtils;
     private final JobMapStruct jobMapStruct;
 
+    /**
+     * Description:
+     * 根据用户id获取
+     *
+     * @param id: 用户id
+     * @return java.util.Set<marchsoft.modules.system.entity.Job>
+     * @author liuxingxing
+     * @date 2020/11/24 13:07
+     **/
     @Override
     public Set<Job> findByUserId(Long id) {
         return jobMapper.findByUserId(id);
     }
 
+    /**
+     * Description:
+     * 根据ID查询
+     *
+     * @param id: 岗位id
+     * @return marchsoft.modules.system.entity.dto.JobDTO
+     * @author liuxingxing
+     * @date 2020/11/24 13:08
+     **/
     @Override
     public JobDTO findById(Long id) {
         Job job = getById(id);
@@ -60,12 +78,31 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         return jobMapStruct.toDto(job);
     }
 
+    /**
+     * Description:
+     * 查询全部数据
+     *
+     * @param criteria: Job查询类
+     * @return java.util.List<marchsoft.modules.system.entity.dto.JobDTO>
+     * @author liuxingxing
+     * @date 2020/11/24 13:08
+     **/
     @Override
     public List<JobDTO> queryAll(JobQueryCriteria criteria) {
         List<Job> jobs = jobMapper.selectList(this.analysisQueryCriteria(criteria));
         return jobMapStruct.toDto(jobs);
     }
 
+    /**
+     * Description:
+     * 分页查询
+     *
+     * @param criteria: Job查询类
+     * @param pageVO:   分页插件
+     * @return java.util.Map<java.lang.String, java.lang.Object>
+     * @author liuxingxing
+     * @date 2020/11/24 13:09
+     **/
     @Override
     public IPage<JobDTO> queryAll(JobQueryCriteria criteria, PageVO pageVO) {
         IPage<Job> jobPage = jobMapper.selectPage(pageVO.buildPage(), this.analysisQueryCriteria(criteria));
@@ -75,6 +112,16 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         return iPage;
     }
 
+    /**
+     * Description:
+     * 待导出的数据
+     *
+     * @param jobDtos: 所有要查询的JobDTO实体
+     * @param response:
+     * @throws IOException io异常
+     * @author liuxingxing
+     * @date 2020/11/24 13:12
+     **/
     @Override
     public void download(List<JobDTO> jobDtos, HttpServletResponse response) throws IOException {
         if (CollectionUtil.isEmpty(jobDtos)) {
@@ -91,6 +138,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         FileUtils.downloadExcel(list, response);
     }
 
+    /**
+     * Description:
+     * 创建Job
+     *
+     * @param resources: 要创建的Job实体
+     * @author liuxingxing
+     * @date 2020/11/24 13:13
+     **/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(Job resources) {
@@ -107,6 +162,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         save(resources);
     }
 
+    /**
+     * Description:
+     * 更新Job实体
+     *
+     * @param resources: 要更新的Job实体
+     * @author liuxingxing
+     * @date 2020/11/24 13:13
+     **/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Job resources) {
@@ -117,7 +180,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         Job old = getOne(queryWrapper);
-        if (old != null && ! old.getId().equals(resources.getId())) {
+        if (old != null && !old.getId().equals(resources.getId())) {
             throw new EntityExistException(Job.class, "name", resources.getName());
         }
         ValidationUtil.isNull(job.getId(), "Job", "id", resources.getId());
@@ -125,6 +188,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         updateById(resources);
     }
 
+    /**
+     * Description:
+     * 删除
+     *
+     * @param ids: 部门id集
+     * @author liuxingxing
+     * @date 2020/11/24 13:16
+     **/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
@@ -133,6 +204,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         redisUtils.delByKeys("job::id:", ids);
     }
 
+    /**
+     * Description:
+     * 验证此job是否被用户关联
+     *
+     * @param ids: 部门id集
+     * @author liuxingxing
+     * @date 2020/11/24 13:16
+     **/
     @Override
     public void verification(Set<Long> ids) {
         if (userMapper.countByJobs(StringUtils.strip(ids.toString(), "[", "]")) > 0) {
@@ -151,14 +230,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
      **/
     private LambdaQueryWrapper<Job> analysisQueryCriteria(JobQueryCriteria criteria) {
         LambdaQueryWrapper<Job> wrapper = new LambdaQueryWrapper<>();
-        if (! StrUtil.isBlank(criteria.getName())) {
+        if (!StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Job::getName, criteria.getName());
         }
-        if (! ObjectUtil.isNull(criteria.getEnabled())) {
+        if (!ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Job::getEnabled, criteria.getEnabled());
         }
-        if (! ObjectUtil.isNull(criteria.getStratTime())) {
+        if (!ObjectUtil.isNull(criteria.getStratTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Job::getCreateTime, criteria.getStratTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
