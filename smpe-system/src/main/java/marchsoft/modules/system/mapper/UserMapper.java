@@ -47,7 +47,9 @@ public interface UserMapper extends BaseMapper<User> {
      * @author Wangmingcan
      * @date 2020-08-23 15:50
      */
-    @Select("SELECT * FROM sys_user u WHERE u.user_id = #{id}")
+    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+            "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
+            " FROM sys_user u WHERE u.user_id = #{id}")
     @Results({
             @Result(column = "user_id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
@@ -71,7 +73,9 @@ public interface UserMapper extends BaseMapper<User> {
      * @author RenShiWei
      * Date: 2020/11/24 16:06
      */
-    @Select("SELECT * FROM sys_user u #{ew.customSqlSegment}")
+    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+            "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
+            "FROM sys_user u #{ew.customSqlSegment}")
     @Results({
             @Result(column = "user_id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
@@ -96,7 +100,9 @@ public interface UserMapper extends BaseMapper<User> {
      * @author RenShiWei
      * Date: 2020/11/24 16:06
      */
-    @Select("SELECT * FROM sys_user u ${ew.customSqlSegment}")
+    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+            "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
+            "FROM sys_user u ${ew.customSqlSegment}")
     @Results({
             @Result(column = "user_id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
@@ -191,8 +197,17 @@ public interface UserMapper extends BaseMapper<User> {
     })
     Integer countByUserByRoleIds(Set<Long> roleIds);
 
+    /**
+     * 根据岗位查询(验证此job是否被用户关联)
+     *
+     * @param ids /
+     * @return /
+     */
+    @Select("SELECT count(1) FROM sys_user u, sys_users_jobs j WHERE u.user_id = j.user_id AND j.job_id IN (${ids})")
+    int countByJobs(String ids);
+
     /*
-        ---------------------------------------------------
+        -----------------------以下方法暂未使用，暂未进行修改和审核----------------------------
      */
 
     /**
@@ -228,29 +243,5 @@ public interface UserMapper extends BaseMapper<User> {
     @Result(column = "user_id", property = "id")
     List<User> findByRoleId(Long roleId);
 
-    /**
-     * 根据岗位查询
-     *
-     * @param ids /
-     * @return /
-     */
-    @Select("SELECT count(1) FROM sys_user u, sys_users_jobs j WHERE u.user_id = j.user_id AND j.job_id IN (${ids})")
-    int countByJobs(String ids);
-
-    @Select("SELECT * FROM sys_user")
-    @Results({
-            @Result(column = "user_id", property = "id"),
-            @Result(column = "dept_id", property = "deptId"),
-            @Result(column = "dept_id", property = "dept",
-                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "roles",
-                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "jobs",
-                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-                            fetchType = FetchType.EAGER))
-    })
-    IPage<User> findUserAll(IPage<User> page);
 
 }

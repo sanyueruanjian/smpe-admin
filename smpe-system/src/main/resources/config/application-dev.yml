@@ -7,9 +7,9 @@ spring:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://127.0.0.1:3307/smpe_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+      url: jdbc:log4jdbc:mysql://127.0.0.1:3306/smpe?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       username: root
-      password:
+      password: 159357asd
       # 初始连接数
       initial-size: 5
       # 最小连接数
@@ -129,15 +129,7 @@ ip:
 
 # 文件存储路径
 file:
-  mac:
-    path: ~/file/
-    avatar: ~/avatar/
-  linux:
-    path: /home/eladmin/file/
-    avatar: /home/eladmin/avatar/
-  windows:
-    path: C:\eladmin\file\
-    avatar: C:\eladmin\avatar\
+  path: ./upload/
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
@@ -152,15 +144,6 @@ task:
     keep-alive-seconds: 60
     # 队列容量
     queue-capacity: 50
-
-#微信小程序
-wx:
-  appId:
-  appSecret:
-
-# sm.ms 图床的token
-smms:
-  token: 1oOP3ykFDI0K6ifmtvU7c8Y1eTWZSlyl
 
 #密码加密传输，前端公钥加密，后端私钥解密
 rsa:
