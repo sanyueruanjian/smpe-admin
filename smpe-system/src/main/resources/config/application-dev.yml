@@ -7,9 +7,9 @@ spring:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://59.110.218.15:3307/smpe_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+      url: jdbc:log4jdbc:mysql://127.0.0.1:3306/smpe?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       username: root
-      password: Marchsoft@2020
+      password: 123456
       # 初始连接数
       initial-size: 5
       # 最小连接数
@@ -49,9 +49,9 @@ spring:
   redis:
     #数据库索引
     database: 7
-    host: 59.110.218.15
+    host: 127.0.0.1
     port: 6379
-    password: Marchsoft@redis
+    password:
     #连接超时时间（ms）
     timeout: 5000
     # 自定义redis默认过期时间（单位：时）
