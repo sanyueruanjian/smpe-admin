@@ -163,4 +163,6 @@ public interface IMenuService extends IService<Menu> {
      * Date: 2020/11/26 17:28
      */
     void delete(Set<Menu> menuSet);
+
+    Set<Menu> getChildMenus(List<Menu> toEntity, Set<Menu> menuSet);
 }
