@@ -231,7 +231,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * @date 2020/11/26 15:45
      **/
     @Override
-    public Object buildTree(List<DeptDTO> deptDtos) {
+    public List<DeptDTO> buildTree(List<DeptDTO> deptDtos) {
         Set<DeptDTO> trees = new LinkedHashSet<>();
         Set<DeptDTO> depts = new LinkedHashSet<>();
         List<String> deptNames = deptDtos.stream().map(DeptDTO::getName).collect(Collectors.toList());
@@ -252,7 +252,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -260,10 +260,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (CollectionUtil.isEmpty(trees)) {
             trees = depts;
         }
-        Map<String, Object> map = new HashMap<>(2);
-        map.put("totalElements", deptDtos.size());
-        map.put("content", CollectionUtil.isEmpty(trees) ? deptDtos : trees);
-        return map;
+        return CollectionUtil.isEmpty(trees) ? deptDtos : new ArrayList<>(trees);
     }
 
     /**
@@ -430,21 +427,21 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      **/
     private LambdaQueryWrapper<Dept> analysisQueryCriteria(DeptQueryCriteria criteria) {
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
-        if (!StrUtil.isBlank(criteria.getName())) {
+        if (! StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());
         }
-        if (!ObjectUtil.isNull(criteria.getEnabled())) {
+        if (! ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Dept::getEnabled, criteria.getEnabled());
         }
-        if (!ObjectUtil.isNull(criteria.getPid())) {
+        if (! ObjectUtil.isNull(criteria.getPid())) {
             // 查询父部门为pid
             wrapper.eq(Dept::getPid, criteria.getPid());
-        } else if (!ObjectUtil.isNull(criteria.getPidIsNull())) {
+        } else if (! ObjectUtil.isNull(criteria.getPidIsNull())) {
             // 查询父部门为0的（即：顶层部门）
             wrapper.eq(Dept::getPid, 0L);
         }
-        if (!ObjectUtil.isNull(criteria.getStratTime())) {
+        if (! ObjectUtil.isNull(criteria.getStratTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Dept::getCreateTime, criteria.getStratTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());

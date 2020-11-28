@@ -76,7 +76,7 @@ public class MenuController {
             }
             return Result.success(menuService.buildTree(new ArrayList<>(menuDtoS)));
         }
-        return Result.success(menuService.getMenus(null));
+        return Result.success(menuService.getMenus(0L));
     }
 
     @ApiOperation("新增菜单")

@@ -60,7 +60,8 @@ public class DeptController {
     @PostMapping("/superior")
     @PreAuthorize("@smpe.check('user:list','dept:list')")
     public Result<Object> getSuperior(@RequestBody List<Long> ids) {
-        log.info("【查询部门:根据ID获取同级与上级数据 /api/dept/superior】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 查询部门id集 ids= " + ids.toString());
+        log.info("【查询部门:根据ID获取同级与上级数据 /api/dept/superior】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 查询部门id集 " +
+                "ids= " + ids.toString());
         Set<DeptDTO> deptDtos = new LinkedHashSet<>();
         for (Long id : ids) {
             DeptDTO deptDto = deptService.findById(id);
@@ -68,7 +69,6 @@ public class DeptController {
             deptDtos.addAll(depts);
         }
         return Result.success(deptService.buildTree(new ArrayList<>(deptDtos)));
-
     }
 
     @ApiOperation("新增部门")
