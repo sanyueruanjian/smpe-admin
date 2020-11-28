@@ -1,5 +1,6 @@
 package marchsoft.modules.system.entity.dto;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -40,7 +41,9 @@ public class UserQueryCriteria implements Serializable {
      * Date: 2020/11/25 17:01
      */
     public Set<Long> getDeptIds() {
-        deptIds.add(getDeptId());
+        if (ObjectUtil.isNotNull(getDeptId())) {
+            deptIds.add(getDeptId());
+        }
         return deptIds;
     }
 }

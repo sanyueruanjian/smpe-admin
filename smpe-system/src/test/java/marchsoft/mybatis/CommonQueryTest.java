@@ -1,17 +1,11 @@
 package marchsoft.mybatis;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import marchsoft.modules.system.entity.Dept;
-import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
 import marchsoft.modules.system.service.IDeptService;
-import marchsoft.utils.QueryHelp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
 
 /**
  * description:mybatis通用查询测试
@@ -35,12 +29,7 @@ public class CommonQueryTest {
      */
     @Test
     public void testQueryDeptByCommon() {
-        DeptQueryCriteria deptCriteria = new DeptQueryCriteria();
-        deptCriteria.setPidIsNull(true);
-        //通过传入参数，快速构建Wrapper
-        QueryWrapper<Dept> queryWrapper = QueryHelp.getQueryWrapper(deptCriteria, Dept.class);
-        List<Dept> deptList = deptService.list(queryWrapper);
-        System.out.println(deptList);
+        
     }
 
 

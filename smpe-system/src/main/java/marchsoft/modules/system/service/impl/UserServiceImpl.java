@@ -160,7 +160,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             wrapper.eq(User::getEnabled, criteria.getEnabled());
         }
         //getDeptId已经做过处理
-        if (ObjectUtil.isNotNull(criteria.getDeptIds())) {
+        if (CollectionUtil.isNotEmpty(criteria.getDeptIds())) {
             wrapper.in(User::getDeptId, criteria.getDeptIds());
         }
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
