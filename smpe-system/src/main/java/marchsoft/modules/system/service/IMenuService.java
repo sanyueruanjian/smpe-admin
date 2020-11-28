@@ -164,5 +164,14 @@ public interface IMenuService extends IService<Menu> {
      */
     void delete(Set<Menu> menuSet);
 
-    Set<Menu> getChildMenus(List<Menu> toEntity, Set<Menu> menuSet);
+    /**
+     * 功能描述：根据菜单ID返回所有子节点ID，包含自身ID
+     *
+     * @param menuList 当前id的子菜单
+     * @param menuSet  当前菜单和所有子节点菜单
+     * @return /
+     * @author Jiaoqianjin
+     * Date: 2020/11/28 16:03
+     */
+    Set<Menu> getChildMenus(List<Menu> menuList, Set<Menu> menuSet);
 }
