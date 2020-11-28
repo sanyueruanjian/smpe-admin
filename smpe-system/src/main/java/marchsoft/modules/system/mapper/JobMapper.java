@@ -28,7 +28,7 @@ public interface JobMapper extends BaseMapper<Job> {
      * @date 2020-08-23 15:44
      * description 通过用户id和关联表users_jobs查询该用户的所有工作。
      */
-    @Select("SELECT j.* FROM sys_job j, sys_users_jobs uj WHERE j.job_id = uj.job_id AND uj.user_id = ${id}")
+    @Select("SELECT j.job_id, j.name, j.enabled, j.job_sort, j.create_by, j.update_by, j.create_time, j.update_time FROM sys_job j, sys_users_jobs uj WHERE j.job_id = uj.job_id AND uj.user_id = ${id}")
     @Result(column = "job_id", property = "id")
     Set<Job> findByUserId(Long id);
 }
