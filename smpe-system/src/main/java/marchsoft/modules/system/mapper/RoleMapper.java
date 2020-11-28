@@ -99,7 +99,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 16:18
      */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r.update_time" +
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time" +
             " FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = #{userId}")
     @Result(column = "role_id", property = "id")
     Set<Role> findRoleByUserId(Long userId);
@@ -172,7 +173,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author Wangmingcan
      * @date 2020-08-23 15:49
      */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r.update_time " +
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time " +
             "FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = ${userId}")
     @Results({
             @Result(column = "role_id", property = "id"),
@@ -190,9 +192,15 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/28 16:53
      */
-    @Select("SELECT count(1) FROM sys_role r, sys_roles_depts d WHERE " +
-            "r.role_id = d.role_id AND d.dept_id IN ${deptIds})")
-    int countByDeptIds(String deptIds);
+    @Select({"<script> " +
+            "SELECT count(1) FROM sys_role r, sys_roles_depts d WHERE " +
+            "r.role_id = d.role_id AND d.dept_id IN" +
+            "<foreach collection='deptIds' item='item' index='index' open='(' separator=',' close=')'> " +
+            "#{item}" +
+            "</foreach>" +
+            "</script>"
+    })
+    int countByDeptIds(@Param("deptIds") Set<Long> deptIds);
 
     /**
      * description:根据菜单id集合查询角色信息集合
@@ -202,7 +210,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/28 16:56
      */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r.update_time " +
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time " +
             "FROM sys_role r, sys_roles_menus m WHERE " +
             "r.role_id = m.role_id AND m.menu_id in (${menuIds})")
     @Result(column = "role_id", property = "id")

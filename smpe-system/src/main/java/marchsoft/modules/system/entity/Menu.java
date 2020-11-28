@@ -1,19 +1,18 @@
 package marchsoft.modules.system.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * <p>
@@ -28,7 +27,6 @@ import java.util.Set;
 @ToString(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @ApiModel(value = "Menu对象", description = "系统菜单")
 @TableName("sys_menu")
 public class Menu extends Model<Menu> {
@@ -79,15 +77,19 @@ public class Menu extends Model<Menu> {
     private String permission;
 
     @ApiModelProperty(value = "创建者")
+    @TableField(fill = FieldFill.INSERT)
     private String createBy;
 
     @ApiModelProperty(value = "更新者")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateBy;
 
     @ApiModelProperty(value = "创建日期")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "更新时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     @Override
