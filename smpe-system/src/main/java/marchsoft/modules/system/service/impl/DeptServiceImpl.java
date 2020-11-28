@@ -1,5 +1,6 @@
 package marchsoft.modules.system.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -192,7 +193,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
         IPage<DeptDTO> returnPage = pageVO.buildPage();
-        returnPage.setRecords(deptDtos).setTotal(page.getTotal());
+        BeanUtil.copyProperties(returnPage, page);
+        returnPage.setRecords(deptDtos);
         return returnPage;
     }
 
