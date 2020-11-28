@@ -28,6 +28,7 @@ import marchsoft.utils.FileUtils;
 import marchsoft.utils.PageUtil;
 import marchsoft.utils.SecurityUtils;
 import marchsoft.utils.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -293,7 +294,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         Set<Long> roleIds = userBO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         Set<Long> jobIds = userBO.getJobs().stream().map(Job::getId).collect(Collectors.toSet());
         //如果角色id集合、岗位id集合与原先不同，先删除再新增（即修改操作）
-        if (! CollectionUtil.containsAll(roleIds, userInsertOrUpdateDTO.getRoleIds())) {
+        if (!  CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoleIds())) {
             Integer count = userMapper.delUserAtRole(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtRole(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getRoleIds());
@@ -302,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
-        if (! CollectionUtil.containsAll(jobIds, userInsertOrUpdateDTO.getJobIds())) {
+        if (!  CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobIds())) {
             Integer count = userMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getJobIds());

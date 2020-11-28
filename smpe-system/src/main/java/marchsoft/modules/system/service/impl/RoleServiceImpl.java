@@ -245,7 +245,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
         try {
             //维护角色部门中间表
-            if (! CollectionUtil.containsAll(deptIds, roleInsertOrUpdateDTO.getDeptIds())) {
+            if (!  CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDeptIds())) {
                 //传入和原来的DeptIds都为null，不处理
                 if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDeptIds())) {
                     //传入deptIds为null
@@ -271,7 +271,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
 
         //维护角色菜单中间表
-        if (! CollectionUtil.containsAll(menuIds, roleInsertOrUpdateDTO.getMenuIds())) {
+        if (!  CollectionUtils.isEqualCollection(menuIds, roleInsertOrUpdateDTO.getMenuIds())) {
             Integer count = roleMapper.delRoleAtMenu(roleInsertOrUpdateDTO.getId());
             Integer count2 = roleMapper.saveRoleAtMenu(roleInsertOrUpdateDTO.getId(),
                     roleInsertOrUpdateDTO.getMenuIds());
