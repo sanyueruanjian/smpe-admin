@@ -1,5 +1,6 @@
 package marchsoft.modules.system.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -108,7 +109,8 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         IPage<Job> jobPage = jobMapper.selectPage(pageVO.buildPage(), this.analysisQueryCriteria(criteria));
         List<JobDTO> jobDtos = jobMapStruct.toDto(jobPage.getRecords());
         IPage<JobDTO> iPage = pageVO.buildPage();
-        iPage.setTotal(iPage.getTotal()).setRecords(jobDtos);
+        BeanUtil.copyProperties(iPage, jobPage);
+        iPage.setRecords(jobDtos);
         return iPage;
     }
 
@@ -116,7 +118,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
      * Description:
      * 待导出的数据
      *
-     * @param jobDtos: 所有要查询的JobDTO实体
+     * @param jobDtos:  所有要查询的JobDTO实体
      * @param response:
      * @throws IOException io异常
      * @author liuxingxing
