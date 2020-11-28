@@ -18,26 +18,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * <p>
- * 系统菜单 Mapper 接口
- * </p>
+ * 功能描述： 系统菜单 Mapper 接口
  *
- * @author Wangmingcan
- * @since 2020-08-17
+ * @author Jiaoqianjin
+ * Date: 2020/11/23 9:33
  */
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 public interface MenuMapper extends BaseMapper<Menu> {
-
 
     /**
      * description 通过角色id和关联表roles_menus查询该角色拥有的菜单
      *
      * @param id 菜单id
      * @return Set<Menu>
-     * @author Wangmingcan
-     * @date 2020-08-23 15:45
+     * @author Jiaoqianjin
+     * @date 2020-11-23 15:45
      */
-    @Select("SELECT m.* FROM sys_menu m, sys_roles_menus rm WHERE m.menu_id = rm.menu_id AND rm.role_id = ${id}")
+    @Select("SELECT m.menu_id,m.pid,m.sub_count,m.type,m.title,m.name,m.component,m.menu_sort,m.icon,m.path," +
+            "m.i_frame,m.cache,m.hidden,m.permission,m.create_by,m.update_by,m.create_time,m.update_time " +
+            "FROM sys_menu m, sys_roles_menus rm " +
+            "WHERE m.menu_id = rm.menu_id AND rm.role_id = ${id}")
     @Result(column = "menu_id", property = "id")
     Set<Menu> findByRoleId(Long id);
 
@@ -46,11 +46,13 @@ public interface MenuMapper extends BaseMapper<Menu> {
      *
      * @param roleIds 角色id集合，经StringUtils处理，没有[]，只剩 1, 2, 3...
      * @param type    菜单的类型
-     * @return LinkedHashSet<Menu>
-     * @author Wangmingcan
-     * @date 2020-08-23 15:46
+     * @return /
+     * @author Jiaoqianjin
+     * @date 2020-11-23 15:46
      */
-    @Select({"<script> SELECT m.* FROM sys_menu m, sys_roles_menus r " +
+    @Select({"<script> SELECT m.menu_id,m.pid,m.sub_count,m.type,m.title,m.name,m.component,m.menu_sort,m.icon,m.path,m.i_frame,m.cache," +
+            "m.hidden,m.permission,m.create_by,m.update_by,m.create_time,m.update_time " +
+            "FROM sys_menu m, sys_roles_menus r " +
             "WHERE m.menu_id = r.menu_id " +
             "AND r.role_id IN" +
             "<foreach collection='roleIds' item='item' index='index' open='(' separator=',' close=')'> " +
@@ -69,9 +71,10 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * @return /
      * @author Jiaoqianjin
      * Date: 2020/11/26 11:14
-     * // TODO:@Jiaoqianjin 2020/11/26 description: select *
      */
-    @Select("SELECT * FROM sys_menu ${ew.customSqlSegment}")
+    @Select("SELECT menu_id,pid,sub_count,type,title,name,component,menu_sort,icon,path,i_frame," +
+            "cache,hidden,permission,create_by,update_by,create_time,update_time " +
+            "FROM sys_menu ${ew.customSqlSegment}")
     @Result(column = "menu_id", property = "id")
     List<Menu> getMenusByPid(@Param(Constants.WRAPPER) LambdaQueryWrapper<Menu> queryWrapper);
 
@@ -82,9 +85,20 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * @return /
      * @author Jiaoqianjin
      * Date: 2020/11/26 11:29
-     * // TODO:@Jiaoqianjin 2020/11/26 description: select *
      */
-    @Select("SELECT * FROM sys_menu WHERE menu_id = #{id}")
+    @Select("SELECT menu_id,pid,sub_count,type,title,name,component,menu_sort,icon,path,i_frame," +
+            "cache,hidden,permission,create_by,update_by,create_time,update_time FROM sys_menu " +
+            "WHERE menu_id = #{id}")
     @Result(column = "menu_id", property = "id")
     Menu getMenuById(Long menuId);
+
+    /**
+     * 功能描述：
+     *
+     * @param
+     * @return
+     * @author Jiaoqianjin
+     * Date: 2020/11/28 17:19
+     */
+    Integer deleteByMenuIds(Set<Long> menuIds);
 }

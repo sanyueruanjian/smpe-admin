@@ -63,7 +63,7 @@ public class MenuController {
 
     @ApiOperation("根据菜单ID返回所有子节点ID，包含自身ID")
     @GetMapping(value = "/child")
-    @PreAuthorize("@el.check('menu:list','roles:list')")
+    @PreAuthorize("@smpe.check('menu:list','roles:list')")
     public Result<Set<Long>> child(@RequestParam Long id){
         Set<Menu> menuSet = new HashSet<>();
         List<MenuDTO> menuList = menuService.getMenus(id);
