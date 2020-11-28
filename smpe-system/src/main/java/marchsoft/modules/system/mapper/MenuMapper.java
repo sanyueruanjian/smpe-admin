@@ -72,6 +72,7 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * // TODO:@Jiaoqianjin 2020/11/26 description: select *
      */
     @Select("SELECT * FROM sys_menu ${ew.customSqlSegment}")
+    @Result(column = "menu_id", property = "id")
     List<Menu> getMenusByPid(@Param(Constants.WRAPPER) LambdaQueryWrapper<Menu> queryWrapper);
 
     /**
@@ -84,5 +85,6 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * // TODO:@Jiaoqianjin 2020/11/26 description: select *
      */
     @Select("SELECT * FROM sys_menu WHERE menu_id = #{id}")
+    @Result(column = "menu_id", property = "id")
     Menu getMenuById(Long menuId);
 }

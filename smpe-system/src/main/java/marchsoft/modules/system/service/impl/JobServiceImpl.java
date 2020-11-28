@@ -109,7 +109,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         IPage<Job> jobPage = jobMapper.selectPage(pageVO.buildPage(), this.analysisQueryCriteria(criteria));
         List<JobDTO> jobDtos = jobMapStruct.toDto(jobPage.getRecords());
         IPage<JobDTO> iPage = pageVO.buildPage();
-        BeanUtil.copyProperties(iPage, jobPage);
+        BeanUtil.copyProperties(jobPage, iPage);
         iPage.setRecords(jobDtos);
         return iPage;
     }
