@@ -1,8 +1,5 @@
 package marchsoft.system;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import marchsoft.bean.PageVO;
-import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.entity.dto.UserQueryCriteria;
 import marchsoft.modules.system.mapper.UserMapper;
@@ -42,14 +39,6 @@ public class UserInfoTest {
         Long test = userService.findUserIdByName("test");
         System.out.println(test);
     }
-
-    @Test
-    public void testUserFindAll() {
-        PageVO pageVO = new PageVO();
-        IPage<User> userAll = userMapper.findUserAll(pageVO.buildPage());
-        System.out.println(userAll.getRecords().toString());
-    }
-
 
     /**
      * description: 测试构建查询条件，查询用户的详细信息
