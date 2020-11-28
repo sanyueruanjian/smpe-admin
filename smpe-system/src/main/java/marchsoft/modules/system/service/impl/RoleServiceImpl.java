@@ -1,6 +1,7 @@
 package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -25,6 +26,7 @@ import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.RoleMapStruct;
 import marchsoft.modules.system.service.mapstruct.RoleSmallMapStruct;
 import marchsoft.utils.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
@@ -304,14 +306,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         RoleBO roleBO = roleMapper.findById(roleId);
         Set<Long> oldMenuIds = roleBO.getMenus().stream().map(Menu::getId).collect(Collectors.toSet());
         //对比之前有修改再进行操作（先删除后修改）
-        if (! CollectionUtil.containsAll(menuIds, oldMenuIds)) {
+        // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils.isEqualCollection()
+        if (! CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
             Integer count = roleMapper.delRoleAtMenu(roleId);
             Integer count2 = roleMapper.saveRoleAtMenu(roleId, menuIds);
             if (count <= 0 && count2 <= 0) {
                 log.error("【修改角色菜单失败】维护角色菜单表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleId);
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
+            log.info("【修改角色菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleId);
         }
+
     }
 
     /**
