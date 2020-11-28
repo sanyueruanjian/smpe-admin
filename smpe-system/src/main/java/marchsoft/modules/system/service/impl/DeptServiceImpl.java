@@ -372,7 +372,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (userService.count(userLambdaQueryWrapper) > 0) {
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
-        if (roleMapper.countByDepts(StringUtils.strip(deptIds.toString(), "[", "]")) > 0) {
+        if (roleMapper.countByDeptIds(StringUtils.strip(deptIds.toString(), "[", "]")) > 0) {
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }

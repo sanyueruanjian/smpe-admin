@@ -183,7 +183,7 @@ public interface IRoleService extends IService<Role> {
      * @date 2020-08-26 14:29
      * @description 根据菜单Id查询
      */
-    List<Role> findInMenuId(List<Long> menuIds);
+    List<Role> findInMenuIds(List<Long> menuIds);
 
     /**
      * @param id
