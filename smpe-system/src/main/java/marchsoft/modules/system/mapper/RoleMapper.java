@@ -35,7 +35,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 9:20
      */
-    @Select("SELECT r.* FROM sys_role r WHERE r.role_id = #{roleId}")
+    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+            "FROM sys_role r WHERE r.role_id = #{roleId}")
     @Results({
             @Result(column = "role_id", property = "id"),
             @Result(column = "role_id", property = "menus",
@@ -55,7 +56,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT * FROM sys_role #{ew.customSqlSegment}")
+    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+            "FROM sys_role #{ew.customSqlSegment}")
     @Results({
             @Result(column = "role_id", property = "id"),
             @Result(column = "role_id", property = "menus",
@@ -76,7 +78,8 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT * FROM sys_role ${ew.customSqlSegment}")
+    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+            "* FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "role_id", property = "id"),
             @Result(column = "role_id", property = "menus",
@@ -96,7 +99,9 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 16:18
      */
-    @Select("SELECT r.* FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = #{userId}")
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time " +
+            "r.* FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = #{userId}")
     @Result(column = "role_id", property = "id")
     Set<Role> findRoleByUserId(Long userId);
 
@@ -168,7 +173,9 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author Wangmingcan
      * @date 2020-08-23 15:49
      */
-    @Select("SELECT r.* FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = ${userId}")
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time " +
+            "FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = ${userId}")
     @Results({
             @Result(column = "role_id", property = "id"),
             @Result(column = "role_id", property = "menus",
@@ -177,16 +184,41 @@ public interface RoleMapper extends BaseMapper<Role> {
     })
     Set<RoleBO> findWithMenuByUserId(Long userId);
 
-    @Select("select count(1) from sys_role r, sys_roles_depts d where " +
-            "r.role_id = d.role_id and d.dept_id in (${deptIds})")
-    int countByDepts(String deptIds);
+    /**
+     * description: 判断角色与部门是否存在关联
+     *
+     * @param deptIds 部门id集合
+     * @return /
+     * @author RenShiWei
+     * Date: 2020/11/28 16:53
+     */
+    @Select("SELECT count(1) FROM sys_role r, sys_roles_depts d WHERE " +
+            "r.role_id = d.role_id AND d.dept_id IN ${deptIds})")
+    int countByDeptIds(String deptIds);
 
-
-    @Select("SELECT r.* FROM sys_role r, sys_roles_menus m WHERE " +
+    /**
+     * description:根据菜单id集合查询角色信息集合
+     *
+     * @param menuIds 菜单id集合
+     * @return 角色信息集合
+     * @author RenShiWei
+     * Date: 2020/11/28 16:56
+     */
+    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+            ".update_time " +
+            "FROM sys_role r, sys_roles_menus m WHERE " +
             "r.role_id = m.role_id AND m.menu_id in (${menuIds})")
     @Result(column = "role_id", property = "id")
-    List<Role> findInMenuId(String menuIds);
+    List<Role> findInMenuIds(String menuIds);
 
-    @Delete("delete from sys_roles_menus where menu_id = ${id}")
-    void untiedMenu(Long id);
+    /**
+     * description:根据菜单id删除角色菜单中间表一条数据
+     *
+     * @param menuId 菜单id
+     * @return 操作数
+     * @author RenShiWei
+     * Date: 2020/11/28 16:57
+     */
+    @Delete("DELETE FROM sys_roles_menus WHERE menu_id = ${id}")
+    Integer untiedMenu(Long menuId);
 }
