@@ -193,7 +193,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
         IPage<DeptDTO> returnPage = pageVO.buildPage();
-        BeanUtil.copyProperties(returnPage, page);
+        BeanUtil.copyProperties(page, returnPage);
         returnPage.setRecords(deptDtos);
         return returnPage;
     }
