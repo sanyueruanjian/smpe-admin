@@ -21,7 +21,10 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
-import marchsoft.utils.*;
+import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
+import marchsoft.utils.SecurityUtils;
+import marchsoft.utils.ValidationUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -372,7 +375,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (userService.count(userLambdaQueryWrapper) > 0) {
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
-        if (roleMapper.countByDeptIds(StringUtils.strip(deptIds.toString(), "[", "]")) > 0) {
+        if (roleMapper.countByDeptIds(deptIds) > 0) {
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }

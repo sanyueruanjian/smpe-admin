@@ -75,7 +75,7 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
-            "FROM sys_user u #{ew.customSqlSegment}")
+            " FROM sys_user u #{ew.customSqlSegment}")
     @Results({
             @Result(column = "user_id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
@@ -102,7 +102,7 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
-            "FROM sys_user u ${ew.customSqlSegment}")
+            " FROM sys_user u ${ew.customSqlSegment}")
     @Results({
             @Result(column = "user_id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),

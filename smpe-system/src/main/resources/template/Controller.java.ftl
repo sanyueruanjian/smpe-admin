@@ -11,34 +11,19 @@ import lombok.RequiredArgsConstructor;
 <#if superControllerClassPackage??>
     import ${superControllerClassPackage};
 </#if>
-<#--请求类型注解-->
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 <#--swagger相关注解-->
 <#if swagger2>
     import io.swagger.annotations.Api;
-    import io.swagger.annotations.ApiImplicitParam;
-    import io.swagger.annotations.ApiImplicitParams;
-    import io.swagger.annotations.ApiOperation;
 </#if>
 <#--日志-->
 <#if entityLombokModel>
     import lombok.extern.slf4j.Slf4j;
 </#if>
-<#--事务-->
-import org.springframework.transaction.annotation.Transactional;
+
 <#--实体类和service类-->
 import ${package.Service}.${table.serviceName};
 import ${package.Entity}.${entity};
-<#--自定义的导包——！！！需要根据实际情况修改-->
-import com.test.response.vo.ResponseResult;
-import com.test.response.enums.ResponseEnum;
 
-import java.util.List;
 
 /**
 * <p>
