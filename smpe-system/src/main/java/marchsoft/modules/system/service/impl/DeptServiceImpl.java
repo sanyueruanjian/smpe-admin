@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import marchsoft.bean.PageVO;
-import marchsoft.enums.DataScopeEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.User;
@@ -185,11 +184,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public IPage<DeptDTO> queryAll(DeptQueryCriteria criteria, PageVO pageVO, Boolean isQuery) {
         String dataScopeType = SecurityUtils.getDataScopeType();
-        if (isQuery) {
-            if (dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
-                criteria.setPidIsNull(true);
-            }
-        }
+//        if (isQuery) {
+//            if (dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+//                criteria.setPidIsNull(true);
+//            }
+//        }
         IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
         IPage<DeptDTO> returnPage = pageVO.buildPage();
@@ -429,6 +428,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      **/
     private LambdaQueryWrapper<Dept> analysisQueryCriteria(DeptQueryCriteria criteria) {
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
+        // 查询父部门为pid
+        wrapper.eq(Dept::getPid, criteria.getPid());
         if (! StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());
@@ -436,16 +437,9 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (! ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Dept::getEnabled, criteria.getEnabled());
         }
-        if (! ObjectUtil.isNull(criteria.getPid())) {
-            // 查询父部门为pid
-            wrapper.eq(Dept::getPid, criteria.getPid());
-        } else if (! ObjectUtil.isNull(criteria.getPidIsNull())) {
-            // 查询父部门为0的（即：顶层部门）
-            wrapper.eq(Dept::getPid, 0L);
-        }
-        if (! ObjectUtil.isNull(criteria.getStratTime())) {
+        if (! ObjectUtil.isNull(criteria.getStartTime())) {
             // 如果只有开始时间，就默认从开始到现在
-            wrapper.between(Dept::getCreateTime, criteria.getStratTime(),
+            wrapper.between(Dept::getCreateTime, criteria.getStartTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
         }
         return wrapper;

@@ -141,6 +141,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Menu::getPid, pid);
         menus = menuMapper.getMenusByPid(queryWrapper);
+        System.out.println(111);
+        System.out.println(menus);
+        System.out.println(menuMapStruct.toDto(menus));
         return menuMapStruct.toDto(menus);
     }
 
@@ -465,5 +468,19 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             removeById(menu.getId());
             updateSubCnt(menu.getPid());
         }
+    }
+
+    @Override
+    public Set<Menu> getChildMenus(List<Menu> menuList, Set<Menu> menuSet) {
+        for (Menu menu : menuList) {
+            menuSet.add(menu);
+            LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Menu::getPid, menu.getId());
+            List<Menu> menus = menuMapper.getMenusByPid(queryWrapper);;
+            if(menus!=null && menus.size()!=0){
+                getChildMenus(menus, menuSet);
+            }
+        }
+        return menuSet;
     }
 }

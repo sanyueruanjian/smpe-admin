@@ -9,15 +9,19 @@ import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.dto.MenuDTO;
 import marchsoft.modules.system.entity.dto.MenuQueryCriteria;
+import marchsoft.modules.system.entity.vo.MenuVo;
 import marchsoft.modules.system.service.IMenuService;
 import marchsoft.modules.system.service.mapstruct.MenuMapStruct;
 import marchsoft.response.Result;
 import marchsoft.utils.SecurityUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 功能描述： 系统菜单
@@ -44,7 +48,7 @@ public class MenuController {
 
     @GetMapping(value = "/build")
     @ApiOperation("获取前端所需菜单")
-    public Result<Object> buildMenus() {
+    public Result<List<MenuVo>> buildMenus() {
         List<MenuDTO> menuDtoList = menuService.findMenuByUserId(SecurityUtils.getCurrentUserId());
         List<MenuDTO> menuDtos = menuService.buildTree(menuDtoList);
         return Result.success(menuService.buildMenus(menuDtos));
@@ -55,6 +59,18 @@ public class MenuController {
     @PreAuthorize("@smpe.check('menu:list','roles:list')")
     public Result<List<MenuDTO>> query(@RequestParam Long pid) {
         return Result.success(menuService.getMenus(pid));
+    }
+
+    @ApiOperation("根据菜单ID返回所有子节点ID，包含自身ID")
+    @GetMapping(value = "/child")
+    @PreAuthorize("@el.check('menu:list','roles:list')")
+    public Result<Set<Long>> child(@RequestParam Long id){
+        Set<Menu> menuSet = new HashSet<>();
+        List<MenuDTO> menuList = menuService.getMenus(id);
+        menuSet.add(menuService.findOne(id));
+        menuSet = menuService.getChildMenus(menuMapStruct.toEntity(menuList), menuSet);
+        Set<Long> ids = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
+        return Result.success(ids);
     }
 
     @ApiOperation("查询菜单")

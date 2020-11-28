@@ -29,12 +29,12 @@ public class DeptQueryCriteria {
     /**
      * 父部门id是否为空
      */
-    private Boolean pidIsNull;
+//    private Boolean pidIsNull;
 
     /**
      * 开始时间
      */
-    private LocalDateTime stratTime;
+    private LocalDateTime startTime;
 
     /**
      * 结束时间
