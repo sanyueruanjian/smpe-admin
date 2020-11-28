@@ -109,7 +109,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     public List<MenuDTO> queryAll(MenuQueryCriteria criteria, Boolean isQuery) {
         LambdaQueryWrapper<Menu> menuDtoQueryWrapper = new LambdaQueryWrapper<>();
         if (isQuery) {
-            menuDtoQueryWrapper.eq(Menu::getPid, 0L);
+            menuDtoQueryWrapper.eq(Menu::getPid, criteria.getPid());
         }
         // 判断是否添加菜单标题or菜单组件or菜单权限模糊查询条件
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
@@ -121,7 +121,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
             menuDtoQueryWrapper.between(Menu::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
         }
-        return menuMapStruct.toDto(menuMapper.selectList(menuDtoQueryWrapper));
+        List<Menu> menus = menuMapper.selectList(menuDtoQueryWrapper);
+        System.out.println(menus);
+        return menuMapStruct.toDto(menus);
     }
 
     /**
@@ -137,13 +139,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     public List<MenuDTO> getMenus(Long pid) {
         List<Menu> menus;
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
-        if (pid != null && ! pid.equals(0L)) {
-            queryWrapper.eq(Menu::getPid, pid);
-            menus = menuMapper.getMenusByPid(queryWrapper);
-        } else {
-            queryWrapper.isNull(Menu::getPid);
-            menus = menuMapper.getMenusByPid(queryWrapper);
-        }
+        queryWrapper.eq(Menu::getPid, pid);
+        menus = menuMapper.getMenusByPid(queryWrapper);
         return menuMapStruct.toDto(menus);
     }
 

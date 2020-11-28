@@ -128,7 +128,7 @@ public interface IDeptService extends IService<Dept> {
      * @author liuxingxing
      * @date 2020/11/26 15:45
      **/
-    Object buildTree(List<DeptDTO> DeptDTOs);
+    List<DeptDTO> buildTree(List<DeptDTO> DeptDTOs);
 
 
     /**
