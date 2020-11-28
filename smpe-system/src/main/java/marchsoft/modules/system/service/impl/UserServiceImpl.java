@@ -57,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private final UserMapStruct userMapStruct;
     private final OnlineUserService onlineUserService;
     private final UserCacheClean userCacheClean;
-    private final FileProperties properties;
+    private final FileProperties fileProperties;
 
     /**
      * description:根据用户名查用户id
@@ -340,7 +340,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public Map<String, String> updateAvatar(MultipartFile multipartFile) {
         User user = getById(SecurityUtils.getCurrentUserId());
         String oldPath = user.getAvatarPath();
-        File file = FileUtils.upload(multipartFile, properties.getPath().getAvatar());
+        File file = FileUtils.upload(multipartFile, fileProperties.getPath());
         user.setAvatarPath(Objects.requireNonNull(file).getPath());
         user.setAvatarName(file.getName());
         updateById(user);
