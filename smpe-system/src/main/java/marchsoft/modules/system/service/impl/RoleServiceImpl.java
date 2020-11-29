@@ -1,8 +1,9 @@
 package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -186,7 +187,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean save = save(role);
-        if (!save) {
+        if (! save) {
             log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名：" + roleInsertOrUpdateDTO.getName());
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
@@ -245,7 +246,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
         try {
             //维护角色部门中间表
-            if (!CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDeptIds())) {
+            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDeptIds())) {
                 //传入和原来的DeptIds都为null，不处理
                 if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDeptIds())) {
                     //传入deptIds为null
@@ -271,7 +272,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
 
         //维护角色菜单中间表
-        if (!CollectionUtils.isEqualCollection(menuIds, roleInsertOrUpdateDTO.getMenuIds())) {
+        if (! CollectionUtils.isEqualCollection(menuIds, roleInsertOrUpdateDTO.getMenuIds())) {
             Integer count = roleMapper.delRoleAtMenu(roleInsertOrUpdateDTO.getId());
             Integer count2 = roleMapper.saveRoleAtMenu(roleInsertOrUpdateDTO.getId(),
                     roleInsertOrUpdateDTO.getMenuIds());
@@ -284,7 +285,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean isUpdate = this.updateById(role);
-        if (!isUpdate) {
+        if (! isUpdate) {
             log.error("【修改角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
         }
 
@@ -306,8 +307,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         RoleBO roleBO = roleMapper.findById(roleId);
         Set<Long> oldMenuIds = roleBO.getMenus().stream().map(Menu::getId).collect(Collectors.toSet());
         //对比之前有修改再进行操作（先删除后修改）
-        // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils.isEqualCollection()
-        if (!CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
+        // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils
+        //  .isEqualCollection()
+        if (! CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
             Integer count = roleMapper.delRoleAtMenu(roleId);
             Integer count2 = roleMapper.saveRoleAtMenu(roleId, menuIds);
             if (count <= 0 && count2 <= 0) {
@@ -381,7 +383,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 //            delCaches(id, null);
 //        }
         boolean isDel = removeByIds(roleIds);
-        if (!isDel) {
+        if (! isDel) {
             log.error("【删除角色失败】角色id集合：" + roleIds);
             throw new BadRequestException("删除角色失败");
         }
@@ -444,12 +446,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     @Override
     public void download(List<RoleDTO> roleDTOList, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
+
         for (RoleDTO role : roleDTOList) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("角色名称", role.getName());
             map.put("角色级别", role.getLevel());
             map.put("描述", role.getDescription());
-            map.put("创建日期", role.getCreateTime() == null ? null : role.getCreateTime().toString());
+            map.put("创建日期", role.getCreateTime() == null ? null : LocalDateTimeUtil.format(role.getCreateTime(),
+                    DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);

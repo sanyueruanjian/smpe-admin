@@ -118,7 +118,7 @@ public class UserController {
     @ApiImplicitParam(name = "userInsertOrUpdateDTO", value = "新增用户参数列表")
     @PreAuthorize("@smpe.check('user:add')")
     public Result<Void> insertUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
-        if (checkLevel(userInsertOrUpdateDTO.getRoleIds())) {
+        if (checkLevel(userInsertOrUpdateDTO.getRoles())) {
             log.error("【新增用户失败】用户角色权限不足。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "。新增用户用户名：" + userInsertOrUpdateDTO.getUsername());
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
@@ -133,7 +133,7 @@ public class UserController {
     @ApiImplicitParam(name = "userInsertOrUpdateDTO", value = "修改用户参数列表")
     @PreAuthorize("@smpe.check('user:edit')")
     public Result<Void> updateUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
-        if (checkLevel(userInsertOrUpdateDTO.getRoleIds())) {
+        if (! checkLevel(userInsertOrUpdateDTO.getRoles())) {
             log.error("【修改用户失败】用户角色权限不足。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "。修改用户id：" + userInsertOrUpdateDTO.getId());
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
@@ -161,13 +161,13 @@ public class UserController {
     @Transactional(rollbackFor = Exception.class)
     public Result<Void> delete(@RequestBody Set<Long> ids) {
         for (Long id : ids) {
-            if (!checkLevel(id)) {
+            if (! checkLevel(id)) {
                 log.error("【删除用户失败】角色权限不足，不能删除。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "。预删除用户id：" + id);
                 throw new BadRequestException("角色权限不足，不能删除：" + userService.getById(id).getUsername());
             }
         }
         boolean isDel = userService.removeByIds(ids);
-        if (!isDel) {
+        if (! isDel) {
             log.error("【删除用户失败】角色权限不足，不能删除。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "。预删除用户id集合：" + ids);
             throw new BadRequestException("【删除用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
         }
@@ -182,7 +182,7 @@ public class UserController {
         //获取现在的密码
         User user = userService.getById(SecurityUtils.getCurrentUserId());
         String password = user.getPassword();
-        if (!passwordEncoder.matches(oldPass, password)) {
+        if (! passwordEncoder.matches(oldPass, password)) {
             log.error("修改密码失败】修改失败，旧密码错误" + "用户id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException("修改密码失败】修改失败，旧密码错误");
         }
@@ -191,7 +191,7 @@ public class UserController {
             throw new BadRequestException("修改密码失败】新密码不能与旧密码相同");
         }
         boolean isUpdate = userService.updateById(user.setPassword(passwordEncoder.encode(newPass)));
-        if (!isUpdate) {
+        if (! isUpdate) {
             log.error("【修改密码失败】" + "用户id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException("【修改密码失败");
         }
@@ -217,6 +217,8 @@ public class UserController {
         Integer currentLevel = Collections.min(roleService.findRoleByUserId(SecurityUtils
                 .getCurrentUserId()).stream().map(RoleSmallDTO::getLevel).collect(Collectors.toList()));
         Integer optLevel = roleService.findRoleMinLeave(roleIds);
+        System.out.println("currentLevel" + currentLevel);
+        System.out.println("optLevel:" + optLevel);
         //level 越小权限越大
         return currentLevel <= optLevel;
     }
@@ -236,6 +238,8 @@ public class UserController {
         Integer optLevel =
                 Collections.min(roleService.findRoleByUserId(userId).stream().map(RoleSmallDTO::getLevel).collect
                         (Collectors.toList()));
+        System.out.println("currentLevel" + currentLevel);
+        System.out.println("optLevel:" + optLevel);
         //level 越小权限越大
         return currentLevel <= optLevel;
     }

@@ -2,6 +2,7 @@ package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -129,12 +130,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         if (CollectionUtil.isEmpty(jobDtos)) {
             throw new BadRequestException(ResultEnum.FILE_DOWNLOAD_FAIL_NOT_DATA);
         }
+
         List<Map<String, Object>> list = new ArrayList<>();
         for (JobDTO jobDto : jobDtos) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("岗位名称", jobDto.getName());
             map.put("岗位状态", jobDto.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", jobDto.getCreateTime() == null ? null : jobDto.getCreateTime().toString());
+            map.put("创建日期", jobDto.getCreateTime() == null ? null : LocalDateTimeUtil.format(jobDto.getCreateTime(),
+                    DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -182,7 +185,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         Job old = getOne(queryWrapper);
-        if (old != null && !old.getId().equals(resources.getId())) {
+        if (old != null && ! old.getId().equals(resources.getId())) {
             throw new EntityExistException(Job.class, "name", resources.getName());
         }
         ValidationUtil.isNull(job.getId(), "Job", "id", resources.getId());
@@ -232,14 +235,14 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
      **/
     private LambdaQueryWrapper<Job> analysisQueryCriteria(JobQueryCriteria criteria) {
         LambdaQueryWrapper<Job> wrapper = new LambdaQueryWrapper<>();
-        if (!StrUtil.isBlank(criteria.getName())) {
+        if (! StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Job::getName, criteria.getName());
         }
-        if (!ObjectUtil.isNull(criteria.getEnabled())) {
+        if (! ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Job::getEnabled, criteria.getEnabled());
         }
-        if (!ObjectUtil.isNull(criteria.getStratTime())) {
+        if (! ObjectUtil.isNull(criteria.getStratTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Job::getCreateTime, criteria.getStratTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
