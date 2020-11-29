@@ -6,6 +6,7 @@ import marchsoft.modules.system.entity.Dept;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
@@ -17,6 +18,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
+@Component
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 public interface DeptMapper extends BaseMapper<Dept> {
 
@@ -29,7 +31,9 @@ public interface DeptMapper extends BaseMapper<Dept> {
      * @author Wangmingcan
      * @date 2020-08-23 15:42
      */
-    @Select("SELECT d.dept_id, d.pid, d.sub_count, d.name, d.dept_sort, d.enabled, d.create_by, d.update_by, d.create_time, d.update_time FROM sys_dept d, sys_roles_depts r WHERE d.dept_id = r.dept_id and r.role_id = #{roleId}")
+    @Select("SELECT d.dept_id, d.pid, d.sub_count, d.name, d.dept_sort, d.enabled, d.create_by, d.update_by, d" +
+            ".create_time, d.update_time FROM sys_dept d, sys_roles_depts r WHERE d.dept_id = r.dept_id AND r.role_id" +
+            " = #{roleId}")
     @Result(column = "dept_id", property = "id")
     Set<Dept> findByRoleId(Long roleId);
 }
