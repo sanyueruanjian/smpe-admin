@@ -202,7 +202,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
 
     /**
      * Description:
-     * 根据当前部门获取同级与上级数据(递归使用)
+     * 根据当前部门获取所有上级数据(递归使用找上级的上级)
+     * 如果是顶级部门就获取所有顶级部门
      * FIXME 递归使用 后续会优化
      *
      * @param deptDto: 当前部门
@@ -215,12 +216,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     public List<DeptDTO> getSuperior(DeptDTO deptDto, List<Dept> depts) {
         LambdaQueryWrapper<Dept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Dept::getEnabled, true);
+        queryWrapper.eq(Dept::getPid, deptDto.getPid());
         if (deptDto.getPid() == 0) {
-            queryWrapper.isNull(Dept::getPid);
             depts.addAll(list(queryWrapper));
             return deptMapStruct.toDto(depts);
         }
-        queryWrapper.eq(Dept::getPid, deptDto.getPid());
         depts.addAll(list(queryWrapper));
         return getSuperior(findById(deptDto.getPid()), depts);
     }
@@ -256,7 +256,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -432,15 +432,15 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     private LambdaQueryWrapper<Dept> analysisQueryCriteria(DeptQueryCriteria criteria) {
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
         // 查询父部门为pid
-        wrapper.eq(Dept::getPid, criteria.getPid());
-        if (! StrUtil.isBlank(criteria.getName())) {
+        wrapper.eq(Dept::getPid, criteria.getPid() == null ? 0 : criteria.getPid());
+        if (!StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());
         }
-        if (! ObjectUtil.isNull(criteria.getEnabled())) {
+        if (!ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Dept::getEnabled, criteria.getEnabled());
         }
-        if (! ObjectUtil.isNull(criteria.getStartTime())) {
+        if (!ObjectUtil.isNull(criteria.getStartTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Dept::getCreateTime, criteria.getStartTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
