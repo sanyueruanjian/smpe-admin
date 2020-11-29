@@ -32,17 +32,17 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
      */
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                       AccessDeniedException accessDeniedException) throws IOException {
         // 当用户在没有授权的情况下访问受保护的REST资源时，将调用此方法发送403响应（响应内层code403），默认到达后端的响应都为200
-        // response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
 
-        response.setStatus(200);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=utf-8");
-        // 同时返回自定义的信息
-        response.getWriter().write(JSON.toJSONString(Result.error(ResultEnum.IDENTITY_NOT_POW.getCode(),
-                accessDeniedException.getMessage())));
-        log.error("访问未经许可，请重新登录");
+//        response.setStatus(200);
+//        response.setCharacterEncoding("UTF-8");
+//        response.setContentType("application/json; charset=utf-8");
+//        // 同时返回自定义的信息
+//        response.getWriter().write(JSON.toJSONString(Result.error(ResultEnum.IDENTITY_NOT_POW.getCode(),
+//                accessDeniedException.getMessage())));
+//        log.error("访问未经许可，请重新登录");
     }
 }
 
