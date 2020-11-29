@@ -1,8 +1,6 @@
 package marchsoft.modules.system.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
@@ -74,29 +72,24 @@ public class User extends Model<User> {
     @ApiModelProperty(value = "状态：1启用、0禁用")
     private Boolean enabled;
 
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @ApiModelProperty(value = "更新着")
-    private String updateBy;
-
     @ApiModelProperty(value = "修改密码的时间")
     private LocalDateTime pwdResetTime;
 
+    @ApiModelProperty(value = "创建者")
+    @TableField(fill = FieldFill.INSERT)
+    private String createBy;
+
+    @ApiModelProperty(value = "更新者")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateBy;
+
     @ApiModelProperty(value = "创建日期")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "更新时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
-//    @TableField(exist = false)
-//    private Dept dept;
-//
-//    @TableField(exist = false)
-//    private Set<Role> roles;
-//
-//    @TableField(exist = false)
-//    private Set<Job> jobs;
 
     @Override
     protected Serializable pkVal() {

@@ -20,6 +20,13 @@ import java.util.Scanner;
  */
 public class MybatisPlusGenerator {
 
+    private final static String URL = "jdbc:log4jdbc:mysql://127.0.0" +
+            ".1:3306/smpe?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval" +
+            "=true";
+    private final static String DRIVER_NAME = "com.alibaba.druid.pool.DruidDataSource";
+    private final static String USERNAME = "root";
+    private final static String PASSWORD = "159357asd";
+
     public static void main(String[] args) {
         // 代表yes或者no
         final String no = "n";
@@ -54,16 +61,14 @@ public class MybatisPlusGenerator {
                 // 实体属性 Swagger2 注解
                 .setSwagger2(true);
 
+
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setDbType(DbType.MYSQL)
-                .setUrl(
-                        "jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false"
-                                + "&allowMultiQueries=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai"
-                                + "&rewriteBatchedStatements=true")
-                .setDriverName("com.mysql.jdbc.Driver")
-                .setUsername("root")
-                .setPassword("159357asd");
+                .setUrl(URL)
+                .setDriverName(DRIVER_NAME)
+                .setUsername(USERNAME)
+                .setPassword(PASSWORD);
 
         // 包配置
         PackageConfig pc = new PackageConfig();
@@ -85,9 +90,6 @@ public class MybatisPlusGenerator {
 
         // 如果模板引擎是 freemarker
         String templatePath = "/templates/mapper.xml.ftl";
-
-        // 如果模板引擎是 velocity
-        // String templatePath = "/templates/mapper.xml.vm";
 
         // 策略配置
         StrategyConfig strategy = new StrategyConfig();

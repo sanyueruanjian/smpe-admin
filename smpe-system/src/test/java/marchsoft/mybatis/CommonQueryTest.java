@@ -29,7 +29,7 @@ public class CommonQueryTest {
      */
     @Test
     public void testQueryDeptByCommon() {
-        
+
     }
 
 

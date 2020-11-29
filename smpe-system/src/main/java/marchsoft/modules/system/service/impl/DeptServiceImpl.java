@@ -21,7 +21,10 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
-import marchsoft.utils.*;
+import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
+import marchsoft.utils.SecurityUtils;
+import marchsoft.utils.ValidationUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,6 +203,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     /**
      * Description:
      * 根据当前部门获取所有上级数据(递归使用找上级的上级)
+     * 如果是顶级部门就获取所有顶级部门
      * FIXME 递归使用 后续会优化
      *
      * @param deptDto: 当前部门
@@ -371,7 +375,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (userService.count(userLambdaQueryWrapper) > 0) {
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
-        if (roleMapper.countByDepts(deptIds) > 0) {
+        if (roleMapper.countByDeptIds(deptIds) > 0) {
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }

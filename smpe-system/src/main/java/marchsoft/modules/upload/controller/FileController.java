@@ -77,15 +77,12 @@ public class FileController {
         response.setCharacterEncoding(request.getCharacterEncoding());
         response.setContentType(contentType);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
-        // modify @RenShiWei 2020/11/28 description:返回类型 ResponseEntity -> Result; 修改设置Header属性的策略
-
+        // todo @RenShiWei 2020/11/28 description:返回类型 ResponseEntity -> Result; 修改设置Header属性的策略，下载文件会失败
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
-
-//        return Result.success(resource);
     }
 
 }
