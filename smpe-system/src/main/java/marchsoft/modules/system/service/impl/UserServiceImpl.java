@@ -2,6 +2,8 @@ package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -183,19 +185,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (CollectionUtil.isEmpty(userDTOList)) {
             throw new BadRequestException(ResultEnum.FILE_DOWNLOAD_FAIL_NOT_DATA);
         }
+
+
         List<Map<String, Object>> list = new ArrayList<>();
         for (UserDTO userDTO : userDTOList) {
             List<String> roles = userDTO.getRoles().stream().map(RoleSmallDTO::getName).collect(Collectors.toList());
+            List<String> jobs = userDTO.getJobs().stream().map(JobSmallDTO::getName).collect(Collectors.toList());
+
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户名", userDTO.getUsername());
-            map.put("角色", roles);
+            map.put("角色", StringUtils.strip(roles.toString(), "[", "]"));
             map.put("部门", userDTO.getDept().getName());
-            map.put("岗位", userDTO.getJobs().stream().map(JobSmallDTO::getName).collect(Collectors.toList()));
+            map.put("岗位", StringUtils.strip(jobs.toString(), "[", "]"));
             map.put("邮箱", userDTO.getEmail());
             map.put("状态", userDTO.getEnabled() ? "启用" : "禁用");
             map.put("手机号码", userDTO.getPhone());
-            map.put("修改密码的时间", userDTO.getPwdResetTime() == null ? null : userDTO.getPwdResetTime().toString());
-            map.put("创建日期", userDTO.getCreateTime() == null ? null : userDTO.getCreateTime().toString());
+            map.put("修改密码的时间", userDTO.getPwdResetTime() == null ? null :
+                    LocalDateTimeUtil.format(userDTO.getPwdResetTime(), DatePattern.NORM_DATETIME_FORMATTER));
+            map.put("创建日期", userDTO.getCreateTime() == null ? null : LocalDateTimeUtil.format(userDTO.getCreateTime()
+                    , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -241,13 +249,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         //维护中间表
-        int count = userMapper.saveUserAtRole(user.getId(), userInsertOrUpdateDTO.getRoleIds());
+        int count = userMapper.saveUserAtRole(user.getId(), userInsertOrUpdateDTO.getRoles());
         if (count <= 0) {
             log.error("【新增用户失败】维护角色中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
 
-        count = userMapper.saveUserAtJob(user.getId(), userInsertOrUpdateDTO.getJobIds());
+        count = userMapper.saveUserAtJob(user.getId(), userInsertOrUpdateDTO.getJobs());
         if (count <= 0) {
             log.error("【新增用户失败】维护岗位中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
@@ -273,40 +281,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        //判断用户名不能重复
-        queryWrapper.eq(User::getUsername, userInsertOrUpdateDTO.getUsername());
-        // modify @RenShiWei 2020/11/24 description:list() ——> count()
-        if (this.count(queryWrapper) > 0) {
-            log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户用户名已存在：" + userInsertOrUpdateDTO.getUsername());
-            throw new BadRequestException(ResultEnum.USER_USERNAME_EXIST);
+
+        //如果用户名修改了
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getUsername()) && ! userInsertOrUpdateDTO.getUsername().equals(userBO.getUsername())) {
+            //判断用户名不能重复
+            queryWrapper.eq(User::getUsername, userInsertOrUpdateDTO.getUsername());
+            // modify @RenShiWei 2020/11/24 description:list() ——> count()
+            if (this.count(queryWrapper) > 0) {
+                log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户用户名已存在：" + userInsertOrUpdateDTO.getUsername());
+                throw new BadRequestException(ResultEnum.USER_USERNAME_EXIST);
+            }
         }
 
-        //判断邮箱不能重复
-        queryWrapper.clear();
-        queryWrapper.eq(User::getEmail, userInsertOrUpdateDTO.getEmail());
-        // modify @RenShiWei 2020/11/24 description:增加邮箱判断
-        if (this.count(queryWrapper) > 0) {
-            log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户邮箱已存在：" + userInsertOrUpdateDTO.getUsername());
-            throw new BadRequestException(ResultEnum.USER_EMAIL_EXIST);
+        //如果邮箱修改了
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getEmail()) && ! userInsertOrUpdateDTO.getEmail().equals(userBO.getEmail())) {
+            //判断邮箱不能重复
+            queryWrapper.clear();
+            queryWrapper.eq(User::getEmail, userInsertOrUpdateDTO.getEmail());
+            // modify @RenShiWei 2020/11/24 description:增加邮箱判断
+            if (this.count(queryWrapper) > 0) {
+                log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户邮箱已存在：" + userInsertOrUpdateDTO.getUsername());
+                throw new BadRequestException(ResultEnum.USER_EMAIL_EXIST);
+            }
         }
 
         //流操作，获取缓存中的当前用户的角色id集合和岗位id集合
         Set<Long> roleIds = userBO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         Set<Long> jobIds = userBO.getJobs().stream().map(Job::getId).collect(Collectors.toSet());
         //如果角色id集合、岗位id集合与原先不同，先删除再新增（即修改操作）
-        if (!  CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoleIds())) {
+        if (! CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
             Integer count = userMapper.delUserAtRole(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtRole(userInsertOrUpdateDTO.getId(),
-                    userInsertOrUpdateDTO.getRoleIds());
+                    userInsertOrUpdateDTO.getRoles());
             if (count <= 0 && count2 <= 0) {
                 log.error("【修改用户失败】维护角色中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
-        if (!  CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobIds())) {
+        if (! CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
             Integer count = userMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
-                    userInsertOrUpdateDTO.getJobIds());
+                    userInsertOrUpdateDTO.getJobs());
             if (count <= 0 && count2 <= 0) {
                 log.error("【修改用户失败】维护岗位中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);

@@ -57,13 +57,13 @@ public interface RoleMapper extends BaseMapper<Role> {
      * Date: 2020/11/26 14:46
      */
     @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
-            "FROM sys_role #{ew.customSqlSegment}")
+            "FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "role_id", property = "id"),
             @Result(column = "role_id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "dept_id", property = "depts",
+            @Result(column = "role_id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
@@ -85,7 +85,7 @@ public interface RoleMapper extends BaseMapper<Role> {
             @Result(column = "role_id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "dept_id", property = "depts",
+            @Result(column = "role_id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })

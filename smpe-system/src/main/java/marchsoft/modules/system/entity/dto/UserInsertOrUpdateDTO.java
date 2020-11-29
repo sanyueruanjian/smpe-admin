@@ -48,10 +48,10 @@ public class UserInsertOrUpdateDTO {
     private Boolean enabled;
 
     @ApiModelProperty(value = "岗位id集合")
-    private Set<Long> jobIds;
+    private Set<Long> jobs;
 
     @ApiModelProperty(value = "角色id集合")
-    private Set<Long> roleIds;
+    private Set<Long> roles;
 
 }
 

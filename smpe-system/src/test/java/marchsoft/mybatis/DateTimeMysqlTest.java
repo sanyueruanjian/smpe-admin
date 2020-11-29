@@ -1,7 +1,9 @@
 package marchsoft.mybatis;
 
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import marchsoft.modules.system.service.IDeptService;
+import marchsoft.utils.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,21 @@ public class DateTimeMysqlTest {
         System.out.println(LocalDateTimeUtil.of(milliSecond, ZoneOffset.of("+8")));
         long milli = LocalDateTimeUtil.toEpochMilli(LocalDateTimeUtil.of(milliSecond, ZoneOffset.of("+8")));
         System.out.println(milli);
+    }
+
+    /**
+     * 测试hutool的LocalDateTimeUtil的使用
+     */
+    @Test
+    public void testLocalDateTimeUtil() {
+        System.out.println(LocalDateTime.now());
+        String format = LocalDateTimeUtil.format(LocalDateTime.now(), DatePattern.NORM_DATETIME_FORMATTER);
+        System.out.println(format);
+    }
+
+    @Test
+    public void testStrUtil() {
+        System.out.println(StringUtils.strip("[1,2,3]", "[", "]"));
     }
 
 }
