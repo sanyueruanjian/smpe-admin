@@ -40,7 +40,10 @@ public class DeptDTO extends BaseDTO implements Serializable {
 
     private Integer deptSort;
 
-    @JsonInclude(value= JsonInclude.Include.NON_NULL)
+    /**
+     * 如果为空此字段不返回
+     */
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private List<DeptDTO> children;
 
     private Long pid;
