@@ -177,15 +177,26 @@ public interface RoleMapper extends BaseMapper<Role> {
     })
     Set<RoleBO> findWithMenuByUserId(Long userId);
 
-    @Select("select count(1) from sys_role r, sys_roles_depts d where " +
-            "r.role_id = d.role_id and d.dept_id in (${deptIds})")
-    int countByDepts(String deptIds);
+    @Select("<script>" +
+            "select count(1) from sys_role r, sys_roles_depts d where " +
+            "r.role_id = d.role_id and d.dept_id in " +
+            "<foreach collection='deptIds' item='item' index='index' open='(' separator=',' close=')'> " +
+            "#{item}" +
+            "</foreach>" +
+            "</script>")
+    int countByDepts(@Param("deptIds") Set<Long> deptIds);
 
 
-    @Select("SELECT r.* FROM sys_role r, sys_roles_menus m WHERE " +
-            "r.role_id = m.role_id AND m.menu_id in (${menuIds})")
+    @Select("<script>" +
+            "SELECT r.* FROM sys_role r, sys_roles_menus m WHERE " +
+            "r.role_id = m.role_id AND m.menu_id in " +
+            "<foreach collection='menuIds' item='item' index='index' open='(' separator=',' close=')'> " +
+            "#{item}" +
+            "</foreach>" +
+            "</script>"
+    )
     @Result(column = "role_id", property = "id")
-    List<Role> findInMenuId(String menuIds);
+    List<Role> findInMenuId(@Param("menuIds") Set<Long> menuIds);
 
     @Delete("delete from sys_roles_menus where menu_id = ${id}")
     void untiedMenu(Long id);
