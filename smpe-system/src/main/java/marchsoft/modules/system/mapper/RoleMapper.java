@@ -184,38 +184,30 @@ public interface RoleMapper extends BaseMapper<Role> {
     })
     Set<RoleBO> findWithMenuByUserId(Long userId);
 
-    /**
-     * description: 判断角色与部门是否存在关联
-     *
-     * @param deptIds 部门id集合
-     * @return /
-     * @author RenShiWei
-     * Date: 2020/11/28 16:53
-     */
-    @Select({"<script> " +
-            "SELECT count(1) FROM sys_role r, sys_roles_depts d WHERE " +
-            "r.role_id = d.role_id AND d.dept_id IN" +
+    // MODIFY  description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
+
+    @Select("<script>" +
+            "SELECT COUNT(1) FROM sys_role r, sys_roles_depts d WHERE " +
+            "r.role_id = d.role_id AND d.dept_id IN " +
             "<foreach collection='deptIds' item='item' index='index' open='(' separator=',' close=')'> " +
             "#{item}" +
             "</foreach>" +
-            "</script>"
-    })
+            "</script>")
     int countByDeptIds(@Param("deptIds") Set<Long> deptIds);
 
-    /**
-     * description:根据菜单id集合查询角色信息集合
-     *
-     * @param menuIds 菜单id集合
-     * @return 角色信息集合
-     * @author RenShiWei
-     * Date: 2020/11/28 16:56
-     */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
-            ".update_time " +
-            "FROM sys_role r, sys_roles_menus m WHERE " +
-            "r.role_id = m.role_id AND m.menu_id in (${menuIds})")
+    // MODIFY description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
+
+    @Select("<script>" +
+            "SELECT r.* FROM sys_role r, sys_roles_menus m WHERE " +
+            "r.role_id = m.role_id AND m.menu_id IN " +
+            "<foreach collection='menuIds' item='item' index='index' open='(' separator=',' close=')'> " +
+            "#{item}" +
+            "</foreach>" +
+            "</script>"
+    )
     @Result(column = "role_id", property = "id")
-    List<Role> findInMenuIds(String menuIds);
+    List<Role> findInMenuId(@Param("menuIds") Set<Long> menuIds);
+
 
     /**
      * description:根据菜单id删除角色菜单中间表一条数据
