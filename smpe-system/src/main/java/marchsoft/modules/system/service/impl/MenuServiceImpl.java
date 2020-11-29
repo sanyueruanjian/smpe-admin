@@ -334,18 +334,19 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     }
 
     private void updateSubCnt(Long menuId) {
-        if (menuId != null) {
+        if (!menuId.equals(0L)) {
             LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Menu::getPid, menuId);
             int count = this.count(queryWrapper);
             LambdaUpdateWrapper<Menu> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Menu::getSubCount, count).eq(Menu::getId, menuId);
-            boolean idUpdate = this.update(updateWrapper);
-            if (!idUpdate) {
-                log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menuId);
-                throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
+            boolean isUpdate = this.update(updateWrapper);
+            System.out.println(isUpdate);
+            if (!isUpdate) {
+                log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 菜单Id：" + menuId);
+                throw new BadRequestException("更新父节点菜单数目失败");
             }
-            log.info("【新增/修改菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增/修改菜单Id：" + menuId);
+            log.info("【更新父节点菜单数目成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 修改菜单Id：" + menuId);
         }
     }
 
@@ -461,14 +462,15 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Menu> menuSet) {
-        Set<Long> menuIds = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
-        this.removeByIds(menuIds);
+
         for (Menu menu : menuSet) {
             // 解绑菜单
             roleService.untiedMenu(menu.getId());
             // 更新父节点菜单数目
             updateSubCnt(menu.getPid());
         }
+        Set<Long> menuIds = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
+        this.removeByIds(menuIds);
     }
 
     /**
