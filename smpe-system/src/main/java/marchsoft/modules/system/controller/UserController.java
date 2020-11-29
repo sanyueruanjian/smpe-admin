@@ -118,7 +118,7 @@ public class UserController {
     @ApiImplicitParam(name = "userInsertOrUpdateDTO", value = "新增用户参数列表")
     @PreAuthorize("@smpe.check('user:add')")
     public Result<Void> insertUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
-        if (checkLevel(userInsertOrUpdateDTO.getRoles())) {
+        if (! checkLevel(userInsertOrUpdateDTO.getRoles())) {
             log.error("【新增用户失败】用户角色权限不足。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "。新增用户用户名：" + userInsertOrUpdateDTO.getUsername());
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
