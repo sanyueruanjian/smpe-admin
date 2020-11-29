@@ -1,6 +1,8 @@
 package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -17,11 +19,13 @@ import marchsoft.modules.system.entity.dto.RoleSmallDTO;
 import marchsoft.modules.system.entity.vo.MenuMetaVo;
 import marchsoft.modules.system.entity.vo.MenuVo;
 import marchsoft.modules.system.mapper.MenuMapper;
-import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IMenuService;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.MenuMapStruct;
-import marchsoft.utils.*;
+import marchsoft.utils.FileUtils;
+import marchsoft.utils.SecurityUtils;
+import marchsoft.utils.StringUtils;
+import marchsoft.utils.ValidationUtil;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,7 +169,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             map.put("外链菜单", menuDTO.getIFrame() ? "是" : "否");
             map.put("菜单可见", menuDTO.getHidden() ? "否" : "是");
             map.put("是否缓存", menuDTO.getCache() ? "是" : "否");
-            map.put("创建日期", DateUtil.toDate(menuDTO.getCreateTime()));
+            map.put("创建日期", menuDTO.getCreateTime() == null ? null :
+                    LocalDateTimeUtil.format(menuDTO.getCreateTime(), DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -198,7 +203,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             }
         }
         if (trees.size() == 0) {
-            trees = menuDtos.stream().filter(s -> !ids.contains(s.getId())).collect(Collectors.toList());
+            trees = menuDtos.stream().filter(s -> ! ids.contains(s.getId())).collect(Collectors.toList());
         }
         return trees;
     }
@@ -224,15 +229,15 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                         menuVo.setPath(menuDTO.getPid().equals(0L) ? "/" + menuDTO.getPath() : menuDTO.getPath());
                         menuVo.setHidden(menuDTO.getHidden());
                         // 如果不是外链
-                        if (!menuDTO.getIFrame()) {
+                        if (! menuDTO.getIFrame()) {
                             if (menuDTO.getPid().equals(0L)) {
                                 menuVo.setComponent(StrUtil.isEmpty(menuDTO.getComponent()) ? "Layout" :
                                         menuDTO.getComponent());
-                            } else if (!StrUtil.isEmpty(menuDTO.getComponent())) {
+                            } else if (! StrUtil.isEmpty(menuDTO.getComponent())) {
                                 menuVo.setComponent(menuDTO.getComponent());
                             }
                         }
-                        menuVo.setMeta(new MenuMetaVo(menuDTO.getTitle(), menuDTO.getIcon(), !menuDTO.getCache()));
+                        menuVo.setMeta(new MenuMetaVo(menuDTO.getTitle(), menuDTO.getIcon(), ! menuDTO.getCache()));
                         if (menuDtoList != null && menuDtoList.size() != 0) {
                             menuVo.setAlwaysShow(true);
                             menuVo.setRedirect("noredirect");
@@ -242,7 +247,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                             MenuVo menuVo1 = new MenuVo();
                             menuVo1.setMeta(menuVo.getMeta());
                             // 非外链
-                            if (!menuDTO.getIFrame()) {
+                            if (! menuDTO.getIFrame()) {
                                 menuVo1.setPath("index");
                                 menuVo1.setName(menuVo.getName());
                                 menuVo1.setComponent(menuVo.getComponent());
@@ -316,13 +321,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
 //        }
         if (menu.getIFrame()) {
             String http = "http://", https = "https://";
-            if (!(menu.getPath().toLowerCase().startsWith(http) || menu.getPath().toLowerCase().startsWith(https))) {
+            if (! (menu.getPath().toLowerCase().startsWith(http) || menu.getPath().toLowerCase().startsWith(https))) {
                 log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "外链必须以http://或者https://开头:" + menu.getIFrame());
                 throw new BadRequestException("外链必须以http://或者https://开头");
             }
         }
         boolean insert = menu.insert();
-        if (!insert) {
+        if (! insert) {
             log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
@@ -340,11 +345,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             int count = this.count(queryWrapper);
             LambdaUpdateWrapper<Menu> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Menu::getSubCount, count).eq(Menu::getId, menuId);
-            boolean isUpdate = this.update(updateWrapper);
-            System.out.println(isUpdate);
-            if (!isUpdate) {
-                log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 菜单Id：" + menuId);
-                throw new BadRequestException("更新父节点菜单数目失败");
+            boolean idUpdate = this.update(updateWrapper);
+            if (! idUpdate) {
+                log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menuId);
+                throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
             }
             log.info("【更新父节点菜单数目成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 修改菜单Id：" + menuId);
         }
@@ -372,7 +376,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         ValidationUtil.isNull(menu.getId(), "Permission", "id", resources.getId());
         if (resources.getIFrame()) {
             String http = "http://", https = "https://";
-            if (!(resources.getPath().toLowerCase().startsWith(http) || resources.getPath().toLowerCase().startsWith(https))) {
+            if (! (resources.getPath().toLowerCase().startsWith(http) || resources.getPath().toLowerCase().startsWith(https))) {
                 log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "外链必须以http://或者https://开头:" + menu.getIFrame());
                 throw new BadRequestException("外链必须以http://或者https://开头");
             }
@@ -381,7 +385,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Menu::getTitle, resources.getTitle());
         Menu menu1 = getOne(queryWrapper);
-        if (menu1 != null && !menu1.getId().equals(menu.getId())) {
+        if (menu1 != null && ! menu1.getId().equals(menu.getId())) {
             log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "该菜单标题已存在：" + menu.getTitle());
             throw new BadRequestException("菜单标题已存在");
         }
@@ -390,7 +394,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             LambdaQueryWrapper<Menu> nameQuery = new LambdaQueryWrapper<>();
             nameQuery.eq(Menu::getName, resources.getName());
             menu1 = getOne(nameQuery);
-            if (menu1 != null && !menu1.getId().equals(menu.getId())) {
+            if (menu1 != null && ! menu1.getId().equals(menu.getId())) {
                 log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "该菜单组件名称已存在：" + menu.getName());
                 throw new BadRequestException("组件名称已存在");
             }

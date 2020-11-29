@@ -15,6 +15,7 @@
  */
 package marchsoft.modules.system.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import marchsoft.base.BaseDTO;
@@ -39,6 +40,10 @@ public class DeptDTO extends BaseDTO implements Serializable {
 
     private Integer deptSort;
 
+    /**
+     * 如果为空此字段不返回
+     */
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private List<DeptDTO> children;
 
     private Long pid;

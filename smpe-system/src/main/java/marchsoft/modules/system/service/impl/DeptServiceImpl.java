@@ -2,6 +2,8 @@ package marchsoft.modules.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -145,11 +147,13 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public void download(List<DeptDTO> deptDtos, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
+        ;
         for (DeptDTO deptDto : deptDtos) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("部门名称", deptDto.getName());
             map.put("部门状态", deptDto.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", deptDto.getCreateTime() == null ? null : deptDto.getCreateTime().toString());
+            map.put("创建日期", deptDto.getCreateTime() == null ? null : LocalDateTimeUtil.format(deptDto.getCreateTime()
+                    , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -256,7 +260,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -433,14 +437,14 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
         // 查询父部门为pid
         wrapper.eq(Dept::getPid, criteria.getPid() == null ? 0 : criteria.getPid());
-        if (!StrUtil.isBlank(criteria.getName())) {
+        if (! StrUtil.isBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());
         }
-        if (!ObjectUtil.isNull(criteria.getEnabled())) {
+        if (! ObjectUtil.isNull(criteria.getEnabled())) {
             wrapper.eq(Dept::getEnabled, criteria.getEnabled());
         }
-        if (!ObjectUtil.isNull(criteria.getStartTime())) {
+        if (! ObjectUtil.isNull(criteria.getStartTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Dept::getCreateTime, criteria.getStartTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());

@@ -1,5 +1,6 @@
 package marchsoft.mybatis;
 
+import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.service.IDeptService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,9 @@ public class CommonQueryTest {
     @Autowired
     private IDeptService deptService;
 
+    @Autowired
+    private DeptMapper deptMapper;
+
     /**
      * description: 测试使用通用查询，查询dept信息
      * result: QueryHelp可以正常使用，但是里边有很多警告，需要进行优化  2020/11/19 @RenShiWei
@@ -29,7 +33,7 @@ public class CommonQueryTest {
      */
     @Test
     public void testQueryDeptByCommon() {
-
+        System.out.println(deptMapper.findByRoleId(9L));
     }
 
 
