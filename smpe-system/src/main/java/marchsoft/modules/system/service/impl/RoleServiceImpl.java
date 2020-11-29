@@ -472,7 +472,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     @Override
     public List<Role> findInMenuId(List<Long> menuIds) {
-        return roleMapper.findInMenuId(StringUtils.strip(menuIds.toString(), "[]"));
+        return roleMapper.findInMenuId(new HashSet<>(menuIds));
     }
 
     @Override
