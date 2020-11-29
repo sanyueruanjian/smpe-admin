@@ -60,7 +60,6 @@ public class SecurityUtils {
      */
     public static Long getCurrentUserId() {
         UserDetails userDetails = getCurrentUser();
-        System.out.println("userDetails:" + userDetails);
         return JSON.parseObject(JSON.toJSONString(userDetails)).getJSONObject("user").getObject("id", Long.class);
     }
 

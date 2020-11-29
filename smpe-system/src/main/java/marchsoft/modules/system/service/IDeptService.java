@@ -109,6 +109,7 @@ public interface IDeptService extends IService<Dept> {
     /**
      * Description:
      * 根据当前部门获取所有上级数据(递归使用找上级的上级)
+     * 如果是顶级部门就获取所有顶级部门
      * FIXME 递归使用 后续会优化
      *
      * @param DeptDTO: 当前部门

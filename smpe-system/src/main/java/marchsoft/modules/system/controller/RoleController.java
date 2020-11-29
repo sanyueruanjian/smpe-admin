@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import marchsoft.bean.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.modules.system.entity.dto.RoleDTO;
-import marchsoft.modules.system.entity.dto.RoleInsertOrUpdateDTO;
-import marchsoft.modules.system.entity.dto.RoleQueryCriteria;
-import marchsoft.modules.system.entity.dto.RoleSmallDTO;
+import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.response.Result;
 import marchsoft.utils.SecurityUtils;
@@ -117,10 +114,10 @@ public class RoleController {
     })
     @PutMapping(value = "/menu")
     @PreAuthorize("@smpe.check('roles:edit')")
-    public Result<Void> updateMenu(Long id, @RequestBody Set<Long> menus) {
-        RoleDTO role = roleService.findById(id);
+    public Result<Void> updateMenu(@RequestBody RoleMenuUpdateDTO roleMenuUpdateDTO) {
+        RoleDTO role = roleService.findById(roleMenuUpdateDTO.getId());
         getLevels(role.getLevel());
-        roleService.updateMenu(id, menus);
+        roleService.updateMenu(roleMenuUpdateDTO.getId(),roleMenuUpdateDTO.getMenus());
         return Result.success();
     }
 
