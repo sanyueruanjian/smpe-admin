@@ -1,4 +1,4 @@
-package marchsoft.config.thread;
+package marchsoft.config.bean;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

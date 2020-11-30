@@ -2,7 +2,7 @@ package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.Job;
 import marchsoft.modules.system.entity.dto.JobDTO;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;

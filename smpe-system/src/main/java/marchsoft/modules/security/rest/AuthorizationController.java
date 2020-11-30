@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import marchsoft.annotation.rest.AnonymousDeleteMapping;
 import marchsoft.annotation.rest.AnonymousGetMapping;
 import marchsoft.annotation.rest.AnonymousPostMapping;
-import marchsoft.bean.RsaProperties;
+import marchsoft.config.bean.RsaProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.security.config.bean.LoginCodeEnum;

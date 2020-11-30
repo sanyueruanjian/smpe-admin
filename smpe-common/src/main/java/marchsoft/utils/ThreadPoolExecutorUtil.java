@@ -1,6 +1,6 @@
 package marchsoft.utils;
 
-import marchsoft.config.thread.AsyncTaskProperties;
+import marchsoft.config.bean.AsyncTaskProperties;
 import marchsoft.config.thread.TheadFactoryName;
 
 import java.util.concurrent.ArrayBlockingQueue;

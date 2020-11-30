@@ -2,7 +2,7 @@ package marchsoft.modules.upload.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.FileProperties;
+import marchsoft.config.bean.FileProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.upload.service.FileService;

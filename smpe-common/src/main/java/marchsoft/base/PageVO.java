@@ -1,4 +1,4 @@
-package marchsoft.bean;
+package marchsoft.base;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;

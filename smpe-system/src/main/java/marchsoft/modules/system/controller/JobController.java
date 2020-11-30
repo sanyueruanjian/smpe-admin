@@ -5,7 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Job;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;

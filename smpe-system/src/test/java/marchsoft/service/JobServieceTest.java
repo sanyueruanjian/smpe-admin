@@ -1,6 +1,6 @@
 package marchsoft.service;
 
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.Job;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;
 import marchsoft.modules.system.service.IJobService;

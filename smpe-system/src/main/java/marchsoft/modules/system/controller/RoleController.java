@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.dto.*;
@@ -117,7 +117,7 @@ public class RoleController {
     public Result<Void> updateMenu(@RequestBody RoleMenuUpdateDTO roleMenuUpdateDTO) {
         RoleDTO role = roleService.findById(roleMenuUpdateDTO.getId());
         getLevels(role.getLevel());
-        roleService.updateMenu(roleMenuUpdateDTO.getId(),roleMenuUpdateDTO.getMenus());
+        roleService.updateMenu(roleMenuUpdateDTO.getId(), roleMenuUpdateDTO.getMenus());
         return Result.success();
     }
 

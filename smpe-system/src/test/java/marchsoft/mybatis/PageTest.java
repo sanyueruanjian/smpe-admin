@@ -3,7 +3,7 @@ package marchsoft.mybatis;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.service.IUserService;
 import org.junit.Test;

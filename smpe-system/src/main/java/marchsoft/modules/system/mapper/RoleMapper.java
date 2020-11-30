@@ -67,7 +67,7 @@ public interface RoleMapper extends BaseMapper<Role> {
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
-    List<RoleBO> findRoleDetailAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
+    List<RoleBO> findRoleDetailAllPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
 
     /**
      * description:查询所有角色详细信息（包含角色对应的菜单、部门、用户），可分页
@@ -89,7 +89,8 @@ public interface RoleMapper extends BaseMapper<Role> {
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
-    IPage<RoleBO> findRoleDetailAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper, IPage<Role> page);
+    IPage<RoleBO> findRoleDetailAllPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper,
+                                        IPage<Role> page);
 
     /**
      * description:通过用户id查询角色（只有角色信息）

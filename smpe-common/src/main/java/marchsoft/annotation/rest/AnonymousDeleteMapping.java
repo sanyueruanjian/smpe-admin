@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.lang.annotation.*;
 
 /**
- * 支持匿名访问  DeleteMapping
+ * description:支持匿名访问  DeleteMapping
  *
- * @author liaojinlong
+ * @author jiaoqianjin
+ * Date: 2020/11/20 16:37
  */
 @AnonymousAccess
 @Target(ElementType.METHOD)

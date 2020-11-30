@@ -3,7 +3,7 @@ package marchsoft.modules.security.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.security.service.OnlineUserService;
 import marchsoft.utils.EncryptUtils;
 import org.springframework.http.HttpStatus;

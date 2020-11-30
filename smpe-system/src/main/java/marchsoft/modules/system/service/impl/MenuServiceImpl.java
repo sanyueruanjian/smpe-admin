@@ -25,7 +25,6 @@ import marchsoft.modules.system.service.mapstruct.MenuMapStruct;
 import marchsoft.utils.FileUtils;
 import marchsoft.utils.SecurityUtils;
 import marchsoft.utils.StringUtils;
-import marchsoft.utils.ValidationUtil;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -372,7 +371,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             log.error("【修改菜单信息失败】此菜单不存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改菜单Id：" + resources.getId());
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
-        ValidationUtil.isNull(menu.getId(), "Permission", "id", resources.getId());
         if (resources.getIFrame()) {
             String http = "http://", https = "https://";
             if (! (resources.getPath().toLowerCase().startsWith(http) || resources.getPath().toLowerCase().startsWith(https))) {

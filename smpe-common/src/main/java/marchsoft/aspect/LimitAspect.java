@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**
- * TODO 探究用法
+ * 限流切面
  *
  * @author jiaoqianjin
  * Date: 2020/11/16 14:35

@@ -1,7 +1,6 @@
 package marchsoft.modules.system.entity.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import marchsoft.base.BaseDTO;
 
 import java.io.Serializable;
@@ -9,11 +8,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Zheng Jie
- * @date 2018-12-17
+ * description
+ *
+ * @author RenShiWei
+ * Date: 2020/11/24 17:26
  */
-@Getter
-@Setter
+@Data
 public class MenuDTO extends BaseDTO implements Serializable {
 
     private Long id;

@@ -6,8 +6,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * @author Zheng Jie
- * 公共查询类
+ * description
+ *
+ * @author RenShiWei
+ * Date: 2020/11/24 17:26
  */
 @Data
 public class MenuQueryCriteria {

@@ -18,11 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * description:mybatis查询辅助工具
+ * description:mybatis查询辅助工具（暂时禁用）
  *
  * @author RenShiWei
  * Date: 2020/11/19 9:20
  */
+@Deprecated
 @Slf4j
 public class QueryHelp {
 
@@ -210,6 +211,7 @@ public class QueryHelp {
     }
 }
 
+@Deprecated
 @Data
 @AllArgsConstructor
 class SmpeField {
