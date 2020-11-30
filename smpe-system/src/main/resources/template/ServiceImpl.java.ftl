@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 /**
 * <p>
-    * ${table.comment!} 服务实现类
-    * </p>
+* ${table.comment!} 服务实现类
+* </p>
 *
 * @author ${author}
 * @since ${date}
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}> implements ${table.serviceName} {
 
-private final ${table.mapperName} ${table.entityPath}Mapper;
+    private final ${table.mapperName} ${table.entityPath}Mapper;
 
 }
 
