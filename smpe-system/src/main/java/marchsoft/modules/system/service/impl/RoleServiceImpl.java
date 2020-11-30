@@ -29,7 +29,6 @@ import marchsoft.modules.system.service.mapstruct.RoleSmallMapStruct;
 import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -123,11 +122,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     public IPage<RoleDTO> findRoleDetailAll(RoleQueryCriteria criteria, IPage<Role> page) {
         IPage<RoleBO> rolePage = roleMapper.findRoleDetailAll(buildUserQueryCriteria(criteria), page);
         List<RoleDTO> roleDtoList = roleMapStruct.toDto(rolePage.getRecords());
-        IPage<RoleDTO> roleDtoPage = PageUtil.toMapStructPage(rolePage, roleDtoList);
-        if (CollectionUtil.isEmpty(roleDtoPage.getRecords())) {
-            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
-        }
-        return roleDtoPage;
+        return PageUtil.toMapStructPage(rolePage, roleDtoList);
     }
 
     /**
@@ -399,7 +394,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      * @date 2020-08-23 16:06
      */
     @Override
-    @Cacheable(key = "'auth:' + #p0.id")
     public List<GrantedAuthority> mapToGrantedAuthorities(UserDTO user) {
         Set<String> permissions = new HashSet<>();
         // 如果是管理员直接返回

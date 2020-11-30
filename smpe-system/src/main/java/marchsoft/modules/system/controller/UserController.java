@@ -71,11 +71,6 @@ public class UserController {
         userService.download(userDTOList, response);
     }
 
-    /**
-     * TODO:@RenShiWei 2020/11/24 description: 确定直接使用SecurityUtils那当前用户的数据权限是否有问题
-     * List<Long> dataScopeList = dataService.getDeptIds(userStructMapper.toDto(userService.findByName(SecurityUtils
-     * .getCurrentUsername())));
-     */
     @ApiOperation(value = "查询用户详细信息集合", notes = "根据各种条件查询，可分页 \n author：RenShiWei 2020/11/24")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "criteria", value = "条件"),

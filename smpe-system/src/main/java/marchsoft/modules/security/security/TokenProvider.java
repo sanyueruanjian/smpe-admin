@@ -117,8 +117,6 @@ public class TokenProvider implements InitializingBean {
     Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
-        // fix bug: 当前用户如果没有任何权限时，在输入用户名后，刷新验证码会抛IllegalArgumentException
-        // TODO:@RenShiWei 2020/11/18 description:需要测试这个问题是否还存在
         Object authoritiesStr = claims.get(AUTHORITIES_KEY);
         Collection<? extends GrantedAuthority> authorities =
                 ObjectUtil.isNotEmpty(authoritiesStr) ?

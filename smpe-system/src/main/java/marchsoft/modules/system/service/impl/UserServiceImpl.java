@@ -76,7 +76,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         Long id = userMapper.findUserIdByName(username);
         if (ObjectUtil.isEmpty(id)) {
             log.error("【查询用户id失败】用户名不存在。用户名：" + username);
-            throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
         return id;
     }
@@ -94,11 +93,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Transactional(rollbackFor = Exception.class)
     public UserBO findUserDetailById(Long id) {
         UserBO userBO = userMapper.findUserDetailById(id);
-        if (userBO == null) {
-            throw new EntityNotFoundException(User.class, "id", id.toString());
-        } else {
-            return userBO;
+        if (ObjectUtil.isNull(userBO)) {
+            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
+        return userBO;
     }
 
     /**
@@ -112,9 +110,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public List<UserDTO> queryUserDetailsList(UserQueryCriteria criteria) {
         List<UserBO> userList = userMapper.queryUserDetailsList(buildUserQueryCriteria(criteria));
-        if (CollectionUtil.isEmpty(userList)) {
-            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
-        }
         return userMapStruct.toDto(userList);
     }
 
@@ -133,12 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         IPage<UserBO> userPage = userMapper.queryUserDetailsListPage(buildUserQueryCriteria(criteria), page);
         System.out.println(userPage.getRecords());
         List<UserDTO> userDTOList = userMapStruct.toDto(userPage.getRecords());
-
-        IPage<UserDTO> userDtoPage = PageUtil.toMapStructPage(userPage, userDTOList);
-        if (CollectionUtil.isEmpty(userDtoPage.getRecords())) {
-            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
-        }
-        return userDtoPage;
+        return PageUtil.toMapStructPage(userPage, userDTOList);
     }
 
     /**
@@ -185,7 +175,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (CollectionUtil.isEmpty(userDTOList)) {
             throw new BadRequestException(ResultEnum.FILE_DOWNLOAD_FAIL_NOT_DATA);
         }
-
 
         List<Map<String, Object>> list = new ArrayList<>();
         for (UserDTO userDTO : userDTOList) {
