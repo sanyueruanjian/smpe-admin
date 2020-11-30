@@ -192,7 +192,7 @@ public class QueryHelp {
     }
 
     public static List<Field> getAllFields(Class<?> clazz) {
-//        @Todo 过滤无关字段
+        //需要过滤无关字段（暂时无用）
         List<Field> fields = null;
         if (clazz != null) {
             if (FIELD_CACHE.containsKey(clazz.getName())) {

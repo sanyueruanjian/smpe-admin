@@ -5,9 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * TODO 文件上传相关需要再次进行改造
+ * description:文件上传Properties
  *
- * @author Zheng Jie
+ * @author RenShiWei
+ * Date: 2020/11/30 13:06
  */
 @Data
 @Configuration

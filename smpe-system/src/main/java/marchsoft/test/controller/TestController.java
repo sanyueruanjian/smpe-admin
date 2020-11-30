@@ -70,32 +70,5 @@ public class TestController {
         return new ResponseEntity<>(jobDTOList, HttpStatus.OK);
     }
 
-    // modify @RenShiWei 2020/11/24 description:
-
-    // TODO:@RenShiWei 2020/11/24 description:
-
-    /*
-      TODO:@RenShiWei 2020/11/24 description:
-    */
-
-//    @ApiOperation("测试jwtUserDto转deptSmallDto")
-//    @GetMapping("/jwtUserMapStruct")
-//    @AnonymousAccess
-//    public ResponseEntity<Object> testJwtUserMapStruct() throws Exception {
-//        JwtUserDto jwtUerDto = (JwtUserDto) SecurityUtils.getCurrentUser();
-//        List<JwtUserDto> jwtUserDtoList = new ArrayList<>();
-//        jwtUserDtoList.add(jwtUerDto);
-//        jwtUserDtoList.add(jwtUerDto);
-//
-//        List<UserDto> userDtoList = jwtUserDtoMapStruct.toDto(jwtUserDtoList);
-//        System.out.println(userDtoList);
-//        System.out.println("--------------");
-//        List<UserDto> userDtos = new ArrayList<>();
-//        DeptSmallDto smallDto = new DeptSmallDto();
-//        BeanUtil.copyProperties(jwtUserDtoList, userDtos, true);
-//        System.out.println(userDtos);
-//        return new ResponseEntity<>(userDtos, HttpStatus.OK);
-//    }
-
 }
 

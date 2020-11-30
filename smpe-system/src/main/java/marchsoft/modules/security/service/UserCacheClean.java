@@ -29,6 +29,4 @@ public class UserCacheClean {
         }
     }
 
-    // TODO:@RenShiWei 2020/11/20 description:提供删除所有用户的缓存的方法（jwtUser）
-
 }

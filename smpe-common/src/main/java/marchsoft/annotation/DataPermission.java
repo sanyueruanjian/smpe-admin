@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * 应该是 @DataPermission(joinName = "dept", fieldName = "id")
  * </p>
  * <p>
- * TODO JPA的东西，是否能在Mybatis中可以使用
+ * 暂时没有使用
  *
  * @author jiaoqianjin
  * Date: 2020/11/16 14:35

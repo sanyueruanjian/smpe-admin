@@ -10,13 +10,10 @@ import marchsoft.bean.PageVO;
 import marchsoft.exception.BadRequestException;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 分页工具
- * TODO 后续需要进行优化处理
  *
  * @author RenShiWei
  * @date 2020-11-17
@@ -163,19 +160,6 @@ public class PageUtil extends cn.hutool.core.util.PageUtil {
         //因为数据类型不一致，重新set分页的数据
         targetPage.setRecords(targetList);
         return targetPage;
-    }
-
-    /**
-     * 自定义分页
-     * TODO:@RenShiWei 2020/11/22 description:这里天会删除，改为mp的分页处理
-     */
-    @Deprecated
-
-    public static Map<String, Object> toPage(Object object, Object totalElements) {
-        Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", object);
-        map.put("totalElements", totalElements);
-        return map;
     }
 
 }

@@ -127,7 +127,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             menuDtoQueryWrapper.between(Menu::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
         }
         List<Menu> menus = menuMapper.selectList(menuDtoQueryWrapper);
-        System.out.println(menus);
         return menuMapStruct.toDto(menus);
     }
 
@@ -339,7 +338,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     }
 
     private void updateSubCnt(Long menuId) {
-        if (!menuId.equals(0L)) {
+        if (! menuId.equals(0L)) {
             LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Menu::getPid, menuId);
             int count = this.count(queryWrapper);

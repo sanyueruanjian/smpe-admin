@@ -1,11 +1,10 @@
 package marchsoft.utils;
 
 /**
- * TODO 需要进行优化和改造
+ * description:关于缓存的Key集合
  *
- * @author: liaojinlong
- * @date: 2020/6/11 15:49
- * @apiNote: 关于缓存的Key集合
+ * @author RenShiWei
+ * Date: 2020/11/30 13:10
  */
 public interface CacheKey {
 
