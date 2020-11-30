@@ -347,9 +347,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             boolean idUpdate = this.update(updateWrapper);
             if (! idUpdate) {
                 log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menuId);
-                throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
+                throw new BadRequestException("更新父节点菜单数目失败");
             }
-            log.info("【更新父节点菜单数目成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 修改菜单Id：" + menuId);
+            log.info("【更新父节点菜单数目成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 菜单Id：" + menuId);
         }
     }
 
