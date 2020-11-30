@@ -28,10 +28,6 @@ public class DeptQueryCriteria {
      */
     private Long pid;
 
-    /**
-     * 父部门id是否为空
-     */
-//    private Boolean pidIsNull;
 
     /**
      * 开始时间
