@@ -2,6 +2,7 @@ package marchsoft.modules.system.controller;
 
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,7 @@ public class DeptController {
     @PreAuthorize("@smpe.check('user:list','dept:list')")
     public Result<Object> query(DeptQueryCriteria criteria, PageVO pageVO) {
         log.info("【查询部门 /api/dept】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 部门查询条件 criteria= " + criteria + "; 分页pageVo= " + pageVO);
-        pageVO.setSize(- 1);
+        pageVO.setSize(-1);
         return Result.success(deptService.queryAll(criteria, pageVO, true));
     }
 
@@ -76,7 +77,8 @@ public class DeptController {
     @PreAuthorize("@smpe.check('dept:add')")
     public Result<Object> create(@RequestBody Dept dept) {
         log.info("【新增部门 /api/dept】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 新增部门实体= " + dept);
-        if (dept.getId() != null) {
+        if (ObjectUtil.isNotNull(dept.getId())) {
+            log.error("【新增部门失败】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 新增部门实体默认id应该为空，dept：" + dept);
             throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
         deptService.create(dept);
