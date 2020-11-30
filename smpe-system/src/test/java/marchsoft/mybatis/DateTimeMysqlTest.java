@@ -2,11 +2,9 @@ package marchsoft.mybatis;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
-import marchsoft.modules.system.service.IDeptService;
 import marchsoft.utils.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -22,9 +20,6 @@ import java.time.ZoneOffset;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DateTimeMysqlTest {
-
-    @Autowired
-    private IDeptService deptService;
 
     @Test
     public void testUpdateTime() {

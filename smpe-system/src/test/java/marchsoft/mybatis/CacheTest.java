@@ -26,15 +26,17 @@ public class CacheTest {
 
     @Autowired
     private UserMapper userMapper;
+
     /**
      * 功能描述：测试server层和mapper层查询是否走mapper二级缓存
+     *
      * @author Jiaoqianjin
      * Date: 2020/11/25 15:55
      */
     @Test
     public void cacheTest() {
-        QueryWrapper<User> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("user_id",1L);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", 1L);
         System.out.println(userService.getOne(queryWrapper));
         System.out.println("------------------------");
         System.out.println(userMapper.selectById(1L));
@@ -46,7 +48,7 @@ public class CacheTest {
     public void testPage() {
         IPage<User> userIPage = new Page<>();
         userIPage.setCurrent(1);
-        userIPage.setSize(-1);
+        userIPage.setSize(- 1);
         userService.page(userIPage);
     }
 }

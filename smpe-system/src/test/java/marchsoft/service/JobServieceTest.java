@@ -15,9 +15,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 
 /**
- * @Description
- * @ClassName JobServieceTest
- * @Author liuxingxing
+ * Description
+ * ClassName JobServieceTest
+ * Author liuxingxing
+ *
  * @date 2020.11.24 15:39
  */
 @RunWith(SpringJUnit4ClassRunner.class)
