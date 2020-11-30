@@ -128,7 +128,6 @@ public interface IMenuService extends IService<Menu> {
      * 功能描述：修改菜单
      *
      * @param menu 菜单数据
-     * @return
      * @author Jiaoqianjin
      * Date: 2020/11/26 17:27
      */

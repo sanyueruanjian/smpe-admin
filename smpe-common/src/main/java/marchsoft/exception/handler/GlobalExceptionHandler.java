@@ -3,8 +3,6 @@ package marchsoft.exception.handler;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.exception.EntityExistException;
-import marchsoft.exception.EntityNotFoundException;
 import marchsoft.response.Result;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,24 +42,6 @@ public class GlobalExceptionHandler {
     public Result<Void> badRequestException(BadRequestException e) {
         log.error(e.getMessage(), e);
         return Result.error(e.getStatus(), e.getMessage());
-    }
-
-    /**
-     * 处理 EntityExist异常
-     */
-    @ExceptionHandler(value = EntityExistException.class)
-    public Result<Void> entityExistException(EntityExistException e) {
-        log.error(e.getMessage(), e);
-        return Result.error(ResultEnum.ENTITY_FILED_EXIT.getCode(), e.getMessage());
-    }
-
-    /**
-     * 处理 EntityNotFound异常
-     */
-    @ExceptionHandler(value = EntityNotFoundException.class)
-    public Result<Void> entityNotFoundException(EntityNotFoundException e) {
-        log.error(e.getMessage(), e);
-        return Result.error(ResultEnum.ENTITY_FILED_NOT_EXIT.getCode(), e.getMessage());
     }
 
     /**

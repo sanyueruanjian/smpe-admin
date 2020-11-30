@@ -1,8 +1,9 @@
 package marchsoft.modules.security.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
+import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.exception.EntityNotFoundException;
 import marchsoft.modules.security.config.bean.LoginProperties;
 import marchsoft.modules.security.service.dto.JwtUserDto;
 import marchsoft.modules.system.entity.bo.UserBO;
@@ -60,20 +61,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         if (searchDb) {
             UserDTO userDto;
-            try {
-                UserBO user = userService.findUserDetailById(Long.parseLong(username));
-                userDto = userMapStruct.toDto(user);
-                if (user.getIsAdmin()) {
-                    userDto.setIsAdmin(true);
-                }
-            } catch (EntityNotFoundException e) {
-                throw new EntityNotFoundException(UserDTO.class, null, null);
+            UserBO user = userService.findUserDetailById(Long.parseLong(username));
+            userDto = userMapStruct.toDto(user);
+            if (user.getIsAdmin()) {
+                userDto.setIsAdmin(true);
             }
-            if (userDto == null) {
-                throw new EntityNotFoundException(UserDTO.class, null, null);
+            if (ObjectUtil.isEmpty(userDto)) {
+                throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
             } else {
                 if (! userDto.getEnabled()) {
-                    throw new BadRequestException("账号未激活！");
+                    throw new BadRequestException(ResultEnum.COUNT_NOT_ENABLE);
                 }
                 jwtUserDto = new JwtUserDto(
                         userDto,

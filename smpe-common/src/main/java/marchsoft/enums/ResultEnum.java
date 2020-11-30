@@ -66,6 +66,7 @@ public enum ResultEnum {
     PARAMS_NOT_NULL(1017, "请求参数不能为空"),
     LOGIN_INFO_NOT_FOUND(1018, "找不到当前登录的信息"),
     LOGIN_USER_INFO_NOT_FOUND(1019, "未能查到当前登录用户的信息"),
+    COUNT_NOT_ENABLE(1020, "账号未激活"),
 
     /*
         1051-1070 短信业务相关

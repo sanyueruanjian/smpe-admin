@@ -1,9 +1,7 @@
 package marchsoft.modules.system.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import marchsoft.base.BaseDTO;
 
 import java.io.Serializable;
@@ -11,12 +9,12 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * @author Zheng Jie
- * @date 2018-11-23
+ * description
+ *
+ * @author RenShiWei
+ * Date: 2020/11/24 17:26
  */
-@Getter
-@Setter
-@ToString
+@Data
 public class UserDTO extends BaseDTO implements Serializable {
 
     private static final long serialVersionUID = 3061801174078023207L;

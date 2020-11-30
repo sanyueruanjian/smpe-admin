@@ -11,7 +11,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
+import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.User;
@@ -26,7 +27,6 @@ import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
 import marchsoft.utils.FileUtils;
 import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.ValidationUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,10 +86,9 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public DeptDTO findById(Long id) {
         Dept dept = deptMapper.selectById(id);
-        if (dept == null) {
-            dept = new Dept();
+        if (ObjectUtil.isEmpty(dept)) {
+            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
-        ValidationUtil.isNull(dept.getId(), "Dept", "id", id);
         return deptMapStruct.toDto(dept);
     }
 
@@ -210,46 +209,46 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * 如果是顶级部门就获取所有顶级部门
      * FIXME 递归使用 后续会优化
      *
-     * @param deptDto: 当前部门
+     * @param deptDTO: 当前部门
      * @param depts:   递归缓存数组（返回的结果）
      * @return java.util.List<marchsoft.modules.system.entity.dto.DeptDTO>
      * @author liuxingxing
      * @date 2020/11/26 15:45
      **/
     @Override
-    public List<DeptDTO> getSuperior(DeptDTO deptDto, List<Dept> depts) {
+    public List<DeptDTO> getSuperior(DeptDTO deptDTO, List<Dept> depts) {
         LambdaQueryWrapper<Dept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Dept::getEnabled, true);
-        queryWrapper.eq(Dept::getPid, deptDto.getPid());
-        if (deptDto.getPid() == 0) {
+        queryWrapper.eq(Dept::getPid, deptDTO.getPid());
+        if (deptDTO.getPid() == 0) {
             depts.addAll(list(queryWrapper));
             return deptMapStruct.toDto(depts);
         }
         depts.addAll(list(queryWrapper));
-        return getSuperior(findById(deptDto.getPid()), depts);
+        return getSuperior(findById(deptDTO.getPid()), depts);
     }
 
     /**
      * Description:
      * 根据传入的部门集合构建部门树形结构
      *
-     * @param deptDtos: 部门集合
+     * @param deptDTOList: 部门集合
      * @return java.lang.Object
      * @author liuxingxing
      * @date 2020/11/26 15:45
      **/
     @Override
-    public List<DeptDTO> buildTree(List<DeptDTO> deptDtos) {
+    public List<DeptDTO> buildTree(List<DeptDTO> deptDTOList) {
         Set<DeptDTO> trees = new LinkedHashSet<>();
         Set<DeptDTO> depts = new LinkedHashSet<>();
-        List<String> deptNames = deptDtos.stream().map(DeptDTO::getName).collect(Collectors.toList());
+        List<String> deptNames = deptDTOList.stream().map(DeptDTO::getName).collect(Collectors.toList());
         boolean isChild;
-        for (DeptDTO deptDto : deptDtos) {
+        for (DeptDTO deptDto : deptDTOList) {
             isChild = false;
             if (deptDto.getPid() == 0) {
                 trees.add(deptDto);
             }
-            for (DeptDTO it : deptDtos) {
+            for (DeptDTO it : deptDTOList) {
                 if (it.getPid() != 0 && deptDto.getId().equals(it.getPid())) {
                     isChild = true;
                     if (deptDto.getChildren() == null) {
@@ -268,7 +267,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (CollectionUtil.isEmpty(trees)) {
             trees = depts;
         }
-        return CollectionUtil.isEmpty(trees) ? deptDtos : new ArrayList<>(trees);
+        return CollectionUtil.isEmpty(trees) ? deptDTOList : new ArrayList<>(trees);
     }
 
     /**
@@ -325,10 +324,9 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             throw new BadRequestException("上级不能为自己");
         }
         Dept dept = getById(resources.getId());
-        if (dept == null) {
-            dept = new Dept();
+        if (ObjectUtil.isEmpty(dept)) {
+            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
-        ValidationUtil.isNull(dept.getId(), "Dept", "id", resources.getId());
         resources.setId(dept.getId());
         resources.insertOrUpdate();
         // 更新父节点中子节点数目
@@ -343,37 +341,37 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * 获取待删除的部门（递归调用）
      * FIXME 递归获取删除部门列表（包含本部门和本部门的子部门）
      *
-     * @param menuList: 要删除部门
-     * @param deptDtoS:
+     * @param menuList:    要删除部门
+     * @param deptDTOList:
      * @return java.util.Set<marchsoft.modules.system.entity.dto.DeptDTO>
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
     @Override
-    public Set<DeptDTO> getDeleteDepts(List<Dept> menuList, Set<DeptDTO> deptDtoS) {
+    public Set<DeptDTO> getDeleteDepts(List<Dept> menuList, Set<DeptDTO> deptDTOList) {
         for (Dept dept : menuList) {
-            deptDtoS.add(deptMapStruct.toDto(dept));
+            deptDTOList.add(deptMapStruct.toDto(dept));
             LambdaQueryWrapper<Dept> deptLambdaQueryWrapper = new LambdaQueryWrapper<>();
             deptLambdaQueryWrapper.eq(Dept::getPid, dept.getId());
             List<Dept> depts = list(deptLambdaQueryWrapper);
             if (depts != null && depts.size() != 0) {
-                getDeleteDepts(depts, deptDtoS);
+                getDeleteDepts(depts, deptDTOList);
             }
         }
-        return deptDtoS;
+        return deptDTOList;
     }
 
     /**
      * Description:
      * 验证是否被角色或用户关联
      *
-     * @param deptDtoS:
+     * @param deptDTOList:
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
     @Override
-    public void verification(Set<DeptDTO> deptDtoS) {
-        Set<Long> deptIds = deptDtoS.stream().map(DeptDTO::getId).collect(Collectors.toSet());
+    public void verification(Set<DeptDTO> deptDTOList) {
+        Set<Long> deptIds = deptDTOList.stream().map(DeptDTO::getId).collect(Collectors.toSet());
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.in(User::getDeptId, deptIds);
         if (userService.count(userLambdaQueryWrapper) > 0) {
@@ -388,14 +386,14 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * Description:
      * 删除部门实体
      *
-     * @param deptDtoS: 删除的部门
+     * @param deptDTOList: 删除的部门
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteDept(Set<DeptDTO> deptDtoS) {
-        for (DeptDTO deptDTO : deptDtoS) {
+    public void deleteDept(Set<DeptDTO> deptDTOList) {
+        for (DeptDTO deptDTO : deptDTOList) {
             // 清理缓存
             this.removeById(deptDTO.getId());
             updateSubCnt(deptDTO.getPid());

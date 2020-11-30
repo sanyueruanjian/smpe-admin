@@ -6,11 +6,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 辅助查询（暂时禁止使用）
+ *
  * @author jiaoqianjin
  * Date: 2020/11/16 14:35
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface Query {
 
     // 基本对象的属性名

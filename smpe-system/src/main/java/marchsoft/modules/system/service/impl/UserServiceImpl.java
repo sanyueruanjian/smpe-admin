@@ -12,10 +12,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.FileProperties;
+import marchsoft.config.bean.FileProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.exception.EntityNotFoundException;
 import marchsoft.modules.security.service.OnlineUserService;
 import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.Job;
@@ -354,7 +353,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         String username = user.getUsername();
         if (ObjectUtil.isNull(user)) {
-            throw new EntityNotFoundException(User.class, "username", username);
+            throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
         flushCache(username);
         Map<String, String> map = new HashMap<>(1);

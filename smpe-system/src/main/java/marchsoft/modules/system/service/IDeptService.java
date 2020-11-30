@@ -2,7 +2,7 @@ package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
@@ -112,24 +112,24 @@ public interface IDeptService extends IService<Dept> {
      * 如果是顶级部门就获取所有顶级部门
      * FIXME 递归使用 后续会优化
      *
-     * @param DeptDTO: 当前部门
+     * @param deptDTO: 当前部门
      * @param depts:   递归缓存数组（返回的结果）
      * @return java.util.List<marchsoft.modules.system.entity.dto.DeptDTO>
      * @author liuxingxing
      * @date 2020/11/26 15:45
      **/
-    List<DeptDTO> getSuperior(DeptDTO DeptDTO, List<Dept> depts);
+    List<DeptDTO> getSuperior(DeptDTO deptDTO, List<Dept> depts);
 
     /**
      * Description:
      * 根据传入的部门集合构建部门树形结构
      *
-     * @param DeptDTOs: 部门集合
+     * @param deptDTOList: 部门集合
      * @return java.lang.Object
      * @author liuxingxing
      * @date 2020/11/26 15:45
      **/
-    List<DeptDTO> buildTree(List<DeptDTO> DeptDTOs);
+    List<DeptDTO> buildTree(List<DeptDTO> deptDTOList);
 
 
     /**
@@ -157,32 +157,32 @@ public interface IDeptService extends IService<Dept> {
      * 获取待删除的部门（递归调用）
      * FIXME 递归获取删除部门列表（包含本部门和本部门的子部门）
      *
-     * @param deptList: 要删除部门
-     * @param DeptDTOs:
+     * @param deptList:    要删除部门
+     * @param deptDTOList:
      * @return java.util.Set<marchsoft.modules.system.entity.dto.DeptDTO>
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
-    Set<DeptDTO> getDeleteDepts(List<Dept> deptList, Set<DeptDTO> DeptDTOs);
+    Set<DeptDTO> getDeleteDepts(List<Dept> deptList, Set<DeptDTO> deptDTOList);
 
     /**
      * Description:
      * 验证是否被角色或用户关联
      *
-     * @param DeptDTOs:
+     * @param deptDTOList:
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
-    void verification(Set<DeptDTO> DeptDTOs);
+    void verification(Set<DeptDTO> deptDTOList);
 
     /**
      * Description:
      * 删除部门实体
      *
-     * @param DeptDTOs: 删除的部门
+     * @param deptDTOList: 删除的部门
      * @author liuxingxing
      * @date 2020/11/26 15:46
      **/
-    void deleteDept(Set<DeptDTO> DeptDTOs);
+    void deleteDept(Set<DeptDTO> deptDTOList);
 
 }

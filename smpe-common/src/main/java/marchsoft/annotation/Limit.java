@@ -8,6 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 限流注解，用于接口方法上
+ *
  * @author jiaoqianjin
  * Date: 2020/11/16 14:35
  */

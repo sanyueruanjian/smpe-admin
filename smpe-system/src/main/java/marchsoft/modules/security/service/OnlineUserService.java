@@ -3,7 +3,7 @@ package marchsoft.modules.security.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.modules.security.config.bean.SecurityProperties;
 import marchsoft.modules.security.service.dto.JwtUserDto;
 import marchsoft.modules.security.service.dto.OnlineUserDto;

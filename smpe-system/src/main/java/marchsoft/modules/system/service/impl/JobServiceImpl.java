@@ -10,10 +10,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.exception.EntityExistException;
 import marchsoft.modules.system.entity.Job;
 import marchsoft.modules.system.entity.dto.JobDTO;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;
@@ -21,7 +20,10 @@ import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.modules.system.service.mapstruct.JobMapStruct;
-import marchsoft.utils.*;
+import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
+import marchsoft.utils.SecurityUtils;
+import marchsoft.utils.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,10 +75,9 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     @Override
     public JobDTO findById(Long id) {
         Job job = getById(id);
-        if (job == null) {
-            job = new Job();
+        if (ObjectUtil.isEmpty(job)) {
+            throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
-        ValidationUtil.isNull(job.getId(), "Job", "id", id);
         return jobMapStruct.toDto(job);
     }
 
@@ -157,7 +158,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         if (count(queryWrapper) > 0) {
-            throw new EntityExistException(Job.class, "name", resources.getName());
+            throw new BadRequestException("已存在：" + resources.getName());
         }
         LocalDateTime now = LocalDateTimeUtil.now();
         String username = SecurityUtils.getCurrentUsername();
@@ -179,16 +180,15 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     @Transactional(rollbackFor = Exception.class)
     public void update(Job resources) {
         Job job = getById(resources.getId());
-        if (job == null) {
-            job = new Job();
+        if (ObjectUtil.isEmpty(job)) {
+            throw new BadRequestException("修改失败，当前数据id不存在");
         }
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         Job old = getOne(queryWrapper);
         if (old != null && ! old.getId().equals(resources.getId())) {
-            throw new EntityExistException(Job.class, "name", resources.getName());
+            throw new BadRequestException("已存在：" + resources.getName());
         }
-        ValidationUtil.isNull(job.getId(), "Job", "id", resources.getId());
         resources.setUpdateBy(SecurityUtils.getCurrentUsername()).setUpdateTime(LocalDateTimeUtil.now());
         updateById(resources);
     }

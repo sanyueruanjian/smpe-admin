@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.lang.annotation.*;
 
 /**
- * Annotation for mapping HTTP {@code POST} requests onto specific handler
- * methods.
  * 支持匿名访问 PostMapping
  *
  * @author jiaoqianjin

@@ -18,7 +18,6 @@ import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.Role;
-import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.mapper.RoleMapper;
@@ -93,7 +92,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         //默认按照角色的级别升序
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByAsc(Role::getLevel);
-        return roleMapStruct.toDto(roleMapper.findRoleDetailAll(wrapper));
+        return roleMapStruct.toDto(roleMapper.findRoleDetailAllPage(wrapper));
     }
 
     /**
@@ -106,7 +105,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      */
     @Override
     public List<RoleDTO> findRoleDetailAll(RoleQueryCriteria criteria) {
-        return roleMapStruct.toDto(roleMapper.findRoleDetailAll(buildUserQueryCriteria(criteria)));
+        return roleMapStruct.toDto(roleMapper.findRoleDetailAllPage(buildUserQueryCriteria(criteria)));
     }
 
     /**
@@ -120,7 +119,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      */
     @Override
     public IPage<RoleDTO> findRoleDetailAll(RoleQueryCriteria criteria, IPage<Role> page) {
-        IPage<RoleBO> rolePage = roleMapper.findRoleDetailAll(buildUserQueryCriteria(criteria), page);
+        IPage<RoleBO> rolePage = roleMapper.findRoleDetailAllPage(buildUserQueryCriteria(criteria), page);
         List<RoleDTO> roleDtoList = roleMapStruct.toDto(rolePage.getRecords());
         return PageUtil.toMapStructPage(rolePage, roleDtoList);
     }
@@ -453,12 +452,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         FileUtils.downloadExcel(list, response);
     }
 
-    @Override
-    public Set<Role> set(Long id) {
-        LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Role::getId, id);
-        return new HashSet<>(this.list(queryWrapper));
-    }
 
     /**
      * description:根据用户id获取角色信息（含菜单）
@@ -473,46 +466,22 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         return roleMapper.findWithMenuByUserId(userId);
     }
 
-    @Override
-    public List<Role> findInMenuIds(List<Long> menuIds) {
-        return roleMapper.findInMenuId(new HashSet<>(menuIds));
-
-    }
-
+    /**
+     * description:解绑菜单
+     *
+     * @param menuId 菜单id
+     * @author RenShiWei
+     * Date: 2020/11/30 17:35
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void untiedMenu(Long id) {
+    public void untiedMenu(Long menuId) {
         // 更新菜单
-        roleMapper.untiedMenu(id);
-    }
-
-    @Override
-    public Integer findByRoles(Set<Role> roles) {
-        Set<RoleDTO> roleDtoSet = new HashSet<>();
-        for (Role role : roles) {
-            roleDtoSet.add(findById(role.getId()));
+        Integer count = roleMapper.untiedMenu(menuId);
+        if (count <= 0) {
+            log.error("【角色解绑菜单失败】菜单id：" + menuId);
+            throw new BadRequestException("角色解绑菜单失败");
         }
-        return Collections.min(roleDtoSet.stream().map(RoleDTO::getLevel).collect(Collectors.toList()));
     }
 
-    /**
-     * @param id
-     * @param users
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-28 20:13
-     * @description
-     */
-    public void delCaches(Long id, List<User> users) {
-        users = CollectionUtil.isEmpty(users) ? userMapper.findByRoleId(id) : users;
-        if (CollectionUtil.isNotEmpty(users)) {
-            users.forEach(item -> userCacheClean.cleanUserCache(item.getUsername()));
-            Set<Long> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
-            redisUtils.delByKeys(CacheKey.DATE_USER, userIds);
-            redisUtils.delByKeys(CacheKey.MENU_USER, userIds);
-            redisUtils.delByKeys(CacheKey.ROLE_AUTH, userIds);
-            redisUtils.del(CacheKey.ROLE_ID + id);
-        }
-
-    }
 }

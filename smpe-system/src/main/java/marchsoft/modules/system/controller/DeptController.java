@@ -6,7 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.dto.DeptDTO;
@@ -52,7 +52,7 @@ public class DeptController {
     @PreAuthorize("@smpe.check('user:list','dept:list')")
     public Result<Object> query(DeptQueryCriteria criteria, PageVO pageVO) {
         log.info("【查询部门 /api/dept】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 部门查询条件 criteria= " + criteria + "; 分页pageVo= " + pageVO);
-        pageVO.setSize(-1);
+        pageVO.setSize(- 1);
         return Result.success(deptService.queryAll(criteria, pageVO, true));
     }
 

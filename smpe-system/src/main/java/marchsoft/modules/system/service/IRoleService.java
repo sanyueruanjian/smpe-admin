@@ -172,45 +172,14 @@ public interface IRoleService extends IService<Role> {
      */
     Set<RoleBO> findWithMenuByUserId(Long userId);
 
-    /*
-        ----------------------------------------
-     */
-
     /**
-     * @param menuIds
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-26 14:29
-     * @description 根据菜单Id查询
+     * description:解绑菜单
+     *
+     * @param menuId 菜单id
+     * @author RenShiWei
+     * Date: 2020/11/30 17:35
      */
-    List<Role> findInMenuIds(List<Long> menuIds);
-
-    /**
-     * @param id
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-23 16:21
-     * @description
-     */
-    Set<Role> set(Long id);
-
-    /**
-     * @param id
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-26 14:51
-     * @description 解绑菜单
-     */
-    void untiedMenu(Long id);
-
-    /**
-     * @param roles
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-27 09:44
-     * @description 根据角色查询角色级别
-     */
-    Integer findByRoles(Set<Role> roles);
+    void untiedMenu(Long menuId);
 
 
 }

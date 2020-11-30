@@ -1,5 +1,6 @@
-package marchsoft.bean;
+package marchsoft.config.bean;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author RenShiWei
  * Date: 2020/11/16 21:07
  */
-//@Data
+@Data
 @Component
 public class RsaProperties {
 

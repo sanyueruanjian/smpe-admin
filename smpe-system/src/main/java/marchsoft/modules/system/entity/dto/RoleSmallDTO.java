@@ -5,8 +5,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @author Zheng Jie
- * @date 2018-11-23
+ * description
+ *
+ * @author RenShiWei
+ * Date: 2020/11/24 17:26
  */
 @Data
 public class RoleSmallDTO implements Serializable {

@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import marchsoft.bean.PageVO;
+import marchsoft.base.PageVO;
 import marchsoft.exception.BadRequestException;
 
 import java.util.ArrayList;

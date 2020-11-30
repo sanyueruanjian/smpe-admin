@@ -9,7 +9,6 @@ import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,7 +35,6 @@ public class DataServiceImpl implements IDataService {
      * description 用户角色改变时需清理缓存
      */
     @Override
-    @Cacheable(key = "'user:' + #p0.id")
     public List<Long> getDataScopeWithDeptIds(UserDTO user) {
         // 用于存储部门id
         Set<Long> deptIds = new HashSet<>();
@@ -64,7 +62,7 @@ public class DataServiceImpl implements IDataService {
 
     /**
      * description 获取数据权限ID
-     *
+     * <p>
      * todo 感觉获取子部门是有问题的 @liuixingxing 2020-11-27
      *
      * @param deptIds 部门ID

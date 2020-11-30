@@ -10,12 +10,13 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * @author https://www.cnblogs.com/nihaorz/p/10690643.html
- * @description Rsa 工具类，公钥私钥生成，加解密
- * @date 2020-05-18
- **/
+ * description:Rsa加密解密工具类
+ * TODO:@RenShiWei 2020/11/30 description:后续需要优化
+ *
+ * @author RenShiWei
+ * Date: 2020/11/30 17:08
+ */
 public class RsaUtils {
-
     private static final String SRC = "123456";
 
     public static void main(String[] args) throws Exception {

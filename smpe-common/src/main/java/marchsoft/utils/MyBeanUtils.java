@@ -13,9 +13,11 @@ import java.util.stream.Collectors;
 
 /**
  * bean工具
+ * 可使用HuTool的BeanUtil进行属性拷贝
  *
  * @author RenShiWei
  */
+@Deprecated
 public class MyBeanUtils {
 
     /**
@@ -36,10 +38,6 @@ public class MyBeanUtils {
             if (srcValue == null) {
                 emptyNames.add(pd.getName());
             }
-            //属性值为0，拷贝的为null
-//            else if (isZero(srcValue)) {
-//                emptyNames.add(pd.getName());
-//            }
         }
 
         String[] result = new String[emptyNames.size()];
