@@ -1,6 +1,7 @@
 package marchsoft.modules.system.controller;
 
 
+import cn.hutool.core.util.ObjectUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,8 @@ public class JobController {
     @PreAuthorize("@smpe.check('job:add')")
     public Result<Object> create(@RequestBody Job resources) {
         log.info("【新增岗位 /api/job】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 岗位名称= " + resources.getName());
-        if (resources.getId() != null) {
+        if (ObjectUtil.isNotNull(resources.getId())) {
+            log.error("【新增岗位失败】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 新增岗位实体默认id应该为空，Job：" + resources);
             throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
         jobService.create(resources);
