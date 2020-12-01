@@ -11,7 +11,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.PageVO;
+import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
@@ -44,6 +46,7 @@ import java.util.stream.Collectors;
  * @author Wangmingcan
  * @since 2020-08-17
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements IDeptService {
@@ -51,10 +54,6 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     private final DeptMapper deptMapper;
 
     private final DeptMapStruct deptMapStruct;
-
-    private final RedisUtils redisUtils;
-
-    private final UserMapper userMapper;
 
     private final IUserService userService;
 
@@ -87,6 +86,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     public DeptDTO findById(Long id) {
         Dept dept = deptMapper.selectById(id);
         if (ObjectUtil.isEmpty(dept)) {
+            log.error("【查找部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查找目标id：" + id);
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         return deptMapStruct.toDto(dept);
@@ -121,7 +121,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     public List<Long> getDeptChildren(List<Dept> deptList) {
         List<Long> list = new ArrayList<>();
         deptList.forEach(dept -> {
-                    if (dept != null && dept.getEnabled()) {
+                    if (ObjectUtil.isNotNull(dept) && dept.getEnabled()) {
                         list.add(dept.getId());
                         List<Dept> depts = this.findByPid(dept.getId());   //源码中是新的sql
                         if (depts.size() != 0) {
@@ -151,7 +151,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("部门名称", deptDto.getName());
             map.put("部门状态", deptDto.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", deptDto.getCreateTime() == null ? null : LocalDateTimeUtil.format(deptDto.getCreateTime()
+            map.put("创建日期", ObjectUtil.isNull(deptDto.getCreateTime()) ? null : LocalDateTimeUtil.format(deptDto.getCreateTime()
                     , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
@@ -190,11 +190,12 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public IPage<DeptDTO> queryAll(DeptQueryCriteria criteria, PageVO pageVO, Boolean isQuery) {
         String dataScopeType = SecurityUtils.getDataScopeType();
-//        if (isQuery) {
-//            if (dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
-//                criteria.setPidIsNull(true);
-//            }
-//        }
+        if (isQuery) {
+            if (dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+                // FIXME 源码是基于全部权限 @author: liuxingxing @date: 2020-11-30
+                criteria.setPid(0L);
+            }
+        }
         IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
         IPage<DeptDTO> returnPage = pageVO.buildPage();
@@ -251,7 +252,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             for (DeptDTO it : deptDTOList) {
                 if (it.getPid() != 0 && deptDto.getId().equals(it.getPid())) {
                     isChild = true;
-                    if (deptDto.getChildren() == null) {
+                    if (ObjectUtil.isNull(deptDto.getChildren())) {
                         deptDto.setChildren(new ArrayList<>());
                     }
                     deptDto.getChildren().add(it);
@@ -259,7 +260,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -282,9 +283,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Transactional(rollbackFor = Exception.class)
     public void create(Dept dept) {
         save(dept.setSubCount(0));
-        //清理缓存
         updateSubCnt(ObjectUtil.isNull(dept.getPid()) ? 0 : dept.getPid());
-//        redisUtils.del("dept::pid" + (dept.getPid() == null ? 0 : dept.getPid()));
+        log.info("【添加部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t新增目标dept：" + dept);
     }
 
     /**
@@ -303,6 +303,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             LambdaUpdateWrapper<Dept> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Dept::getSubCount, count).eq(Dept::getId, deptId);
             update(updateWrapper);
+            log.info("【修改部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标dept：" + deptId + "的子部门数量：" + count);
         }
     }
 
@@ -321,10 +322,12 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         Long oldPid = findById(resources.getId()).getPid();
         Long newPid = resources.getPid();
         if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
+            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标的上级不能是自己,当前dept：" + resources);
             throw new BadRequestException("上级不能为自己");
         }
         Dept dept = getById(resources.getId());
         if (ObjectUtil.isEmpty(dept)) {
+            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标不存在,修改目标deptId：" + resources.getId());
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         resources.setId(dept.getId());
@@ -332,8 +335,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         // 更新父节点中子节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
-        //清理缓存
-//        delCaches(resources.getId(), oldPid, newPid);
+        log.info("【修改部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标dept：" + resources);
     }
 
     /**
@@ -354,7 +356,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             LambdaQueryWrapper<Dept> deptLambdaQueryWrapper = new LambdaQueryWrapper<>();
             deptLambdaQueryWrapper.eq(Dept::getPid, dept.getId());
             List<Dept> depts = list(deptLambdaQueryWrapper);
-            if (depts != null && depts.size() != 0) {
+            if (ObjectUtil.isNotNull(depts) && depts.size() != 0) {
                 getDeleteDepts(depts, deptDTOList);
             }
         }
@@ -375,9 +377,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.in(User::getDeptId, deptIds);
         if (userService.count(userLambdaQueryWrapper) > 0) {
+            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() + "存在用户关联，请解除后再试！");
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
         if (roleMapper.countByDeptIds(deptIds) > 0) {
+            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() + "存在角色关联，请解除后再试！");
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }
@@ -394,32 +398,10 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Transactional(rollbackFor = Exception.class)
     public void deleteDept(Set<DeptDTO> deptDTOList) {
         for (DeptDTO deptDTO : deptDTOList) {
-            // 清理缓存
             this.removeById(deptDTO.getId());
             updateSubCnt(deptDTO.getPid());
-            //  delCaches(DeptDTO.getId(), DeptDTO.getPid(), null);
+            log.info("【删除部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t删除目标dept：" + deptDTO);
         }
-    }
-
-
-    /**
-     * Description:
-     * 清理缓存
-     *
-     * @param id:
-     * @param oldPid:
-     * @param newPid:
-     * @author liuxingxing
-     * @date 2020/11/27 12:58
-     **/
-    @Deprecated
-    public void delCaches(Long id, Long oldPid, Long newPid) {
-        List<User> users = userMapper.findByDeptRoleId(id);
-        // 删除数据权限
-        redisUtils.delByKeys("data::user:", users.stream().map(User::getId).collect(Collectors.toSet()));
-        redisUtils.del("dept::id:" + id);
-        redisUtils.del("dept::pid:" + (oldPid == null ? 0 : oldPid));
-        redisUtils.del("dept::pid:" + (newPid == null ? 0 : newPid));
     }
 
     /**
@@ -434,15 +416,15 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     private LambdaQueryWrapper<Dept> analysisQueryCriteria(DeptQueryCriteria criteria) {
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
         // 查询父部门为pid
-        wrapper.eq(Dept::getPid, criteria.getPid() == null ? 0 : criteria.getPid());
-        if (! StrUtil.isBlank(criteria.getName())) {
+        wrapper.eq(Dept::getPid, ObjectUtil.isNull(criteria.getPid()) ? 0 : criteria.getPid());
+        if (StrUtil.isNotBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());
         }
-        if (! ObjectUtil.isNull(criteria.getEnabled())) {
+        if (ObjectUtil.isNotNull(criteria.getEnabled())) {
             wrapper.eq(Dept::getEnabled, criteria.getEnabled());
         }
-        if (! ObjectUtil.isNull(criteria.getStartTime())) {
+        if (ObjectUtil.isNotNull(criteria.getStartTime())) {
             // 如果只有开始时间，就默认从开始到现在
             wrapper.between(Dept::getCreateTime, criteria.getStartTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
