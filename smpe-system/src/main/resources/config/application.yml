@@ -25,3 +25,5 @@ mybatis-plus:
     map-underscore-to-camel-case: true  # 开启驼峰命名规则的转换
     call-setters-on-nulls: true # 如果查询结果中包含空值的列，则 mybatis 在映射的时候，不会映射这个字段
     cache-enabled: false # 开启二级缓存
+logging:
+  config: classpath:logback/logback-${spring.profiles.active}.xml
