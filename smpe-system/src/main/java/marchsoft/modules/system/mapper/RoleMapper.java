@@ -218,6 +218,6 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/28 16:57
      */
-    @Delete("DELETE FROM sys_roles_menus WHERE menu_id = ${id}")
+    @Delete("DELETE FROM sys_roles_menus WHERE menu_id = ${menuId}")
     Integer untiedMenu(Long menuId);
 }

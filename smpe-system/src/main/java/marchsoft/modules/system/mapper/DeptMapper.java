@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import marchsoft.config.MybatisRedisCache;
 import marchsoft.modules.system.entity.Dept;
 import org.apache.ibatis.annotations.CacheNamespace;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
@@ -36,4 +37,14 @@ public interface DeptMapper extends BaseMapper<Dept> {
             " = #{roleId}")
     @Result(column = "dept_id", property = "id")
     Set<Dept> findByRoleId(Long roleId);
+
+    /**
+     * description:删除角色，维护角色部门中间表
+     *
+     * @param roleId 角色id
+     * @author RenShiWei
+     * Date: 2020/11/25 9:28
+     */
+    @Delete("DELETE FROM sys_roles_depts WHERE role_id=#{roleId}")
+    void delRoleAtDept(Long roleId);
 }

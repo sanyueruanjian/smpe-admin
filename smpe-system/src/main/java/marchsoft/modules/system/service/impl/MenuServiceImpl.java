@@ -125,7 +125,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
             menuDtoQueryWrapper.between(Menu::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
         }
-        List<Menu> menus = menuMapper.selectList(menuDtoQueryWrapper);
+        List<Menu> menus = menuMapper.queryAll(menuDtoQueryWrapper);
         return menuMapStruct.toDto(menus);
     }
 
@@ -406,7 +406,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         Long newPid = resources.getPid();
         // 属性拷贝
         BeanUtil.copyProperties(resources, menu);
-        this.updateById(menu);
+        menu.insertOrUpdate();
+        log.info("【修改菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menu.getId());
         // 计算父级菜单节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
@@ -471,7 +472,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
             updateSubCnt(menu.getPid());
         }
         Set<Long> menuIds = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
-        this.removeByIds(menuIds);
+        boolean isRemove = this.removeByIds(menuIds);
+        if(!isRemove) {
+            log.error("【删除菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);
+        }
+        log.info("【删除菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);
     }
 
     /**
