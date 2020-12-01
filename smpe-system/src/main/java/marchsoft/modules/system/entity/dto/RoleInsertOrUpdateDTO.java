@@ -36,7 +36,7 @@ public class RoleInsertOrUpdateDTO {
     private Set<Long> menuIds;
 
     @ApiModelProperty(value = "部门集合")
-    private Set<Long> deptIds;
+    private Set<Long> depts;
 
 }
 
