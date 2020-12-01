@@ -181,7 +181,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean save = save(role);
-        if (! save) {
+        if (!save) {
             log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名：" + roleInsertOrUpdateDTO.getName());
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
@@ -230,23 +230,27 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             维护中间表（4种情况）
          */
         Set<Long> deptIds = roleBO.getDepts().stream().map(Dept::getId).collect(Collectors.toSet());
-
         try {
             //维护角色部门中间表
-            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
+            if (!CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
                 //传入和原来的DeptIds都为null，不处理
                 if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDepts())) {
                     //传入deptIds为null
-                    if (CollectionUtil.isNotEmpty(roleBO.getDepts())) {
-                        //如果原本不是null，删除中间表数据
-                        roleMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
-                    }
+//                    if (CollectionUtil.isNotEmpty(roleBO.getDepts())) {
+//                        //如果原本不是null，删除中间表数据
+//                        deptMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
+//                    }
+                    // MODIFY:@Jiaoqianjin 2020/12/1 description://传入deptIds为null,不管之前的为不为null,都执行删除，为了清除缓存
+                    deptMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
                 } else {
                     //传入deptIds不为null
-                    if (CollectionUtil.isNotEmpty(roleBO.getDepts())) {
-                        //原来的不为空，先删除在增加
-                        roleMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
-                    }
+//                    if (CollectionUtil.isNotEmpty(roleBO.getDepts())) {
+//                        //原来的不为空，先删除在增加
+//                        deptMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
+//                    }
+                    // MODIFY:@Jiaoqianjin 2020/12/1 description://传入deptIds为null,不管之前的为不为null,都执行删除，为了清除缓存
+                    //传入deptIds不为null
+                    deptMapper.delRoleAtDept(roleInsertOrUpdateDTO.getId());
                     //原来的为空，直接增加
                     //两种情况的增加
                     roleMapper.saveRoleAtDept(roleInsertOrUpdateDTO.getId(), roleInsertOrUpdateDTO.getDepts());
@@ -257,13 +261,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
 
-
-
-
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean isUpdate = this.updateById(role);
-        if (! isUpdate) {
+        if (!isUpdate) {
             log.error("【修改角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
         }
 
@@ -287,7 +288,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         //对比之前有修改再进行操作（先删除后修改）
         // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils
         //  .isEqualCollection()
-        if (! CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
+        if (!CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
             Integer count = roleMapper.delRoleAtMenu(roleId);
             Integer count2 = roleMapper.saveRoleAtMenu(roleId, menuIds);
             if (count <= 0 && count2 <= 0) {
@@ -361,7 +362,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 //            delCaches(id, null);
 //        }
         boolean isDel = removeByIds(roleIds);
-        if (! isDel) {
+        if (!isDel) {
             log.error("【删除角色失败】角色id集合：" + roleIds);
             throw new BadRequestException("删除角色失败");
         }
@@ -461,11 +462,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     @Transactional(rollbackFor = Exception.class)
     public void untiedMenu(Long menuId) {
         // 更新菜单
-        Integer count = roleMapper.untiedMenu(menuId);
-        if (count <= 0) {
-            log.error("【角色解绑菜单失败】菜单id：" + menuId);
-            throw new BadRequestException("角色解绑菜单失败");
-        }
+        roleMapper.untiedMenu(menuId);
+        // MODIFY:@Jiaoqianjin 2020/12/1 description: 菜单绑定角色可以为空
+//        Integer count = roleMapper.untiedMenu(menuId);
+//        if (count <= 0) {
+//            log.error("【角色解绑菜单失败】菜单id：" + menuId);
+//            throw new BadRequestException("角色解绑菜单失败");
+//        }
     }
 
 }

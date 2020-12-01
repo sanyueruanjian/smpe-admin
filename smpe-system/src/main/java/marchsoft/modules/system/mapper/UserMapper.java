@@ -195,7 +195,7 @@ public interface UserMapper extends BaseMapper<User> {
             "</foreach>" +
             "</script>"
     })
-    Integer countByUserByRoleIds(Set<Long> roleIds);
+    Integer countByUserByRoleIds(@Param("roleIds") Set<Long> roleIds);
 
     /**
      * 根据岗位查询(验证此job是否被用户关联)
