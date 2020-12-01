@@ -22,6 +22,8 @@ import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.*;
+import marchsoft.modules.system.mapper.JobMapper;
+import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.UserMapStruct;
@@ -60,6 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private final OnlineUserService onlineUserService;
     private final UserCacheClean userCacheClean;
     private final FileProperties fileProperties;
+    private final JobMapper jobMapper;
 
     /**
      * description:根据用户名查用户id
@@ -307,7 +310,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             }
         }
         if (! CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
-            Integer count = userMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
+            Integer count = jobMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getJobs());
             if (count <= 0 && count2 <= 0) {
