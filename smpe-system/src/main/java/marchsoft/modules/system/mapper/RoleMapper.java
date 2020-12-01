@@ -42,7 +42,7 @@ public interface RoleMapper extends BaseMapper<Role> {
             @Result(column = "role_id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "dept_id", property = "depts",
+            @Result(column = "role_id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
