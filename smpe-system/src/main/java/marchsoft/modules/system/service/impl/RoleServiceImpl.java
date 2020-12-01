@@ -20,6 +20,7 @@ import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import marchsoft.modules.system.entity.dto.*;
+import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IRoleService;
@@ -56,8 +57,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     private final UserMapper userMapper;
     private final RoleMapStruct roleMapStruct;
     private final RoleSmallMapStruct roleSmallMapStruct;
-    private final RedisUtils redisUtils;
-    private final UserCacheClean userCacheClean;
+    private final DeptMapper deptMapper;
 
     /**
      * description:根据角色id查询一条角色信息
@@ -185,26 +185,18 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名：" + roleInsertOrUpdateDTO.getName());
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
-
+        // MODIFY:@Jiaoqianjin 2020/12/1 description: 新增角色 不用 维护角色菜单中间表
         /*
           维护中间表
          */
         //如果DataScope是自定义，维护角色部门中间表
         if (roleInsertOrUpdateDTO.getDataScope().equals(DataScopeEnum.CUSTOMIZE.getValue())) {
-            if (CollectionUtil.isNotEmpty(roleInsertOrUpdateDTO.getDeptIds())) {
-                Integer count = roleMapper.saveRoleAtDept(role.getId(), roleInsertOrUpdateDTO.getDeptIds());
+            if (CollectionUtil.isNotEmpty(roleInsertOrUpdateDTO.getDepts())) {
+                Integer count = roleMapper.saveRoleAtDept(role.getId(), roleInsertOrUpdateDTO.getDepts());
                 if (count <= 0) {
                     log.error("【新增角色失败】维护角色部门中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色id：" + role.getId());
                     throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
                 }
-            }
-        }
-        //维护角色菜单中间表
-        if (CollectionUtil.isNotEmpty(roleInsertOrUpdateDTO.getMenuIds())) {
-            Integer count = roleMapper.saveRoleAtMenu(role.getId(), roleInsertOrUpdateDTO.getMenuIds());
-            if (count <= 0) {
-                log.error("【新增角色失败】维护角色菜单中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色id：" + role.getId());
-                throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
 
@@ -227,22 +219,23 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         //角色名重复判断条件
-        if (isExistRoleName(roleInsertOrUpdateDTO.getName())) {
-            log.error("【修改角色失败】角色名已存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色名：" + roleInsertOrUpdateDTO.getName());
-            throw new BadRequestException(ResultEnum.ROLE_NAME_EXIST);
+        if (!roleInsertOrUpdateDTO.getName().equals(roleBO.getName())) {
+            if (isExistRoleName(roleInsertOrUpdateDTO.getName())) {
+                log.error("【修改角色失败】角色名已存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色名：" + roleInsertOrUpdateDTO.getName());
+                throw new BadRequestException(ResultEnum.ROLE_NAME_EXIST);
+            }
         }
-
+        // MODIFY:@Jiaoqianjin 2020/12/1 description: 新增角色 不用 维护角色菜单中间表
         /*
             维护中间表（4种情况）
          */
-        Set<Long> menuIds = roleBO.getMenus().stream().map(Menu::getId).collect(Collectors.toSet());
         Set<Long> deptIds = roleBO.getDepts().stream().map(Dept::getId).collect(Collectors.toSet());
 
         try {
             //维护角色部门中间表
-            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDeptIds())) {
+            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
                 //传入和原来的DeptIds都为null，不处理
-                if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDeptIds())) {
+                if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDepts())) {
                     //传入deptIds为null
                     if (CollectionUtil.isNotEmpty(roleBO.getDepts())) {
                         //如果原本不是null，删除中间表数据
@@ -256,7 +249,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                     }
                     //原来的为空，直接增加
                     //两种情况的增加
-                    roleMapper.saveRoleAtDept(roleInsertOrUpdateDTO.getId(), roleInsertOrUpdateDTO.getDeptIds());
+                    roleMapper.saveRoleAtDept(roleInsertOrUpdateDTO.getId(), roleInsertOrUpdateDTO.getDepts());
                 }
             }
         } catch (Exception e) {
@@ -265,16 +258,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         }
 
 
-        //维护角色菜单中间表
-        if (! CollectionUtils.isEqualCollection(menuIds, roleInsertOrUpdateDTO.getMenuIds())) {
-            Integer count = roleMapper.delRoleAtMenu(roleInsertOrUpdateDTO.getId());
-            Integer count2 = roleMapper.saveRoleAtMenu(roleInsertOrUpdateDTO.getId(),
-                    roleInsertOrUpdateDTO.getMenuIds());
-            if (count <= 0 && count2 <= 0) {
-                log.error("【修改角色失败】维护角色菜单表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
-                throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
-            }
-        }
+
 
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
