@@ -1,24 +1,4 @@
-package marchsoft.config;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
-import org.apache.ibatis.plugin.Signature;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package marchsoft.config.mybatisplus;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -28,6 +8,17 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * 缓存控制拦截器
@@ -36,9 +27,9 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
  * @since 2016年3月17日
  */
 @Intercepts({
-        @Signature(method = "query", type = Executor.class, args = { MappedStatement.class, Object.class,
-                RowBounds.class, ResultHandler.class }),
-        @Signature(method = "update", type = Executor.class, args = { MappedStatement.class, Object.class }) })
+        @Signature(method = "query", type = Executor.class, args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class}),
+        @Signature(method = "update", type = Executor.class, args = {MappedStatement.class, Object.class})})
 public class CachingInterceptor implements Interceptor {
     private final static Logger logger = LoggerFactory.getLogger(CachingInterceptor.class);
     /**
@@ -57,7 +48,7 @@ public class CachingInterceptor implements Interceptor {
         Object[] args = invocation.getArgs();
         MappedStatement ms = (MappedStatement) args[0];
         BoundSql boundSql = ms.getBoundSql(args[1]);
-        if (!ms.getConfiguration().isCacheEnabled() || ms.getCache() == null) {
+        if (! ms.getConfiguration().isCacheEnabled() || ms.getCache() == null) {
             return invocation.proceed();
         }
         if (dealedMap.containsKey(ms.getId()) && dealedMap.get(ms.getId()).equals(boundSql.getSql())) {
@@ -105,7 +96,7 @@ public class CachingInterceptor implements Interceptor {
                 namespaces = new HashMap<>();
                 namespaces.put(namespace, namespace);
                 tableLinks.put(tableName, namespaces);
-            } else if (!namespaces.containsKey(namespace)) {
+            } else if (! namespaces.containsKey(namespace)) {
                 namespaces.put(namespace, namespace);
             }
         }

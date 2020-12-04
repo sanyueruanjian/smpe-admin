@@ -2,12 +2,9 @@ package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import marchsoft.config.MybatisRedisCache;
+import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Menu;
-import marchsoft.modules.system.entity.User;
-import marchsoft.modules.system.entity.bo.MenuBO;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
@@ -50,7 +47,8 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * @author Jiaoqianjin
      * @date 2020-11-23 15:46
      */
-    @Select({"<script> SELECT m.menu_id,m.pid,m.sub_count,m.type,m.title,m.name,m.component,m.menu_sort,m.icon,m.path,m.i_frame,m.cache," +
+    @Select({"<script> SELECT m.menu_id,m.pid,m.sub_count,m.type,m.title,m.name,m.component,m.menu_sort,m.icon,m" +
+            ".path,m.i_frame,m.cache," +
             "m.hidden,m.permission,m.create_by,m.update_by,m.create_time,m.update_time " +
             "FROM sys_menu m, sys_roles_menus r " +
             "WHERE m.menu_id = r.menu_id " +
@@ -96,5 +94,5 @@ public interface MenuMapper extends BaseMapper<Menu> {
             "cache,hidden,permission,create_by,update_by,create_time,update_time " +
             "FROM sys_menu ${ew.customSqlSegment}")
     @Result(column = "menu_id", property = "id")
-    List<Menu> queryAll(@Param(Constants.WRAPPER)  LambdaQueryWrapper<Menu> menuDtoQueryWrapper);
+    List<Menu> queryAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Menu> menuDtoQueryWrapper);
 }
