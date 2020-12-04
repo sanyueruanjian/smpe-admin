@@ -119,6 +119,7 @@ public class RsaUtils {
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec5);
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        // TODO:@RenShiWei 2020/12/4 description: Error——Null input buffer
         byte[] result = cipher.doFinal(Base64.decodeBase64(text));
         return new String(result);
     }

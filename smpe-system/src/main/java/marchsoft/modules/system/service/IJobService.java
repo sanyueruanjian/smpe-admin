@@ -1,7 +1,7 @@
 package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import marchsoft.base.IBasicService;
 import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.Job;
 import marchsoft.modules.system.entity.dto.JobDTO;
@@ -20,7 +20,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-public interface IJobService extends IService<Job> {
+public interface IJobService extends IBasicService<Job> {
 
     /**
      * Description:

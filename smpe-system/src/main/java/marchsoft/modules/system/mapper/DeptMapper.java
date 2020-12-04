@@ -1,6 +1,6 @@
 package marchsoft.modules.system.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Dept;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -21,7 +21,7 @@ import java.util.Set;
  */
 @Component
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-public interface DeptMapper extends BaseMapper<Dept> {
+public interface DeptMapper extends BasicMapper<Dept> {
 
 
     /**

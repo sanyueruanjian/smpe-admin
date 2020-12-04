@@ -1,9 +1,9 @@
 package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
@@ -24,7 +24,7 @@ import java.util.Set;
  */
 @Component
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-public interface RoleMapper extends BaseMapper<Role> {
+public interface RoleMapper extends BasicMapper<Role> {
 
     /**
      * description:根据角色id查询一条角色信息

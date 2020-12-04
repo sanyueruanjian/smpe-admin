@@ -1,7 +1,7 @@
 package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import marchsoft.base.IBasicService;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import marchsoft.modules.system.entity.dto.*;
@@ -20,7 +20,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-public interface IRoleService extends IService<Role> {
+public interface IRoleService extends IBasicService<Role> {
 
     /**
      * description:根据角色id查询一条角色信息
