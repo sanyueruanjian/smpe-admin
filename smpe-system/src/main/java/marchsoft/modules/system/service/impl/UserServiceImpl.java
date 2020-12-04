@@ -9,9 +9,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.config.bean.FileProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "user")
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implements IUserService {
 
     private final UserMapper userMapper;
     private final UserMapStruct userMapStruct;

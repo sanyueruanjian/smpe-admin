@@ -1,6 +1,6 @@
 package marchsoft.modules.system.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import marchsoft.base.IBasicService;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.dto.MenuDTO;
 import marchsoft.modules.system.entity.dto.MenuQueryCriteria;
@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-public interface IMenuService extends IService<Menu> {
+public interface IMenuService extends IBasicService<Menu> {
 
     /**
      * 功能描述：根据角色id获取

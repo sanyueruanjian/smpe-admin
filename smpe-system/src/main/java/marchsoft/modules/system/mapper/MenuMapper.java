@@ -1,8 +1,8 @@
 package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Menu;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -21,7 +21,7 @@ import java.util.Set;
  * Date: 2020/11/23 9:33
  */
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-public interface MenuMapper extends BaseMapper<Menu> {
+public interface MenuMapper extends BasicMapper<Menu> {
 
     /**
      * description 通过角色id和关联表roles_menus查询该角色拥有的菜单
