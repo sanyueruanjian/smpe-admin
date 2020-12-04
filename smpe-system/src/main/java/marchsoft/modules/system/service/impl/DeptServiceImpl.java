@@ -198,21 +198,24 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         if (isQuery) {
             if (!dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
                 if (ObjectUtil.isNotNull(criteria.getPid())) {
-                    // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
-//                    List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
-//                    if (!currentUserDataScope.contains(criteria.getPid())) {
+                    List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
+                    if (!currentUserDataScope.contains(criteria.getPid())) {
+                        // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
 //                        log.info("【查询部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询部门目标dept：" + criteria.getPid());
 //                        throw new BadRequestException("您没有查询部门目标dept：" + criteria.getPid() + "的权限。");
-//                    }
-                    return returnPage;
+                        return returnPage;
+                    }
+
                 } else {
                     // 判断是否是全空查询
                     boolean isAllNull = true;
                     Field[] fields = ReflectUtil.getFields(criteria.getClass());
                     for (Field field : fields) {
                         if (ObjectUtil.isNotNull(ReflectUtil.getFieldValue(criteria, field))) {
-                            isAllNull = false;
-                            break;
+                            if (!field.getName().equals("enabled")) {
+                                isAllNull = false;
+                                break;
+                            }
                         }
                     }
                     if (isAllNull) {
