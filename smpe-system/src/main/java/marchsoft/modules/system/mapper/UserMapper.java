@@ -1,9 +1,9 @@
 package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
@@ -24,7 +24,7 @@ import java.util.Set;
  */
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 @Component
-public interface UserMapper extends BaseMapper<User> {
+public interface UserMapper extends BasicMapper<User> {
 
     /**
      * description:根据用户名查用户id

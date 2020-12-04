@@ -1,7 +1,8 @@
 package marchsoft.modules.system.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,9 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import marchsoft.base.BasicModel;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -29,7 +30,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ApiModel(value = "Menu对象", description = "系统菜单")
 @TableName("sys_menu")
-public class Menu extends Model<Menu> {
+public class Menu extends BasicModel<Menu> {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,21 +77,21 @@ public class Menu extends Model<Menu> {
     @ApiModelProperty(value = "权限")
     private String permission;
 
-    @ApiModelProperty(value = "创建者")
-    @TableField(fill = FieldFill.INSERT)
-    private String createBy;
-
-    @ApiModelProperty(value = "更新者")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateBy;
-
-    @ApiModelProperty(value = "创建日期")
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新时间")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+//    @ApiModelProperty(value = "创建者")
+//    @TableField(fill = FieldFill.INSERT)
+//    private String createBy;
+//
+//    @ApiModelProperty(value = "更新者")
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private String updateBy;
+//
+//    @ApiModelProperty(value = "创建日期")
+//    @TableField(fill = FieldFill.INSERT)
+//    private LocalDateTime createTime;
+//
+//    @ApiModelProperty(value = "更新时间")
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private LocalDateTime updateTime;
 
     @Override
     protected Serializable pkVal() {

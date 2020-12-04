@@ -171,7 +171,7 @@ public class UserController {
 
     @ApiOperation("修改密码")
     @PostMapping(value = "/updatePass")
-    public Result<Void> updatePass(UserPassVo passVo) throws Exception {
+    public Result<Void> updatePass(@RequestBody UserPassVo passVo) throws Exception {
         String oldPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getOldPass());
         String newPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getNewPass());
         //获取现在的密码
@@ -212,8 +212,6 @@ public class UserController {
         Integer currentLevel = Collections.min(roleService.findRoleByUserId(SecurityUtils
                 .getCurrentUserId()).stream().map(RoleSmallDTO::getLevel).collect(Collectors.toList()));
         Integer optLevel = roleService.findRoleMinLeave(roleIds);
-        System.out.println("currentLevel" + currentLevel);
-        System.out.println("optLevel:" + optLevel);
         //level 越小权限越大
         return currentLevel <= optLevel;
     }
@@ -233,8 +231,6 @@ public class UserController {
         Integer optLevel =
                 Collections.min(roleService.findRoleByUserId(userId).stream().map(RoleSmallDTO::getLevel).collect
                         (Collectors.toList()));
-        System.out.println("currentLevel" + currentLevel);
-        System.out.println("optLevel:" + optLevel);
         //level 越小权限越大
         return currentLevel <= optLevel;
     }
