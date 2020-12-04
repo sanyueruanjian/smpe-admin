@@ -2,11 +2,11 @@ package marchsoft.config;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -98,7 +98,8 @@ public class RedisConfig extends CachingConfigurerSupport {
             // 转为JSON字符串
             String jsonString = JSON.toJSONString(container);
             // 做SHA256 Hash计算，得到一个SHA256摘要作为Key
-            return DigestUtils.sha256Hex(jsonString);
+            // modify @RenShiWei 2020/12/2 description:换为hutool工具包的方法
+            return DigestUtil.sha256(jsonString);
         };
     }
 

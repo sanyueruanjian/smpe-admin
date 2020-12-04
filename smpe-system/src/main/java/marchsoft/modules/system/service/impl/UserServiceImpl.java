@@ -23,7 +23,6 @@ import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.mapper.JobMapper;
-import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.UserMapStruct;
@@ -125,10 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public IPage<UserDTO> queryUserDetailsList(UserQueryCriteria criteria, IPage<User> page) {
-        System.out.println(criteria);
-        System.out.println(page);
         IPage<UserBO> userPage = userMapper.queryUserDetailsListPage(buildUserQueryCriteria(criteria), page);
-        System.out.println(userPage.getRecords());
         List<UserDTO> userDTOList = userMapStruct.toDto(userPage.getRecords());
         return PageUtil.toMapStructPage(userPage, userDTOList);
     }

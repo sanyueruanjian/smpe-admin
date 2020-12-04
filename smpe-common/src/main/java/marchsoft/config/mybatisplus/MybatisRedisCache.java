@@ -1,4 +1,4 @@
-package marchsoft.config;
+package marchsoft.config.mybatisplus;
 
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.utils.SpringContextHolder;
@@ -44,6 +44,7 @@ public class MybatisRedisCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void putObject(Object key, Object value) {
         if (redisTemplate == null) {
             //由于启动期间注入失败，只能运行期间注入，这段代码可以删除
@@ -58,6 +59,7 @@ public class MybatisRedisCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("all")
     public Object getObject(Object key) {
         if (redisTemplate == null) {
             //由于启动期间注入失败，只能运行期间注入，这段代码可以删除
@@ -78,6 +80,7 @@ public class MybatisRedisCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("all")
     public Object removeObject(Object key) {
         if (redisTemplate == null) {
             //由于启动期间注入失败，只能运行期间注入，这段代码可以删除
@@ -90,6 +93,7 @@ public class MybatisRedisCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void clear() {
         log.debug("清空缓存");
         if (redisTemplate == null) {
@@ -102,6 +106,7 @@ public class MybatisRedisCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("all")
     public int getSize() {
         if (redisTemplate == null) {
             //由于启动期间注入失败，只能运行期间注入，这段代码可以删除
