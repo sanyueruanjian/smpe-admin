@@ -8,13 +8,12 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.Role;
@@ -26,7 +25,10 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.RoleMapStruct;
 import marchsoft.modules.system.service.mapstruct.RoleSmallMapStruct;
-import marchsoft.utils.*;
+import marchsoft.utils.FileUtils;
+import marchsoft.utils.PageUtil;
+import marchsoft.utils.SecurityUtils;
+import marchsoft.utils.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.security.core.GrantedAuthority;
@@ -51,7 +53,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "role")
-public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IRoleService {
+public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implements IRoleService {
 
     private final RoleMapper roleMapper;
     private final UserMapper userMapper;
@@ -92,7 +94,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         //默认按照角色的级别升序
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByAsc(Role::getLevel);
-        return roleMapStruct.toDto(roleMapper.findRoleDetailAllPage(wrapper));
+        return roleMapStruct.toDto(roleMapper.findRoleDetailAll(wrapper));
     }
 
     /**
@@ -105,7 +107,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      */
     @Override
     public List<RoleDTO> findRoleDetailAll(RoleQueryCriteria criteria) {
-        return roleMapStruct.toDto(roleMapper.findRoleDetailAllPage(buildUserQueryCriteria(criteria)));
+        return roleMapStruct.toDto(roleMapper.findRoleDetailAll(buildUserQueryCriteria(criteria)));
     }
 
     /**
@@ -181,7 +183,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean save = save(role);
-        if (!save) {
+        if (! save) {
             log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名：" + roleInsertOrUpdateDTO.getName());
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
@@ -219,7 +221,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         //角色名重复判断条件
-        if (!roleInsertOrUpdateDTO.getName().equals(roleBO.getName())) {
+        if (! roleInsertOrUpdateDTO.getName().equals(roleBO.getName())) {
             if (isExistRoleName(roleInsertOrUpdateDTO.getName())) {
                 log.error("【修改角色失败】角色名已存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色名：" + roleInsertOrUpdateDTO.getName());
                 throw new BadRequestException(ResultEnum.ROLE_NAME_EXIST);
@@ -232,7 +234,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Set<Long> deptIds = roleBO.getDepts().stream().map(Dept::getId).collect(Collectors.toSet());
         try {
             //维护角色部门中间表
-            if (!CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
+            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
                 //传入和原来的DeptIds都为null，不处理
                 if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDepts())) {
                     //传入deptIds为null
@@ -264,7 +266,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean isUpdate = this.updateById(role);
-        if (!isUpdate) {
+        if (! isUpdate) {
             log.error("【修改角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
         }
 
@@ -288,7 +290,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         //对比之前有修改再进行操作（先删除后修改）
         // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils
         //  .isEqualCollection()
-        if (!CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
+        if (! CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
             Integer count = roleMapper.delRoleAtMenu(roleId);
             Integer count2 = roleMapper.saveRoleAtMenu(roleId, menuIds);
             if (count <= 0 && count2 <= 0) {
@@ -362,7 +364,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 //            delCaches(id, null);
 //        }
         boolean isDel = removeByIds(roleIds);
-        if (!isDel) {
+        if (! isDel) {
             log.error("【删除角色失败】角色id集合：" + roleIds);
             throw new BadRequestException("删除角色失败");
         }

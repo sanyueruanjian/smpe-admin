@@ -9,9 +9,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.config.bean.FileProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
@@ -23,7 +23,6 @@ import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.mapper.JobMapper;
-import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.UserMapStruct;
@@ -55,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "user")
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implements IUserService {
 
     private final UserMapper userMapper;
     private final UserMapStruct userMapStruct;
@@ -125,10 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
     @Override
     public IPage<UserDTO> queryUserDetailsList(UserQueryCriteria criteria, IPage<User> page) {
-        System.out.println(criteria);
-        System.out.println(page);
         IPage<UserBO> userPage = userMapper.queryUserDetailsListPage(buildUserQueryCriteria(criteria), page);
-        System.out.println(userPage.getRecords());
         List<UserDTO> userDTOList = userMapStruct.toDto(userPage.getRecords());
         return PageUtil.toMapStructPage(userPage, userDTOList);
     }

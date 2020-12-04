@@ -1,7 +1,7 @@
 package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import marchsoft.base.IBasicService;
 import marchsoft.base.PageVO;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.dto.DeptDTO;
@@ -20,7 +20,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-public interface IDeptService extends IService<Dept> {
+public interface IDeptService extends IBasicService<Dept> {
 
 
     /**
