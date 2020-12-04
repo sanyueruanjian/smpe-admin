@@ -4,16 +4,15 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.base.PageVO;
 import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
@@ -25,14 +24,11 @@ import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
 import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.mapper.RoleMapper;
-import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
 import marchsoft.utils.FileUtils;
-import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +50,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements IDeptService {
+public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implements IDeptService {
 
     private final DeptMapper deptMapper;
 
@@ -155,7 +151,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("部门名称", deptDto.getName());
             map.put("部门状态", deptDto.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", ObjectUtil.isNull(deptDto.getCreateTime()) ? null : LocalDateTimeUtil.format(deptDto.getCreateTime()
+            map.put("创建日期", ObjectUtil.isNull(deptDto.getCreateTime()) ? null :
+                    LocalDateTimeUtil.format(deptDto.getCreateTime()
                     , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
@@ -196,12 +193,13 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         String dataScopeType = SecurityUtils.getDataScopeType();
         IPage<DeptDTO> returnPage = pageVO.buildPage();
         if (isQuery) {
-            if (!dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+            if (! dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
                 if (ObjectUtil.isNotNull(criteria.getPid())) {
                     List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
-                    if (!currentUserDataScope.contains(criteria.getPid())) {
+                    if (! currentUserDataScope.contains(criteria.getPid())) {
                         // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
-//                        log.info("【查询部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询部门目标dept：" + criteria.getPid());
+//                        log.info("【查询部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询部门目标dept：" +
+//                        criteria.getPid());
 //                        throw new BadRequestException("您没有查询部门目标dept：" + criteria.getPid() + "的权限。");
                         return returnPage;
                     }
@@ -212,7 +210,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
                     Field[] fields = ReflectUtil.getFields(criteria.getClass());
                     for (Field field : fields) {
                         if (ObjectUtil.isNotNull(ReflectUtil.getFieldValue(criteria, field))) {
-                            if (!field.getName().equals("enabled")) {
+                            if (! field.getName().equals("enabled")) {
                                 isAllNull = false;
                                 break;
                             }
@@ -297,7 +295,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -414,11 +412,13 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.in(User::getDeptId, deptIds);
         if (userService.count(userLambdaQueryWrapper) > 0) {
-            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() + "存在用户关联，请解除后再试！");
+            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() +
+                    "存在用户关联，请解除后再试！");
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
         if (roleMapper.countByDeptIds(deptIds) > 0) {
-            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() + "存在角色关联，请解除后再试！");
+            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() +
+                    "存在角色关联，请解除后再试！");
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }

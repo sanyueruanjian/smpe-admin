@@ -1,10 +1,10 @@
 package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import marchsoft.config.MybatisRedisCache;
+import marchsoft.base.BasicMapper;
+import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import org.apache.ibatis.annotations.*;
@@ -24,7 +24,7 @@ import java.util.Set;
  */
 @Component
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-public interface RoleMapper extends BaseMapper<Role> {
+public interface RoleMapper extends BasicMapper<Role> {
 
     /**
      * description:根据角色id查询一条角色信息
@@ -67,7 +67,7 @@ public interface RoleMapper extends BaseMapper<Role> {
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
-    List<RoleBO> findRoleDetailAllPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
+    List<RoleBO> findRoleDetailAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
 
     /**
      * description:查询所有角色详细信息（包含角色对应的菜单、部门、用户），可分页

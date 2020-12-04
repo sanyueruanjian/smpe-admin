@@ -1,7 +1,8 @@
 package marchsoft.modules.system.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,9 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import marchsoft.base.BasicModel;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -29,7 +30,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ApiModel(value = "Job对象", description = "岗位")
 @TableName("sys_job")
-public class Job extends Model<Job> {
+public class Job extends BasicModel<Job> {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,21 +47,21 @@ public class Job extends Model<Job> {
     @ApiModelProperty(value = "排序")
     private Integer jobSort;
 
-    @ApiModelProperty(value = "创建者")
-    @TableField(fill = FieldFill.INSERT)
-    private String createBy;
-
-    @ApiModelProperty(value = "更新者")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateBy;
-
-    @ApiModelProperty(value = "创建日期")
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新时间")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+//    @ApiModelProperty(value = "创建者")
+//    @TableField(fill = FieldFill.INSERT)
+//    private String createBy;
+//
+//    @ApiModelProperty(value = "更新者")
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private String updateBy;
+//
+//    @ApiModelProperty(value = "创建日期")
+//    @TableField(fill = FieldFill.INSERT)
+//    private LocalDateTime createTime;
+//
+//    @ApiModelProperty(value = "更新时间")
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    private LocalDateTime updateTime;
 
 
     @Override
