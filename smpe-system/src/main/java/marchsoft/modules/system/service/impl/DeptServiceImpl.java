@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -17,6 +19,7 @@ import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
+import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
@@ -29,11 +32,13 @@ import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
 import marchsoft.utils.FileUtils;
 import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -146,7 +151,6 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public void download(List<DeptDTO> deptDtos, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
-        ;
         for (DeptDTO deptDto : deptDtos) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("部门名称", deptDto.getName());
@@ -190,15 +194,45 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     @Override
     public IPage<DeptDTO> queryAll(DeptQueryCriteria criteria, PageVO pageVO, Boolean isQuery) {
         String dataScopeType = SecurityUtils.getDataScopeType();
+        IPage<DeptDTO> returnPage = pageVO.buildPage();
         if (isQuery) {
-            if (dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
-                // FIXME 源码是基于全部权限 @author: liuxingxing @date: 2020-11-30
-                criteria.setPid(0L);
+            if (!dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+                if (ObjectUtil.isNotNull(criteria.getPid())) {
+                    // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
+//                    List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
+//                    if (!currentUserDataScope.contains(criteria.getPid())) {
+//                        log.info("【查询部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询部门目标dept：" + criteria.getPid());
+//                        throw new BadRequestException("您没有查询部门目标dept：" + criteria.getPid() + "的权限。");
+//                    }
+                    return returnPage;
+                } else {
+                    // 判断是否是全空查询
+                    boolean isAllNull = true;
+                    Field[] fields = ReflectUtil.getFields(criteria.getClass());
+                    for (Field field : fields) {
+                        if (ObjectUtil.isNotNull(ReflectUtil.getFieldValue(criteria, field))) {
+                            isAllNull = false;
+                            break;
+                        }
+                    }
+                    if (isAllNull) {
+                        // 默认查询当前角色的可用部门
+                        Set<Role> userRoles = roleMapper.findRoleByUserId(SecurityUtils.getCurrentUserId());
+                        Set<Dept> hashSet = new HashSet<>();
+                        Set<Dept> reduce = userRoles.stream().map(role ->
+                                deptMapper.findByRoleId(role.getId())
+                        ).reduce(hashSet, (dept1, dept2) -> {
+                            dept1.addAll(dept2);
+                            return dept1;
+                        });
+                        List<DeptDTO> deptDtos = deptMapStruct.toDto(new ArrayList<>(reduce));
+                        return returnPage.setRecords(deptDtos).setTotal(deptDtos.size());
+                    }
+                }
             }
         }
         IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
-        IPage<DeptDTO> returnPage = pageVO.buildPage();
         BeanUtil.copyProperties(page, returnPage);
         returnPage.setRecords(deptDtos);
         return returnPage;

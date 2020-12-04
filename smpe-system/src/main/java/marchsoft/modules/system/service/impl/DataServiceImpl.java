@@ -66,7 +66,7 @@ public class DataServiceImpl implements IDataService {
      * todo 感觉获取子部门是有问题的 @liuixingxing 2020-11-27
      *
      * @param deptIds 部门ID
-     * @param role    角色
+     * @param role    角色（默认是 '自定义'）
      * @return Set<Long> 数据权限ID
      * @author Wangmingcan
      * @date 2020-08-23 15:54
@@ -78,7 +78,7 @@ public class DataServiceImpl implements IDataService {
             deptIds.add(dept.getId());
             List<Dept> deptChildren = null;
             if (dept.getPid() != null) {
-                deptChildren = deptService.findByPid(dept.getPid());
+                deptChildren = deptService.findByPid(dept.getId());
             }
             if (deptChildren != null && deptChildren.size() != 0) {
                 deptIds.addAll(deptService.getDeptChildren(deptChildren));
