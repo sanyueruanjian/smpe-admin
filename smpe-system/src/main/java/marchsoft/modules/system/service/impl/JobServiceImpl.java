@@ -8,9 +8,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.base.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
@@ -22,9 +22,7 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.modules.system.service.mapstruct.JobMapStruct;
 import marchsoft.utils.FileUtils;
-import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +42,7 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobService {
+public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements IJobService {
 
     private final JobMapper jobMapper;
     private final UserMapper userMapper;
@@ -140,7 +138,8 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("岗位名称", jobDto.getName());
             map.put("岗位状态", jobDto.getEnabled() ? "启用" : "停用");
-            map.put("创建日期", ObjectUtil.isNull(jobDto.getCreateTime()) ? null : LocalDateTimeUtil.format(jobDto.getCreateTime(),
+            map.put("创建日期", ObjectUtil.isNull(jobDto.getCreateTime()) ? null :
+                    LocalDateTimeUtil.format(jobDto.getCreateTime(),
                     DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
@@ -187,7 +186,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         Job old = getOne(queryWrapper);
-        if (ObjectUtil.isNotNull(old) && !old.getId().equals(resources.getId())) {
+        if (ObjectUtil.isNotNull(old) && ! old.getId().equals(resources.getId())) {
             log.error("【修改岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标（名称）已存在，修改目标job：" + resources + "\t存在目标job：" + old);
             throw new BadRequestException("已存在：" + resources.getName());
         }
@@ -221,7 +220,8 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     @Override
     public void verification(Set<Long> ids) {
         if (userMapper.countByJobs(ids) > 0) {
-            log.error("【删除岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选的岗位"+ids.toString()+"中存在用户关联，请解除关联再试！");
+            log.error("【删除岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选的岗位" + ids.toString() +
+                    "中存在用户关联，请解除关联再试！");
             throw new BadRequestException("所选的岗位中存在用户关联，请解除关联再试！");
         }
     }

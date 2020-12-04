@@ -1,8 +1,8 @@
-package marchsoft.config;
+package marchsoft.config.mybatisplus;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
-import org.omg.PortableInterceptor.Interceptor;
+import marchsoft.injector.MyLogicSqlInjector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,8 +36,17 @@ public class MybatisPlusConfig {
      * mybatis 自定义拦截器
      */
     @Bean
-    public CachingInterceptor getInterceptor(){
+    public CachingInterceptor getInterceptor() {
         return new CachingInterceptor();
+    }
+
+    /**
+     * 自定义 SqlInjector
+     * 里面包含自定义的全局方法
+     */
+    @Bean
+    public MyLogicSqlInjector myLogicSqlInjector() {
+        return new MyLogicSqlInjector();
     }
 
 }
