@@ -7,9 +7,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.base.BasicServiceImpl;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Menu;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "menu")
 @Slf4j
-public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IMenuService {
+public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implements IMenuService {
 
     private final MenuMapper menuMapper;
 
@@ -473,7 +473,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         }
         Set<Long> menuIds = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
         boolean isRemove = this.removeByIds(menuIds);
-        if(!isRemove) {
+        if (! isRemove) {
             log.error("【删除菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);
         }
         log.info("【删除菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);

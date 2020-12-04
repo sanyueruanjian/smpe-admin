@@ -1,7 +1,7 @@
 package marchsoft.modules.system.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import marchsoft.base.IBasicService;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.UserDTO;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-public interface IUserService extends IService<User> {
+public interface IUserService extends IBasicService<User> {
 
     /**
      * description:根据用户名查用户id
