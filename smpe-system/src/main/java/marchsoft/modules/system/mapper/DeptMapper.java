@@ -1,7 +1,7 @@
 package marchsoft.modules.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import marchsoft.config.MybatisRedisCache;
+import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Dept;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Delete;

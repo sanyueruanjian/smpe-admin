@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import marchsoft.config.MybatisRedisCache;
+import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import org.apache.ibatis.annotations.*;
@@ -67,7 +67,7 @@ public interface RoleMapper extends BaseMapper<Role> {
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
-    List<RoleBO> findRoleDetailAllPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
+    List<RoleBO> findRoleDetailAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
 
     /**
      * description:查询所有角色详细信息（包含角色对应的菜单、部门、用户），可分页
