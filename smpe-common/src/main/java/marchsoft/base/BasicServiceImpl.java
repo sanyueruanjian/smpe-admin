@@ -29,19 +29,5 @@ public class BasicServiceImpl<M extends BasicMapper<T>, T> extends ServiceImpl<M
         return this.getOne(abstractWrapper, true);
     }
 
-    /**
-     * description:查询一条数据，默认添加"LIMIT 1"<p>
-     * wrapper无需再进行进行设置：wrapper.last("LIMIT 1");
-     *
-     * @param wrapper /
-     * @return /
-     * @author RenShiWei
-     * Date: 2020/12/4 18:58
-     */
-    @Override
-    public T selectFirst(Wrapper<T> wrapper) {
-        return this.getOne(wrapper);
-    }
-
 }
 

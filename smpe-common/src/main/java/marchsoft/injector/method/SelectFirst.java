@@ -25,6 +25,5 @@ public class SelectFirst extends AbstractMethod {
         return this.addSelectMappedStatementForTable(mapperClass, mySqlMethod.getMethod(), sqlSource, tableInfo);
     }
 
-
 }
 

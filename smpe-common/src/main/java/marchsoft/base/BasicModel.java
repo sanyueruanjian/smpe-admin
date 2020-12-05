@@ -57,18 +57,5 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
         return super.selectOne(abstractWrapper);
     }
 
-    /**
-     * description:查询一条数据，默认添加"LIMIT 1"<p>
-     * wrapper无需再进行进行设置：wrapper.last("LIMIT 1");
-     *
-     * @param wrapper /
-     * @return /
-     * @author RenShiWei
-     * Date: 2020/12/4 18:58
-     */
-    public T selectFirst(Wrapper<T> wrapper) {
-        return this.selectOne(wrapper);
-    }
-
 }
 
