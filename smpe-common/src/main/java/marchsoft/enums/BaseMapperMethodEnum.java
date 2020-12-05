@@ -12,8 +12,7 @@ import lombok.Getter;
 public enum BaseMapperMethodEnum {
 
     /** 查询数据的第一条 */
-    SELECT_FIRST("selectFirst", "查询数据的第一条", "<script>%s SELECT %s FROM %s %s %s LIMIT 1\n</script>"),
-    INSERT_ALL_BATCH("insertAllBatch", "批量新增，一条sql插入所有的内容", "<script>insert into %s %s values %s</script>\n"),
+    INSERT_ALL_BATCH("insertAllBatch", "批量新增，一条sql插入所有的内容", "<script>INSERT INTO %s %s VALUES %s\n</script>"),
 
     ;
     /** 方法名 */

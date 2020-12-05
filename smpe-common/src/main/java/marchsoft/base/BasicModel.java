@@ -6,13 +6,17 @@ import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import marchsoft.enums.BaseMapperMethodEnum;
+import org.apache.ibatis.session.SqlSession;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 /**
  * description:公共实体类
@@ -55,6 +59,26 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
         AbstractWrapper<T, SFunction<T, ?>, ?> abstractWrapper = (AbstractWrapper<T, SFunction<T, ?>, ?>) queryWrapper;
         abstractWrapper.last("LIMIT 1");
         return super.selectOne(abstractWrapper);
+    }
+
+    /**
+     * description:批量新增，一条sql插入所有的sql语句<p>
+     * 使用Collection<T>其中一个对象执行即可批量插入
+     *
+     * @param batchList 新增数据的集合对象
+     * @return 是否执行成功
+     * @author RenShiWei
+     * Date: 2020/12/5 11:46
+     */
+    public boolean insertAllBatch(Collection<T> batchList) {
+        SqlSession sqlSession = this.sqlSession();
+        boolean var2;
+        try {
+            var2 = SqlHelper.retBool(sqlSession.insert(this.sqlStatement(BaseMapperMethodEnum.INSERT_ALL_BATCH.getMethod()), batchList));
+        } finally {
+            this.closeSqlSession(sqlSession);
+        }
+        return var2;
     }
 
 }
