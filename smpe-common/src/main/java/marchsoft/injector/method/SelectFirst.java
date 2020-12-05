@@ -2,7 +2,7 @@ package marchsoft.injector.method;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import marchsoft.enums.MySqlMethod;
+import marchsoft.enums.BaseMapperMethodEnum;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -16,13 +16,14 @@ public class SelectFirst extends AbstractMethod {
 
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
-        MySqlMethod mySqlMethod = MySqlMethod.SELECT_FIRST;
+        BaseMapperMethodEnum baseMapperMethodEnum = BaseMapperMethodEnum.SELECT_FIRST;
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration,
-                String.format(mySqlMethod.getSql(), this.sqlFirst(),
+                String.format(baseMapperMethodEnum.getSql(), this.sqlFirst(),
                         this.sqlSelectColumns(tableInfo, true),
                         tableInfo.getTableName(), this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment()),
                 modelClass);
-        return this.addSelectMappedStatementForTable(mapperClass, mySqlMethod.getMethod(), sqlSource, tableInfo);
+        return this.addSelectMappedStatementForTable(mapperClass, baseMapperMethodEnum.getMethod(), sqlSource,
+                tableInfo);
     }
 
 }
