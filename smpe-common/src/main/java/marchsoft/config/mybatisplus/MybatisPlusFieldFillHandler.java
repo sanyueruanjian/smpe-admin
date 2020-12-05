@@ -29,8 +29,8 @@ public class MybatisPlusFieldFillHandler implements MetaObjectHandler {
         log.info("Fill field createAT and updateAT by insert...");
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        this.strictInsertFill(metaObject, "createBy", String.class, SecurityUtils.getCurrentUsername());
-        this.strictInsertFill(metaObject, "updateBy", String.class, SecurityUtils.getCurrentUsername());
+        this.strictInsertFill(metaObject, "createBy", String.class, getUsername());
+        this.strictInsertFill(metaObject, "updateBy", String.class, getUsername());
     }
 
     /**
@@ -43,6 +43,18 @@ public class MybatisPlusFieldFillHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         log.info("Fill field updateAT by update...");
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        this.strictUpdateFill(metaObject, "updateBy", String.class, SecurityUtils.getCurrentUsername());
+        this.strictUpdateFill(metaObject, "updateBy", String.class, getUsername());
     }
+
+    /**
+     * description:获取自动注入的用户名username，如果为null，注入null
+     *
+     * @return /
+     * @author RenShiWei
+     * Date: 2020/12/5 15:50
+     */
+    private String getUsername() {
+        return SecurityUtils.getCurrentUsernameNoThrow();
+    }
+
 }

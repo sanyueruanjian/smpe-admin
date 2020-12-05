@@ -105,4 +105,40 @@ public class SecurityUtils {
         }
         return DataScopeEnum.ALL.getValue();
     }
+
+    /**
+     * description:获取当前登录的用户(无异常处理只在特殊情况下使用)
+     *
+     * @return UserDetails
+     * @author RenShiWei
+     * Date: 2020/12/5 16:00
+     */
+    public static UserDetails getCurrentUserNoThrow() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            UserDetailsService userDetailsService = SpringContextHolder.getBean(UserDetailsService.class);
+            return userDetailsService.loadUserByUsername(userDetails.getUsername());
+        }
+        return null;
+    }
+
+    /**
+     * description:获取系统用户名称(无异常处理只在特殊情况下使用)
+     *
+     * @return /
+     * @author RenShiWei
+     * Date: 2020/12/5 16:01
+     */
+    public static String getCurrentUsernameNoThrow() {
+        if (getCurrentUserNoThrow() == null) {
+            return null;
+        }
+        return getCurrentUserNoThrow().getUsername();
+    }
+
+
 }

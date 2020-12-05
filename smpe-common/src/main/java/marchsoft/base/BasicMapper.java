@@ -1,8 +1,9 @@
 package marchsoft.base;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
 
 /**
  * description:自定义BaseMapper，重写其方法，便于扩展；之后的Mapper继承本接口
@@ -13,14 +14,13 @@ import org.apache.ibatis.annotations.Param;
 public interface BasicMapper<T> extends BaseMapper<T> {
 
     /**
-     * description:查询一条数据，默认添加"LIMIT 1"<p>
-     * wrapper无需再进行进行设置：wrapper.last("LIMIT 1");(禁止添加)
+     * description:批量新增，一条sql插入所有的sql语句
      *
-     * @param wrapper /
-     * @return /
+     * @param batchList 新增数据的集合对象
+     * @return 新增的执行条数（正常情况下 >= 1）
      * @author RenShiWei
-     * Date: 2020/12/4 18:58
+     * Date: 2020/12/5 11:46
      */
-    T selectFirst(@Param("ew") Wrapper<T> wrapper);
+    int insertAllBatch(@Param("list") Collection<T> batchList);
 
 }
