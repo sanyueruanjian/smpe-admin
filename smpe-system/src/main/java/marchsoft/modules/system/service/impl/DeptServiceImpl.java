@@ -353,19 +353,18 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDept(Dept resources) {
-        // 旧部门 pid
-        Long oldPid = findById(resources.getId()).getPid();
-        Long newPid = resources.getPid();
-        if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
-            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标的上级不能是自己,当前dept：" + resources);
-            throw new BadRequestException("上级不能为自己");
-        }
         Dept dept = getById(resources.getId());
         if (ObjectUtil.isEmpty(dept)) {
             log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标不存在,修改目标deptId：" + resources.getId());
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
-        resources.setId(dept.getId());
+        // 旧部门 pid
+        Long oldPid = dept.getPid();
+        Long newPid = resources.getPid();
+        if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
+            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标的上级不能是自己,当前dept：" + resources);
+            throw new BadRequestException("上级不能为自己");
+        }
         resources.insertOrUpdate();
         // 更新父节点中子节点数目
         updateSubCnt(oldPid);
