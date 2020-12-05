@@ -89,7 +89,7 @@ public class DeptController {
     @PutMapping
     @PreAuthorize("@smpe.check('dept:edit')")
     public Result<Object> update(@RequestBody Dept dept) {
-        log.info("【修改部门 /api/dept】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 修改部门id= " + dept.getId());
+        log.info("【修改部门 /api/dept】操作人userId:" + SecurityUtils.getCurrentUserId() + "; 修改部门id= " + dept.getId()+";部门="+dept);
         deptService.updateDept(dept);
         return Result.success();
     }

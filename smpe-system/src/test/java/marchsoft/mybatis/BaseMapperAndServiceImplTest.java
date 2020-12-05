@@ -79,47 +79,7 @@ public class BaseMapperAndServiceImplTest {
         System.out.println("getSqlComment：" + wrapper.getSqlComment());
         System.out.println("getSqlFirst：" + wrapper.getSqlFirst());
         System.out.println("getParamNameValuePairs：" + wrapper.getParamNameValuePairs());
-        System.out.println(studentTestMapper.selectOne(wrapper));
-    }
-
-    /**
-     * description:测试mysql独有的批量新增的方法<p>
-     * 语法例子：insert into user(id, name, age) values (1, "a", 17), (2,"b", 18)
-     *
-     * @author RenShiWei
-     * Date: 2020/12/5 11:40
-     */
-    @Test
-    public void testInsertAllBatch() {
-        List<StudentTest> studentTestList = new ArrayList<>();
-        StudentTest student1 = new StudentTest();
-        StudentTest student2 = new StudentTest();
-        student1.setName("张凯杰").setAge(23).setNumber("20170256214");
-        student2.setName("焦前进").setAge(23).setNumber("20170289214");
-        studentTestList.add(student1);
-        studentTestList.add(student2);
-
-        int count = studentTestMapper.insertAllBatch(studentTestList);
-        System.out.println(count);
-    }
-
-    /**
-     * description:测试model调用新增的自定义批量插入的方法
-     *
-     * @author RenShiWei
-     * Date: 2020/12/5 16:30
-     */
-    @Test
-    public void testModelInsertAllBatch() {
-        List<StudentTest> studentTestList = new ArrayList<>();
-        StudentTest student1 = new StudentTest();
-        StudentTest student2 = new StudentTest();
-        student1.setName("kaijie").setAge(23).setNumber("20170256214");
-        student2.setName("qianjin").setAge(23).setNumber("20170289214");
-        studentTestList.add(student1);
-        studentTestList.add(student2);
-
-        System.out.println(student2.insertAllBatch(studentTestList));
+//        System.out.println(studentTestMapper.selectFirst(wrapper));
     }
 
 
