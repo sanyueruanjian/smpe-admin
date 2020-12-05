@@ -3,7 +3,7 @@ package marchsoft.base;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * description:自定义BaseMapper，重写其方法，便于扩展；之后的Mapper继承本接口
@@ -21,6 +21,6 @@ public interface BasicMapper<T> extends BaseMapper<T> {
      * @author RenShiWei
      * Date: 2020/12/5 11:46
      */
-    int insertAllBatch(@Param("list") List<T> batchList);
+    int insertAllBatch(@Param("list") Collection<T> batchList);
 
 }

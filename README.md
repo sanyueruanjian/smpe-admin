@@ -1,7 +1,7 @@
 # SMPE-ADMIN后台管理系统
 
 # 项目简介
-一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
+一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
 **开发文档：**  待完善
 **默认管理员账号密码：** `admin / 123456`

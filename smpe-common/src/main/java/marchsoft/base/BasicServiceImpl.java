@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.util.Collection;
+
 /**
  * description:自定义ServiceImpl继承ServiceImpl，便于扩展；之后所有的ServiceImpl继承本类
  *
@@ -27,6 +29,20 @@ public class BasicServiceImpl<M extends BasicMapper<T>, T> extends ServiceImpl<M
         AbstractWrapper<T, SFunction<T, ?>, ?> abstractWrapper = (AbstractWrapper<T, SFunction<T, ?>, ?>) wrapper;
         abstractWrapper.last("LIMIT 1");
         return this.getOne(abstractWrapper, true);
+    }
+
+    /**
+     * description:批量新增，一条sql插入所有的sql语句
+     *
+     * @param batchList 新增数据的集合对象
+     * @return 是否执行成功
+     * @author RenShiWei
+     * Date: 2020/12/5 11:46
+     */
+    @Override
+    public boolean saveAllBatch(Collection<T> batchList) {
+        int count = baseMapper.insertAllBatch(batchList);
+        return count > 0;
     }
 
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * description:
+ * description:测试自定义mybatisPlus的方法
  *
  * @author RenShiWei
  * Date: 2020/12/4 12:04
@@ -101,6 +101,25 @@ public class BaseMapperAndServiceImplTest {
 
         int count = studentTestMapper.insertAllBatch(studentTestList);
         System.out.println(count);
+    }
+
+    /**
+     * description:测试model调用新增的自定义批量插入的方法
+     *
+     * @author RenShiWei
+     * Date: 2020/12/5 16:30
+     */
+    @Test
+    public void testModelInsertAllBatch() {
+        List<StudentTest> studentTestList = new ArrayList<>();
+        StudentTest student1 = new StudentTest();
+        StudentTest student2 = new StudentTest();
+        student1.setName("kaijie").setAge(23).setNumber("20170256214");
+        student2.setName("qianjin").setAge(23).setNumber("20170289214");
+        studentTestList.add(student1);
+        studentTestList.add(student2);
+
+        System.out.println(student2.insertAllBatch(studentTestList));
     }
 
 
