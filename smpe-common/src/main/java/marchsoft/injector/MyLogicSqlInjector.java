@@ -2,12 +2,12 @@ package marchsoft.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
-import marchsoft.injector.method.SelectFirst;
+import marchsoft.injector.method.InsertAllBatch;
 
 import java.util.List;
 
 /**
- * description:
+ * description:装配BaseMapper自定义的方法
  *
  * @author RenShiWei
  * Date: 2020/12/4 17:59
@@ -23,7 +23,7 @@ public class MyLogicSqlInjector extends DefaultSqlInjector {
     @Override
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
         List<AbstractMethod> methodList = super.getMethodList(mapperClass);
-        methodList.add(new SelectFirst());
+        methodList.add(new InsertAllBatch());
         return methodList;
     }
 }

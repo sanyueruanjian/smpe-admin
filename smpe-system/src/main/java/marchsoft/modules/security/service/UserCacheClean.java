@@ -2,7 +2,6 @@ package marchsoft.modules.security.service;
 
 import lombok.RequiredArgsConstructor;
 import marchsoft.utils.RedisUtils;
-import marchsoft.utils.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,11 +20,11 @@ public class UserCacheClean {
      * 清理特定用户缓存信息<br>
      * 用户信息变更时
      *
-     * @param userName /
+     * @param userId 用户id
      */
-    public void cleanUserCache(String userName) {
-        if (StringUtils.isNotEmpty(userName)) {
-            redisUtils.del(userName);
+    public void cleanUserCache(Long userId) {
+        if (userId != null) {
+            redisUtils.del(userId.toString());
         }
     }
 
