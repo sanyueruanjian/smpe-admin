@@ -74,7 +74,7 @@ public class BaseMapperAndServiceImplTest {
         System.out.println("getSqlComment：" + wrapper.getSqlComment());
         System.out.println("getSqlFirst：" + wrapper.getSqlFirst());
         System.out.println("getParamNameValuePairs：" + wrapper.getParamNameValuePairs());
-        System.out.println(studentTestMapper.selectFirst(wrapper));
+//        System.out.println(studentTestMapper.selectFirst(wrapper));
     }
 
 
