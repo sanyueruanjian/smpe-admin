@@ -1,5 +1,7 @@
 package marchsoft.config.mybatisplus;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -48,7 +50,7 @@ public class CachingInterceptor implements Interceptor {
         Object[] args = invocation.getArgs();
         MappedStatement ms = (MappedStatement) args[0];
         BoundSql boundSql = ms.getBoundSql(args[1]);
-        if (! ms.getConfiguration().isCacheEnabled() || ms.getCache() == null) {
+        if (!ms.getConfiguration().isCacheEnabled() || ms.getCache() == null) {
             return invocation.proceed();
         }
         if (dealedMap.containsKey(ms.getId()) && dealedMap.get(ms.getId()).equals(boundSql.getSql())) {
@@ -96,7 +98,7 @@ public class CachingInterceptor implements Interceptor {
                 namespaces = new HashMap<>();
                 namespaces.put(namespace, namespace);
                 tableLinks.put(tableName, namespaces);
-            } else if (! namespaces.containsKey(namespace)) {
+            } else if (!namespaces.containsKey(namespace)) {
                 namespaces.put(namespace, namespace);
             }
         }
@@ -121,6 +123,9 @@ public class CachingInterceptor implements Interceptor {
                 for (Object o : mappedStatments) {
                     if (o instanceof MappedStatement) {
                         MappedStatement sta = ((MappedStatement) o);
+                        if (ObjectUtil.isEmpty(sta.getCache())) {
+                            return;
+                        }
                         final String namespace = sta.getCache().getId();
                         if (namespaceNeedClearKey.equals(namespace)) {
                             logger.debug("命名空间[{}]的缓存被清除", namespace);

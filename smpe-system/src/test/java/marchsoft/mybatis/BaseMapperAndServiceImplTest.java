@@ -6,14 +6,18 @@ import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.test.entity.StudentTest;
 import marchsoft.test.mapper.StudentTestMapper;
+import marchsoft.test.service.IStudentTestService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * description:
+ * description:测试自定义mybatisPlus的方法
  *
  * @author RenShiWei
  * Date: 2020/12/4 12:04
@@ -24,12 +28,13 @@ public class BaseMapperAndServiceImplTest {
 
     @Autowired
     private IJobService jobService;
-
     @Autowired
     private JobMapper jobMapper;
-
     @Autowired
     private StudentTestMapper studentTestMapper;
+    @Autowired
+    private IStudentTestService studentTestService;
+
 
     /**
      * description:测试重新service的getOne方法，查出两条数据是否还会报错<p>
