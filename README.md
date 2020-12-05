@@ -78,6 +78,10 @@
   - 数据库新建表之后，使用MybatisPlusGenerator在business下生成相应文件。
   - 之后接口开发和往常相同，接口需要权限则加上@PreAuthorize("@smpe.check('xxx')")；
   
+### 自定义代码生成
+关于代码生成类`MybatisPlusGenerator`的使用参考：[自定义深度定制人性化的MybatisPlus的代码生成策略](https://blog.csdn.net/qq_42937522/article/details/110725251)
+
+  
 ## 服务器部署
 参考：
 1. [docker安装及docker常用命令](https://blog.csdn.net/qq_42937522/article/details/106274293)
