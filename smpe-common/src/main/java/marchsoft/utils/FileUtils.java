@@ -11,7 +11,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -246,11 +245,6 @@ public class FileUtils extends cn.hutool.core.io.FileUtil {
         } else {
             return "其他";
         }
-    }
-
-    public static String getFileTypeByMimeType(String type) {
-        String mimeType = new MimetypesFileTypeMap().getContentType("." + type);
-        return mimeType.split("/")[0];
     }
 
     public static boolean checkSize(long maxSize, long size) {

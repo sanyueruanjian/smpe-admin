@@ -24,7 +24,7 @@ public enum BaseMapperMethodEnum {
     /** 方法对应的sql语句 */
     private final String sql;
 
-    private BaseMapperMethodEnum(String method, String desc, String sql) {
+    BaseMapperMethodEnum(String method, String desc, String sql) {
         this.method = method;
         this.desc = desc;
         this.sql = sql;
