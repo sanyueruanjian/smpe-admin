@@ -6,11 +6,15 @@ import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.test.entity.StudentTest;
 import marchsoft.test.mapper.StudentTestMapper;
+import marchsoft.test.service.IStudentTestService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * description:
@@ -24,12 +28,13 @@ public class BaseMapperAndServiceImplTest {
 
     @Autowired
     private IJobService jobService;
-
     @Autowired
     private JobMapper jobMapper;
-
     @Autowired
     private StudentTestMapper studentTestMapper;
+    @Autowired
+    private IStudentTestService studentTestService;
+
 
     /**
      * description:测试重新service的getOne方法，查出两条数据是否还会报错<p>
@@ -74,7 +79,28 @@ public class BaseMapperAndServiceImplTest {
         System.out.println("getSqlComment：" + wrapper.getSqlComment());
         System.out.println("getSqlFirst：" + wrapper.getSqlFirst());
         System.out.println("getParamNameValuePairs：" + wrapper.getParamNameValuePairs());
-        System.out.println(studentTestMapper.selectFirst(wrapper));
+        System.out.println(studentTestMapper.selectOne(wrapper));
+    }
+
+    /**
+     * description:测试mysql独有的批量新增的方法<p>
+     * 语法例子：insert into user(id, name, age) values (1, "a", 17), (2,"b", 18)
+     *
+     * @author RenShiWei
+     * Date: 2020/12/5 11:40
+     */
+    @Test
+    public void testInsertAllBatch() {
+        List<StudentTest> studentTestList = new ArrayList<>();
+        StudentTest student1 = new StudentTest();
+        StudentTest student2 = new StudentTest();
+        student1.setName("张凯杰").setAge(23).setNumber("20170256214");
+        student2.setName("焦前进").setAge(23).setNumber("20170289214");
+        studentTestList.add(student1);
+        studentTestList.add(student2);
+
+        int count = studentTestMapper.insertAllBatch(studentTestList);
+        System.out.println(count);
     }
 
 
