@@ -14,6 +14,7 @@ import marchsoft.base.PageVO;
 import marchsoft.config.bean.RsaProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
+import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.entity.vo.UserPassVo;
@@ -56,6 +57,7 @@ public class UserController {
     private final IUserService userService;
     private final IDeptService deptService;
     private final IRoleService roleService;
+    private final UserCacheClean userCacheClean;
 
     @ApiOperation(value = "导出用户数据", notes = " \n author：RenShiWei 2020/11/24")
     @ApiImplicitParam(name = "criteria", value = "条件")
@@ -190,6 +192,7 @@ public class UserController {
             log.error("【修改密码失败】" + "用户id：" + SecurityUtils.getCurrentUserId());
             throw new BadRequestException("【修改密码失败");
         }
+        userCacheClean.cleanUserCache(user.getId());
         log.info("【修改密码成功】");
         return Result.success();
     }
