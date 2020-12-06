@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import marchsoft.base.BasicModel;
+import marchsoft.base.BasicServiceImpl;
+import marchsoft.base.IBasicService;
 
 import java.io.File;
 import java.util.Scanner;
@@ -208,7 +211,17 @@ public class MybatisPlusGenerator {
                 .setChainModel(true)
                 // Boolean类型字段是否移除is前缀（默认 false）
                 .setEntityBooleanColumnRemoveIsPrefix(true)
-                .setRestControllerStyle(true);
+                .setRestControllerStyle(true)
+                /*
+                    设置父类策略
+                 */
+                // 设置实体类的父类
+                .setSuperEntityClass(BasicModel.class)
+                //设置写入实体父类的字段
+                .setSuperEntityColumns("create_time", "update_time", "create_by", "update_by")
+                .setSuperMapperClass("marchsoft.base.BasicMapper")
+                .setSuperServiceClass(IBasicService.class)
+                .setSuperServiceImplClass(BasicServiceImpl.class);
 
         return strategy;
     }
