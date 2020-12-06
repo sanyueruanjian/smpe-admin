@@ -2,6 +2,8 @@
 
 #参考博客：https://blog.csdn.net/qq_42937522/article/details/107755941
 
+#注意:第一次编译执行时，要先执行pull命令，否则没有maven打的jar不行start。
+
 # 镜像名字
 IMAGE_NAME=centos7_mvn_git_java8
 

@@ -1,7 +1,7 @@
 # SMPE-ADMIN后台管理系统
 
 # 项目简介
-一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
+一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
 **开发文档：**  待完善
 **默认管理员账号密码：** `admin / 123456`
@@ -77,6 +77,10 @@
 - **开发流程**
   - 数据库新建表之后，使用MybatisPlusGenerator在business下生成相应文件。
   - 之后接口开发和往常相同，接口需要权限则加上@PreAuthorize("@smpe.check('xxx')")；
+  
+### 自定义代码生成
+关于代码生成类`MybatisPlusGenerator`的使用参考：[自定义深度定制人性化的MybatisPlus的代码生成策略](https://blog.csdn.net/qq_42937522/article/details/110725251)
+
   
 ## 服务器部署
 参考：

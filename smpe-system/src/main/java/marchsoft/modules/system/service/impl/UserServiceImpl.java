@@ -326,8 +326,9 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         if (! user.getEnabled()) {
             onlineUserService.kickOutForUsername(userBO.getUsername());
         }
-
         log.info("【修改用户信息成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+        //刷新缓存
+        flushCache(user.getId());
     }
 
     /**
@@ -350,11 +351,11 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         if (StringUtils.isNotBlank(oldPath)) {
             FileUtil.del(oldPath);
         }
-        String username = user.getUsername();
         if (ObjectUtil.isNull(user)) {
             throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
-        flushCache(username);
+        //刷新缓存
+        flushCache(user.getId());
         Map<String, String> map = new HashMap<>(1);
         map.put("avatar", file.getName());
         log.info("【修改用户头像成功】" + "用户id：" + SecurityUtils.getCurrentUserId() + "上传文件名：" + file.getName());
@@ -364,10 +365,10 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     /**
      * 清理 登陆时 用户缓存信息
      *
-     * @param username /
+     * @param userId 用户id
      */
-    private void flushCache(String username) {
-        userCacheClean.cleanUserCache(username);
+    private void flushCache(Long userId) {
+        userCacheClean.cleanUserCache(userId);
     }
 
 }
