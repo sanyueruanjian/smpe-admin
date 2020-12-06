@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * description:mybatis plus 自定义自动填充策略
+ * TODO:@RenShiWei 2020/12/6 description:根据启动环境判断注入信息是否可以为null
  *
  * @author RenShiWei
  * Date: 2020/7/13 16:13
