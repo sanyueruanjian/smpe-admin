@@ -118,7 +118,7 @@ jwt:
 #是否开启 swagger-ui
 swagger:
   enabled: true  #生产环境关闭swagger
-  host: 127.0.0.1:${server.port}
+  host: 127.0.0.1:${server.port}  #host需要换成部署服务器的ip
   description: 一个简单且易上手的 Spring boot 后台管理框架
   title: SMPE-ADMIN 接口文档
   version: @project.version@

@@ -28,7 +28,7 @@
         <mysql.version>5.1.48</mysql.version>
         <lombok.version>1.18.8</lombok.version>
         <log4jdbc.version>1.16</log4jdbc.version>
-        <mybatis.plus.version>3.3.2</mybatis.plus.version>
+        <mybatis.plus.version>3.4.1</mybatis.plus.version>
         <swagger.version>2.9.2</swagger.version>
         <swagger.models.version>1.5.21</swagger.models.version>
         <swagger.annotations.version>1.5.21</swagger.annotations.version>
