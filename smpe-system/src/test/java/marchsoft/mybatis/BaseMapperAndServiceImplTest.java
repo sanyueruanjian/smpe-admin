@@ -2,6 +2,7 @@ package marchsoft.mybatis;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import marchsoft.modules.system.entity.Job;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.service.IJobService;
 import org.junit.Test;
@@ -55,6 +56,14 @@ public class BaseMapperAndServiceImplTest {
         System.out.println("getSqlFirst：" + wrapper.getSqlFirst());
         System.out.println("getParamNameValuePairs：" + wrapper.getParamNameValuePairs());
         System.out.println(job);
+    }
+
+    @Test
+    public void testModel() {
+        User user = new User();
+        user.setUsername("admin");
+        user.setEmail("1485656989@qq.com");
+        user.insert();
     }
 
 }

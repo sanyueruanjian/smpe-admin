@@ -123,7 +123,7 @@ public class MybatisPlusGenerator {
                 .setIdType(IdType.AUTO)
                 // 是否覆盖已有文件 （默认false）
                 .setFileOverride(false)
-                // 设置支持ActiveRecord 继承Model
+                // 设置支持ActiveRecord 实体类继承Model
                 .setActiveRecord(true)
                 // 实体属性 Swagger2 注解
                 .setSwagger2(true);

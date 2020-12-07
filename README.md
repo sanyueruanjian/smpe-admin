@@ -81,6 +81,8 @@
 ### 自定义代码生成
 关于代码生成类`MybatisPlusGenerator`的使用参考：[自定义深度定制人性化的MybatisPlus的代码生成策略](https://blog.csdn.net/qq_42937522/article/details/110725251)
 
+### 自定义扩展MybatisPlus的方法
+参考：[如何深度定制扩展MybatisPlus提供的Model、Mapper、Service层的方法](https://blog.csdn.net/qq_42937522/article/details/110740545)
   
 ## 服务器部署
 参考：
