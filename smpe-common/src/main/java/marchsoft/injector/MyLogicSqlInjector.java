@@ -26,4 +26,5 @@ public class MyLogicSqlInjector extends DefaultSqlInjector {
         methodList.add(new InsertAllBatch());
         return methodList;
     }
+
 }
