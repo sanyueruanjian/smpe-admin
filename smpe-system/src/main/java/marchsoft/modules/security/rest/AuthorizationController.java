@@ -26,6 +26,7 @@ import marchsoft.response.Result;
 import marchsoft.utils.RedisUtils;
 import marchsoft.utils.RsaUtils;
 import marchsoft.utils.SecurityUtils;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -82,7 +83,14 @@ public class AuthorizationController {
         Long userId = userService.findUserIdByName(authUser.getUsername());
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userId, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        Authentication authentication = null;
+        try {
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (BadCredentialsException e) {
+            //账号或密码错误
+            throw new BadRequestException(ResultEnum.LOGIN_FAIL);
+        }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 生成令牌
         final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
@@ -149,7 +157,12 @@ public class AuthorizationController {
         Long userId = userService.findUserIdByName(authUser.getUsername());
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userId, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication = null;
+        try {
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (BadCredentialsException e) {
+            throw new BadRequestException(ResultEnum.LOGIN_FAIL);
+        }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 生成令牌
         final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
