@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.PageVO;
@@ -112,7 +109,7 @@ public class UserController {
 
     @ApiOperation("新增用户")
     @PostMapping
-    @ApiImplicitParam(name = "userInsertOrUpdateDTO", value = "新增用户参数列表")
+    @ApiParam(name = "userInsertOrUpdateDTO", value = "新增用户参数列表")
     @PreAuthorize("@smpe.check('user:add')")
     public Result<Void> insertUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
         if (! checkLevel(userInsertOrUpdateDTO.getRoles())) {
@@ -127,7 +124,7 @@ public class UserController {
 
     @ApiOperation("修改用户")
     @PutMapping
-    @ApiImplicitParam(name = "userInsertOrUpdateDTO", value = "修改用户参数列表")
+    @ApiParam(name = "userInsertOrUpdateDTO", value = "修改用户参数列表")
     @PreAuthorize("@smpe.check('user:edit')")
     public Result<Void> updateUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
         if (! checkLevel(userInsertOrUpdateDTO.getRoles())) {
@@ -139,7 +136,7 @@ public class UserController {
     }
 
     @ApiOperation("修改用户：个人中心")
-    @ApiImplicitParam(name = "userPersonalInfo", value = "修改个人信息参数列表")
+    @ApiParam(name = "userPersonalInfo", value = "修改个人信息参数列表")
     @PutMapping(value = "center")
     public Result<Void> updateUserPersonalInfo(@RequestBody UserPersonalInfoDTO userPersonalInfoDTO) {
         if (! userPersonalInfoDTO.getId().equals(SecurityUtils.getCurrentUserId())) {
