@@ -86,7 +86,7 @@ public class PageUtil extends cn.hutool.core.util.PageUtil {
      */
     public static <K> IPage<K> buildPage(PageVO pageVO) {
         Page<K> page = new Page<>(pageVO.getCurrent(), pageVO.getSize());
-        page.addOrder(pageVO.getOrderList());
+        page.addOrder(pageVO.generateOrderList());
         return page;
     }
 
