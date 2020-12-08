@@ -1,5 +1,6 @@
 package marchsoft.modules.system.entity.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import java.util.Set;
  * Date: 2020/11/24 20:46
  **/
 @Data
+@ApiModel
 public class UserInsertOrUpdateDTO {
 
     @ApiModelProperty(value = "ID")

@@ -64,7 +64,7 @@ public class PageVO {
      * @author RenShiWei
      * Date: 2020/11/22 16:43
      */
-    public List<OrderItem> getOrderList() {
+    public List<OrderItem> generateOrderList() {
         List<OrderItem> orderItemList = new ArrayList<>();
         if (StrUtil.isBlank(getOrders())) {
             orderItemList.add(OrderItem.desc("create_time"));
@@ -87,7 +87,7 @@ public class PageVO {
      */
     public <K> IPage<K> buildPage() {
         Page<K> page = new Page<>(getCurrent(), getSize());
-        page.addOrder(getOrderList());
+        page.addOrder(generateOrderList());
         return page;
     }
 
