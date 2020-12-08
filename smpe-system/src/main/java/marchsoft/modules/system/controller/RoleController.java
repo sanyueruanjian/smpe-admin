@@ -3,10 +3,7 @@ package marchsoft.modules.system.controller;
 
 import cn.hutool.core.lang.Dict;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.PageVO;
@@ -84,7 +81,7 @@ public class RoleController {
     }
 
     @ApiOperation(value = "新增角色", notes = " \n author：RenShiWei 2020/11/26")
-    @ApiImplicitParam(name = "roleInsertOrUpdateDTO", value = "新增角色参数列表")
+    @ApiParam(name = "roleInsertOrUpdateDTO", value = "新增角色参数列表")
     @PostMapping
     @PreAuthorize("@smpe.check('roles:add')")
     public Result<Void> create(@RequestBody RoleInsertOrUpdateDTO roleInsertOrUpdateDTO) {
@@ -98,7 +95,7 @@ public class RoleController {
     }
 
     @ApiOperation(value = "修改角色", notes = " \n author：RenShiWei 2020/11/26")
-    @ApiImplicitParam(name = "roleInsertOrUpdateDTO", value = "修改角色参数列表")
+    @ApiParam(name = "roleInsertOrUpdateDTO", value = "修改角色参数列表")
     @PutMapping
     @PreAuthorize("@smpe.check('roles:edit')")
     public Result<Void> update(@RequestBody RoleInsertOrUpdateDTO roleInsertOrUpdateDTO) {
@@ -108,10 +105,7 @@ public class RoleController {
     }
 
     @ApiOperation(value = "修改角色菜单", notes = " \n author：RenShiWei 2020/11/27")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "角色id"),
-            @ApiImplicitParam(name = "menus", value = "菜单id集合")
-    })
+    @ApiParam(name = "roleMenuUpdateDTO", value = "修改角色菜单参数列表")
     @PutMapping(value = "/menu")
     @PreAuthorize("@smpe.check('roles:edit')")
     public Result<Void> updateMenu(@RequestBody RoleMenuUpdateDTO roleMenuUpdateDTO) {
