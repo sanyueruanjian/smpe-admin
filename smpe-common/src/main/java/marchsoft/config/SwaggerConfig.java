@@ -59,7 +59,7 @@ public class SwaggerConfig {
                 .directModelSubstitute(Date.class, String.class)
                 .enable(swaggerProperties.getEnabled())
                 .apiInfo(apiInfo())
-                .host(swaggerProperties.getSwaggerHost())
+                .host(swaggerProperties.getHost())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("marchsoft"))
                 .paths(Predicates.not(PathSelectors.regex("/error.*")))
