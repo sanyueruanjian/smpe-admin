@@ -28,6 +28,6 @@ public class SwaggerProperties {
     private String version;
 
     /** ip和host */
-    private String swaggerHost;
+    private String host;
 
 }
