@@ -1,3 +1,10 @@
+---
+name: pull request模板
+
+about: 提交PR对应的Issues模板
+
+---
+
 ### 该Pull Request关联的Issue
 
 
