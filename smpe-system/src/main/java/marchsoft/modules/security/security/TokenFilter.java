@@ -61,8 +61,9 @@ public class TokenFilter extends GenericFilterBean {
             } finally {
                 //出现异常或者用户信息为空时，清除用户缓存
                 // modify @RenShiWei 2020/11/24 description:用户信息缓存在map中（java内存） ——> redis
+                // modify @RenShiWei 2020/12/10 description:改变cleanUserCache的策略
                 if (cleanUserCache || Objects.isNull(onlineUserDto)) {
-                    userCacheClean.cleanUserCache(Long.parseLong(tokenProvider.getClaims(token).get(TokenProvider.AUTHORITIES_KEY).toString()));
+                    userCacheClean.cleanUserCache(Long.parseLong(tokenProvider.getSubject(token)));
                 }
             }
             // token合法
