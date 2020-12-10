@@ -142,6 +142,19 @@ public class TokenProvider implements InitializingBean {
     }
 
     /**
+     * description:获取token的主题Subject信息
+     *
+     * @param token /
+     * @return /
+     * @author RenShiWei
+     * Date: 2020/12/10 20:22
+     */
+    public String getSubject(String token) {
+        Claims claims = getClaims(token);
+        return claims.getSubject();
+    }
+
+    /**
      * @param token 需要检查的token
      */
     public void checkRenewal(String token) {
