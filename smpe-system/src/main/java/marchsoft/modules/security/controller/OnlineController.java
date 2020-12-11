@@ -1,4 +1,4 @@
-package marchsoft.modules.security.rest;
+package marchsoft.modules.security.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

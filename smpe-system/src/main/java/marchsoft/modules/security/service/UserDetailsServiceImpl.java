@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.security.config.bean.LoginProperties;
-import marchsoft.modules.security.service.dto.JwtUserDto;
+import marchsoft.modules.security.entity.dto.JwtUserDto;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.service.IDataService;

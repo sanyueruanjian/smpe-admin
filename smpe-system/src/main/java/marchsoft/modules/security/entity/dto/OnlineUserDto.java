@@ -1,4 +1,4 @@
-package marchsoft.modules.security.service.dto;
+package marchsoft.modules.security.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
