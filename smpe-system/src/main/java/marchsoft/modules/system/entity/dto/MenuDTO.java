@@ -42,7 +42,7 @@ public class MenuDTO extends BaseDTO implements Serializable {
 
     private Boolean hidden;
 
-    private String componentName;
+    private String name;
 
     private String icon;
 
