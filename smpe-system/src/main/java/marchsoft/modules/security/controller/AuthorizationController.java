@@ -1,4 +1,4 @@
-package marchsoft.modules.security.rest;
+package marchsoft.modules.security.controller;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -17,10 +17,10 @@ import marchsoft.exception.BadRequestException;
 import marchsoft.modules.security.config.bean.LoginCodeEnum;
 import marchsoft.modules.security.config.bean.LoginProperties;
 import marchsoft.modules.security.config.bean.SecurityProperties;
+import marchsoft.modules.security.entity.dto.AuthUserDto;
+import marchsoft.modules.security.entity.dto.JwtUserDto;
 import marchsoft.modules.security.security.TokenProvider;
 import marchsoft.modules.security.service.OnlineUserService;
-import marchsoft.modules.security.service.dto.AuthUserDto;
-import marchsoft.modules.security.service.dto.JwtUserDto;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.response.Result;
 import marchsoft.utils.RedisUtils;
