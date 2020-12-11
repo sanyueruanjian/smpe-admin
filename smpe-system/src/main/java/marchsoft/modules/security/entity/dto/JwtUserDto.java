@@ -1,4 +1,4 @@
-package marchsoft.modules.security.service.dto;
+package marchsoft.modules.security.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ToString
 public class JwtUserDto implements UserDetails, Serializable {
-
 
 
     private UserDTO user;

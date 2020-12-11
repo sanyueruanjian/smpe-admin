@@ -4,6 +4,7 @@
 一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
 **开发文档：**  待完善
+
 **默认管理员账号密码：** `admin / 123456`
 
 ## 项目源码
@@ -52,9 +53,19 @@
         - business 业务模块（一般项目业务开发模块可放在此包下，各模块可构建自己的config、utils、enums等）
         - generator mpbatisplus的代码生成（后端）
         - security 安全认证（SpringSecurity+JWT）
-        - system 系统核心模块（用户、角色、部门、岗位、菜单管理等）
+        - system 系统核心模块（用户、角色、部门、岗位、菜单管理等）（各模块文件夹结构可参考如下）
+            - controller
+            - entiry
+                - bo
+                - dto
+            - mapper
+            - service
+                - impl
+                - mapstruct(Java实体映射文件)
+            - config（仅限本模块使用的配置文件，没有可忽略）
+            - utils（仅限本模块使用的工具类，没有可忽略）
         - upload 文件模块（上传、下载等）
-    - utils 核心模块工具类
+    - utils 核心模块工具类（仅限smpe-system子工程使用的工具类，非全局使用）
 - smpe-xxx （自定义待开发模块）
 - sql 数据库文件
 - Dockerfile 构建后端服务器环境的Dockerfile（基于docker）
