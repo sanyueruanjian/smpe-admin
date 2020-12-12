@@ -145,7 +145,12 @@ public class UserController {
         }
         User user = new User();
         BeanUtil.copyProperties(userPersonalInfoDTO, user);
-        userService.updateById(user);
+        boolean isUpdate = userService.updateById(user);
+        if (! isUpdate) {
+            log.error("【修改用户失败】" + "userId：" + SecurityUtils.getCurrentUserId());
+            throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
+        }
+        userCacheClean.cleanUserCache(userPersonalInfoDTO.getId());
         return Result.success();
     }
 
@@ -197,7 +202,9 @@ public class UserController {
     @ApiOperation("修改头像")
     @PostMapping(value = "/updateAvatar")
     public Result<Map<String, String>> updateAvatar(@RequestParam MultipartFile avatar) {
-        return Result.success(userService.updateAvatar(avatar));
+        Map<String, String> map = userService.updateAvatar(avatar);
+        userCacheClean.cleanUserCache(SecurityUtils.getCurrentUserId());
+        return Result.success(map);
     }
 
     /**

@@ -56,7 +56,7 @@
         - security 安全认证（SpringSecurity+JWT）
         - system 系统核心模块（用户、角色、部门、岗位、菜单管理等）（各模块文件夹结构可参考如下）
             - controller
-            - entiry
+            - entity
                 - bo
                 - dto
             - mapper
