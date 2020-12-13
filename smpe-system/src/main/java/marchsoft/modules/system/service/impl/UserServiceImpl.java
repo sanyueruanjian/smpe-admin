@@ -139,7 +139,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
      */
     private LambdaQueryWrapper<User> buildUserQueryCriteria(UserQueryCriteria criteria) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::isDeleted, false);
+        wrapper.eq(User::getDeleted, false);
         if (ObjectUtil.isNotNull(criteria.getId())) {
             wrapper.eq(User::getId, criteria.getId());
         }
