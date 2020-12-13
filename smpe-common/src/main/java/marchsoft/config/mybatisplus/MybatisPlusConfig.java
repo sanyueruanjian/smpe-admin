@@ -35,10 +35,10 @@ public class MybatisPlusConfig {
     /**
      * mybatis 自定义拦截器
      */
-    @Bean
-    public CachingInterceptor getInterceptor() {
-        return new CachingInterceptor();
-    }
+//    @Bean
+//    public CachingInterceptor getInterceptor() {
+//        return new CachingInterceptor();
+//    }
 
     /**
      * 自定义 SqlInjector
