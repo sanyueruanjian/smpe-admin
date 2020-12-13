@@ -125,7 +125,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
             menuDtoQueryWrapper.between(Menu::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
         }
-        menuDtoQueryWrapper.orderByAsc(Menu::getMenuSort).eq(Menu::isDeleted, false);
+        menuDtoQueryWrapper.orderByAsc(Menu::getMenuSort).eq(Menu::getDeleted, false);
         List<Menu> menus = menuMapper.queryAll(menuDtoQueryWrapper);
         return menuMapStruct.toDto(menus);
     }
@@ -142,7 +142,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
     public List<MenuDTO> getMenus(Long pid) {
         List<Menu> menus;
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Menu::getPid, pid).eq(Menu::isDeleted, false);
+        queryWrapper.eq(Menu::getPid, pid).eq(Menu::getDeleted, false);
         menus = menuMapper.getMenusByPid(queryWrapper);
         return menuMapStruct.toDto(menus);
     }
@@ -493,7 +493,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         for (Menu menu : menuList) {
             menuSet.add(menu);
             LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(Menu::getPid, menu.getId()).eq(Menu::isDeleted, false);
+            queryWrapper.eq(Menu::getPid, menu.getId()).eq(Menu::getDeleted, false);
             List<Menu> menus = menuMapper.getMenusByPid(queryWrapper);
             if (menus != null && menus.size() != 0) {
                 getChildMenus(menus, menuSet);

@@ -123,6 +123,10 @@ public class RoleController {
         for (Long id : ids) {
             RoleDTO role = roleService.findById(id);
             getLevels(role.getLevel());
+            if (role.getProtection()) {
+                log.error("【删除角色失败】存在内置角色。roleId：" + id);
+                throw new BadRequestException("存在内置角色，不能删除");
+            }
         }
         // 验证是否被用户关联
         if (roleService.isRolesWithUser(ids)) {

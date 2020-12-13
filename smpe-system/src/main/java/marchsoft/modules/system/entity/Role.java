@@ -1,6 +1,7 @@
 package marchsoft.modules.system.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -49,6 +50,10 @@ public class Role extends BasicModel<Role> {
 
     @ApiModelProperty(value = "数据权限")
     private String dataScope;
+
+    @ApiModelProperty(value = "是否受保护（内置角色，1为内置角色，默认值为0）")
+    @TableField(value = "is_protection")
+    private Boolean protection;
 
     @Override
     protected Serializable pkVal() {

@@ -35,10 +35,11 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 9:20
      */
-    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+    @Select("SELECT id,name,level,description,data_scope,is_protection,create_by,update_by,create_time,update_time " +
             "FROM sys_role r WHERE r.id = #{roleId} AND is_deleted=0")
     @Results({
             @Result(column = "id", property = "id"),
+            @Result(column = "is_protection", property = "protection"),
             @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
@@ -56,10 +57,11 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+    @Select("SELECT id,name,level,description,data_scope,is_protection,create_by,update_by,create_time,update_time " +
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "id", property = "id"),
+            @Result(column = "is_protection", property = "protection"),
             @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
@@ -78,10 +80,11 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+    @Select("SELECT id,name,level,description,data_scope,is_protection,create_by,update_by,create_time,update_time " +
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "id", property = "id"),
+            @Result(column = "is_protection", property = "protection"),
             @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
@@ -100,10 +103,14 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 16:18
      */
-    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.is_protection,r.create_by,r.update_by,r" +
+            ".create_time,r" +
             ".update_time" +
             " FROM sys_role r, sys_users_roles ur WHERE r.id = ur.role_id AND ur.user_id = #{userId}" +
             " AND r.is_deleted=0")
+    @Results({
+            @Result(column = "is_protection", property = "protection"),
+    })
     Set<Role> findRoleByUserId(Long userId);
 
     /**
@@ -174,11 +181,14 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author Wangmingcan
      * @date 2020-08-23 15:49
      */
-    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.is_protection,r.create_by,r.update_by,r" +
+            ".create_time,r" +
             ".update_time " +
             "FROM sys_role r, sys_users_roles ur WHERE r.id = ur.role_id AND ur.user_id = ${userId}" +
             " AND r.is_deleted=0")
     @Results({
+            @Result(column = "id", property = "id"),
+            @Result(column = "is_protection", property = "protection"),
             @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER))

@@ -47,7 +47,7 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
 
     @ApiModelProperty(value = "更新时间")
     @TableField(value = "is_deleted")
-    private boolean deleted;
+    private Boolean deleted;
 
     /**
      * description:重写父类的selectOne方法，添加"LIMIT 1"的限制，默认查第一条；

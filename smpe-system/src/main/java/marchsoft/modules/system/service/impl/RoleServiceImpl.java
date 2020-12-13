@@ -93,7 +93,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     public List<RoleDTO> findRoleDetailAll() {
         //默认按照角色的级别升序
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByAsc(Role::getLevel).eq(Role::isDeleted, false);
+        wrapper.orderByAsc(Role::getLevel).eq(Role::getDeleted, false);
         return roleMapStruct.toDto(roleMapper.findRoleDetailAll(wrapper));
     }
 
@@ -136,7 +136,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
      */
     private LambdaQueryWrapper<Role> buildUserQueryCriteria(RoleQueryCriteria criteria) {
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Role::isDeleted, false);
+        wrapper.eq(Role::getDeleted, false);
         if (StrUtil.isNotBlank(criteria.getBlurry())) {
             wrapper.like(Role::getName, criteria.getBlurry()).or()
                     .like(Role::getDescription, criteria.getBlurry());
