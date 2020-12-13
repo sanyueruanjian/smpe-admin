@@ -35,14 +35,14 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 9:20
      */
-    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
-            "FROM sys_role r WHERE r.role_id = #{roleId}")
+    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+            "FROM sys_role r WHERE r.id = #{roleId} AND is_deleted=0")
     @Results({
-            @Result(column = "role_id", property = "id"),
-            @Result(column = "role_id", property = "menus",
+            @Result(column = "id", property = "id"),
+            @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "role_id", property = "depts",
+            @Result(column = "id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
@@ -56,14 +56,14 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
-            @Result(column = "role_id", property = "id"),
-            @Result(column = "role_id", property = "menus",
+            @Result(column = "id", property = "id"),
+            @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "role_id", property = "depts",
+            @Result(column = "id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
@@ -78,14 +78,14 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 14:46
      */
-    @Select("SELECT role_id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
+    @Select("SELECT id,name,level,description,data_scope,create_by,update_by,create_time,update_time " +
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
-            @Result(column = "role_id", property = "id"),
-            @Result(column = "role_id", property = "menus",
+            @Result(column = "id", property = "id"),
+            @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "role_id", property = "depts",
+            @Result(column = "id", property = "depts",
                     many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
@@ -100,10 +100,10 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author RenShiWei
      * Date: 2020/11/26 16:18
      */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
             ".update_time" +
-            " FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = #{userId}")
-    @Result(column = "role_id", property = "id")
+            " FROM sys_role r, sys_users_roles ur WHERE r.id = ur.role_id AND ur.user_id = #{userId}" +
+            " AND r.is_deleted=0")
     Set<Role> findRoleByUserId(Long userId);
 
     /**
@@ -174,41 +174,26 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @author Wangmingcan
      * @date 2020-08-23 15:49
      */
-    @Select("SELECT r.role_id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
+    @Select("SELECT r.id,r.name,r.level,r.description,r.data_scope,r.create_by,r.update_by,r.create_time,r" +
             ".update_time " +
-            "FROM sys_role r, sys_users_roles ur WHERE r.role_id = ur.role_id AND ur.user_id = ${userId}")
+            "FROM sys_role r, sys_users_roles ur WHERE r.id = ur.role_id AND ur.user_id = ${userId}" +
+            " AND r.is_deleted=0")
     @Results({
-            @Result(column = "role_id", property = "id"),
-            @Result(column = "role_id", property = "menus",
+            @Result(column = "id", property = "menus",
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
     Set<RoleBO> findWithMenuByUserId(Long userId);
 
     // MODIFY  description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
-
     @Select("<script>" +
             "SELECT COUNT(1) FROM sys_role r, sys_roles_depts d WHERE " +
-            "r.role_id = d.role_id AND d.dept_id IN " +
+            "r.id = d.role_id AND d.dept_id AND r.is_deleted=0 AND d.dept_id IN " +
             "<foreach collection='deptIds' item='item' index='index' open='(' separator=',' close=')'> " +
             "#{item}" +
             "</foreach>" +
             "</script>")
     int countByDeptIds(@Param("deptIds") Set<Long> deptIds);
-
-    // MODIFY description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
-
-    @Select("<script>" +
-            "SELECT r.* FROM sys_role r, sys_roles_menus m WHERE " +
-            "r.role_id = m.role_id AND m.menu_id IN " +
-            "<foreach collection='menuIds' item='item' index='index' open='(' separator=',' close=')'> " +
-            "#{item}" +
-            "</foreach>" +
-            "</script>"
-    )
-    @Result(column = "role_id", property = "id")
-    List<Role> findInMenuId(@Param("menuIds") Set<Long> menuIds);
-
 
     /**
      * description:根据菜单id删除角色菜单中间表一条数据

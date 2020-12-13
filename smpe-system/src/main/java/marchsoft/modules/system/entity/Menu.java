@@ -35,7 +35,7 @@ public class Menu extends BasicModel<Menu> {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
-    @TableId(value = "menu_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "上级菜单ID")
@@ -76,22 +76,6 @@ public class Menu extends BasicModel<Menu> {
 
     @ApiModelProperty(value = "权限")
     private String permission;
-
-//    @ApiModelProperty(value = "创建者")
-//    @TableField(fill = FieldFill.INSERT)
-//    private String createBy;
-//
-//    @ApiModelProperty(value = "更新者")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private String updateBy;
-//
-//    @ApiModelProperty(value = "创建日期")
-//    @TableField(fill = FieldFill.INSERT)
-//    private LocalDateTime createTime;
-//
-//    @ApiModelProperty(value = "更新时间")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private LocalDateTime updateTime;
 
     @Override
     protected Serializable pkVal() {
