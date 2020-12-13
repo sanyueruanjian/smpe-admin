@@ -37,7 +37,7 @@ CREATE TABLE `sys_dept` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `inx_pid` (`pid`),
   KEY `inx_enabled` (`enabled`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='部门';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='部门';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,7 @@ CREATE TABLE `sys_job` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `inx_enabled` (`enabled`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='岗位';
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='岗位';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -138,6 +138,7 @@ CREATE TABLE `sys_role` (
   `level` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '角色级别（越小越大）',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '描述',
   `data_scope` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据权限',
+  `is_protection` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否受保护（内置角色，1为内置角色，默认值为0）',
   `create_by` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者id',
   `update_by` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '更新者id',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
@@ -146,7 +147,7 @@ CREATE TABLE `sys_role` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `role_name_index` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='角色表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,7 +156,7 @@ CREATE TABLE `sys_role` (
 
 LOCK TABLES `sys_role` WRITE;
 /*!40000 ALTER TABLE `sys_role` DISABLE KEYS */;
-INSERT INTO `sys_role` VALUES (1,'超级管理员',1,'-','全部',1,1,'2020-12-13 11:36:45','2020-12-13 11:36:47',_binary '\0'),(2,'普通用户',2,'-','自定义',1,1,'2020-12-13 11:37:14','2020-12-13 11:37:18',_binary '\0');
+INSERT INTO `sys_role` VALUES (1,'超级管理员',1,'-','全部',_binary '',1,1,'2020-12-13 11:36:45','2020-12-13 11:36:47',_binary '\0'),(2,'普通用户',2,'-','自定义',_binary '',1,1,'2020-12-13 11:37:14','2020-12-13 11:37:18',_binary '\0');
 /*!40000 ALTER TABLE `sys_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -171,7 +172,8 @@ CREATE TABLE `sys_roles_depts` (
   `role_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '角色id',
   `dept_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '部门id',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `FK7qg6itn5ajdoa9h9o78v9ksur` (`dept_id`) USING BTREE
+  KEY `idx_mid_dept_id` (`dept_id`) USING BTREE /*!80000 INVISIBLE */,
+  KEY `idx_mid_role_id` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='角色部门关联';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -197,7 +199,8 @@ CREATE TABLE `sys_roles_menus` (
   `menu_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '菜单ID',
   `role_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '角色ID',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `FKcngg2qadojhi3a651a5adkvbq` (`role_id`) USING BTREE
+  KEY `idx_mid_role_id` (`role_id`) USING BTREE /*!80000 INVISIBLE */,
+  KEY `idx_mid_menu_id` (`menu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='角色菜单关联';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -237,11 +240,6 @@ CREATE TABLE `sys_user` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `is_deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '软删除（默认值为0，1为删除）',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `UK_kpubos9gc2cvtkb0thktkbkes` (`email`) USING BTREE,
-  UNIQUE KEY `username` (`username`) USING BTREE,
-  UNIQUE KEY `uniq_username` (`username`),
-  UNIQUE KEY `uniq_email` (`email`),
-  UNIQUE KEY `phone_UNIQUE` (`phone`),
   KEY `FK5rwmryny6jthaaxkogownknqp` (`dept_id`) USING BTREE,
   KEY `inx_enabled` (`enabled`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='系统用户';
@@ -268,7 +266,9 @@ CREATE TABLE `sys_users_jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `user_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
   `job_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '岗位ID',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_mid_job_id` (`job_id`) /*!80000 INVISIBLE */,
+  KEY `idx_mid_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -294,7 +294,8 @@ CREATE TABLE `sys_users_roles` (
   `user_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
   `role_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '角色ID',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `FKq4eq273l04bpu4efj0jd0jb98` (`role_id`) USING BTREE
+  KEY `idx_mid_role_id` (`role_id`) USING BTREE /*!80000 INVISIBLE */,
+  KEY `idx_mid_user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='用户角色关联';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -317,4 +318,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-13 16:36:42
+-- Dump completed on 2020-12-13 19:11:40
