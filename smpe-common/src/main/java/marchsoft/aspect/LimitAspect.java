@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.annotation.Limit;
+import marchsoft.enums.LimitType;
 import marchsoft.exception.BadRequestException;
 import marchsoft.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;

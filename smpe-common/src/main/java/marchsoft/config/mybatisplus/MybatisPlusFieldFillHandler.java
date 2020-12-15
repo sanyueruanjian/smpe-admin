@@ -48,14 +48,14 @@ public class MybatisPlusFieldFillHandler implements MetaObjectHandler {
     }
 
     /**
-     * description:获取自动注入的用户名username，如果为null，注入null
+     * description:获取自动注入的用户名userId，如果为没有token，注入0
      *
      * @return /
      * @author RenShiWei
      * Date: 2020/12/5 15:50
      */
     private Long getUserId() {
-        return SecurityUtils.getCurrentUserId();
+        return SecurityUtils.getCurrentUserIdThrow();
     }
 
 }

@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.useragent.Browser;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.DataBlock;
 import org.lionsoul.ip2region.DbConfig;
 import org.lionsoul.ip2region.DbSearcher;
@@ -24,6 +25,7 @@ import java.util.Date;
  * @author RenShiWei
  * Date: 2020/8/3 21:07
  */
+@Slf4j
 public class StringUtils extends StrUtil {
 
     private static final char SEPARATOR = '_';
@@ -185,6 +187,12 @@ public class StringUtils extends StrUtil {
         return "";
     }
 
+    /**
+     * description:获取请求的浏览器信息
+     *
+     * @author RenShiWei
+     * Date: 2020/12/15 11:09
+     */
     public static String getBrowser(HttpServletRequest request) {
         UserAgent userAgent = UserAgentUtil.parse(request.getHeader("User-Agent"));
         Browser browser = userAgent.getBrowser();

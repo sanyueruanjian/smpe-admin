@@ -17,4 +17,12 @@ public class SmpeAdminConstant {
      */
     static final String REGION = "内网IP|内网IP";
 
+    /**
+     * Url相关常量
+     */
+    public static class Url {
+        // IP归属地查询
+        public static final String IP_URL = "http://whois.pconline.com.cn/ipJson.jsp?ip=%s&json=true";
+    }
+
 }
