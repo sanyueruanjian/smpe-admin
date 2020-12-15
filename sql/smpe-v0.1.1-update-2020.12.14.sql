@@ -11,7 +11,7 @@
  Target Server Version : 80012
  File Encoding         : 65001
 
- Date: 14/12/2020 09:51:32
+ Date: 14/12/2020 15:14:26
 */
 
 SET NAMES utf8mb4;
@@ -36,7 +36,7 @@ CREATE TABLE `sys_dept`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_pid`(`pid`) USING BTREE,
   INDEX `idx_enabled`(`enabled`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '部门' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '部门' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -64,7 +64,7 @@ CREATE TABLE `sys_job`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_enabled`(`enabled`) USING BTREE,
   UNIQUE INDEX `unq_name`(`name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '岗位' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '岗位' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of sys_job
@@ -98,7 +98,7 @@ CREATE TABLE `sys_menu`  (
   `is_deleted` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_pid`(`pid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 122 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统菜单' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 123 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统菜单' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -156,7 +156,7 @@ CREATE TABLE `sys_role`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `unq_name`(`name`) USING BTREE,
   INDEX `idx_role_name`(`name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of sys_role
@@ -175,7 +175,7 @@ CREATE TABLE `sys_roles_depts`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_mid_dept_id`(`dept_id`) USING BTREE,
   INDEX `idx_mid_role_id`(`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色部门关联' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色部门关联' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of sys_roles_depts
@@ -230,7 +230,7 @@ CREATE TABLE `sys_user`  (
   `avatar_path` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '头像路径',
   `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '密码',
   `is_admin` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否为admin账号',
-  `enabled` bigint(20) NOT NULL DEFAULT 1 COMMENT '状态：1启用（默认）、0禁用',
+  `enabled` bit(1) NOT NULL DEFAULT b'1' COMMENT '状态：1启用（默认）、0禁用',
   `create_by` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建者id',
   `update_by` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新者id',
   `pwd_reset_time` datetime(0) NULL DEFAULT NULL COMMENT '修改密码的时间',
@@ -245,8 +245,8 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 2, 'admin', '管理员', b'0', '18888888888', '201507802@qq.com', '', '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'1', 1, 1, 1, '2020-12-13 11:27:20', '2020-12-13 11:26:52', '2020-12-13 11:26:57', b'0');
-INSERT INTO `sys_user` VALUES (2, 5, 'test', '测试', b'1', '15689899898', '231@qq.com', '', '$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'0', 1, 1, 1, NULL, '2020-12-13 11:34:53', '2020-12-13 11:34:59', b'0');
+INSERT INTO `sys_user` VALUES (1, 2, 'admin', '管理员', b'0', '18888888888', '201507802@qq.com', '', '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'1', b'1', 1, 1, '2020-12-13 11:27:20', '2020-12-13 11:26:52', '2020-12-13 11:26:57', b'0');
+INSERT INTO `sys_user` VALUES (2, 5, 'test', '测试', b'1', '15689899898', '231@qq.com', '', '$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'0', b'1', 1, 1, NULL, '2020-12-13 11:34:53', '2020-12-13 11:34:59', b'0');
 
 -- ----------------------------
 -- Table structure for sys_users_jobs
@@ -259,7 +259,7 @@ CREATE TABLE `sys_users_jobs`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_mid_job_id`(`job_id`) USING BTREE,
   INDEX `idx_mid_user_id`(`user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_users_jobs
