@@ -33,7 +33,7 @@ public class Dept extends BasicModel<Dept> {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
-    @TableId(value = "dept_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "上级部门")
@@ -50,22 +50,6 @@ public class Dept extends BasicModel<Dept> {
 
     @ApiModelProperty(value = "状态")
     private Boolean enabled;
-
-//    @ApiModelProperty(value = "创建者")
-//    @TableField(fill = FieldFill.INSERT)
-//    private String createBy;
-//
-//    @ApiModelProperty(value = "更新者")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private String updateBy;
-//
-//    @ApiModelProperty(value = "创建日期")
-//    @TableField(fill = FieldFill.INSERT)
-//    private LocalDateTime createTime;
-//
-//    @ApiModelProperty(value = "更新时间")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private LocalDateTime updateTime;
 
     @Override
     protected Serializable pkVal() {

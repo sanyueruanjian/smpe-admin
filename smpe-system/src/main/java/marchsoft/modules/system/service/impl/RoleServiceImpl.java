@@ -93,7 +93,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     public List<RoleDTO> findRoleDetailAll() {
         //默认按照角色的级别升序
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByAsc(Role::getLevel);
+        wrapper.orderByAsc(Role::getLevel).eq(Role::getDeleted, false);
         return roleMapStruct.toDto(roleMapper.findRoleDetailAll(wrapper));
     }
 
@@ -136,6 +136,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
      */
     private LambdaQueryWrapper<Role> buildUserQueryCriteria(RoleQueryCriteria criteria) {
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Role::getDeleted, false);
         if (StrUtil.isNotBlank(criteria.getBlurry())) {
             wrapper.like(Role::getName, criteria.getBlurry()).or()
                     .like(Role::getDescription, criteria.getBlurry());
@@ -466,11 +467,6 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         // 更新菜单
         roleMapper.untiedMenu(menuId);
         // MODIFY:@Jiaoqianjin 2020/12/1 description: 菜单绑定角色可以为空
-//        Integer count = roleMapper.untiedMenu(menuId);
-//        if (count <= 0) {
-//            log.error("【角色解绑菜单失败】菜单id：" + menuId);
-//            throw new BadRequestException("角色解绑菜单失败");
-//        }
     }
 
 }
