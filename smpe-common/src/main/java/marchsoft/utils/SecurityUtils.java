@@ -140,5 +140,13 @@ public class SecurityUtils {
         return getCurrentUserNoThrow().getUsername();
     }
 
+    public static Long getCurrentUserIdThrow() {
+        if (getCurrentUserNoThrow() == null) {
+            return 0L;
+        }
+        UserDetails userDetails = getCurrentUser();
+        return JSON.parseObject(JSON.toJSONString(userDetails)).getJSONObject("user").getObject("id", Long.class);
+    }
+
 
 }

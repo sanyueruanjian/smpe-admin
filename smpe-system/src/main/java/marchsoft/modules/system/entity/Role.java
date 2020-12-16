@@ -1,6 +1,7 @@
 package marchsoft.modules.system.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -35,7 +36,7 @@ public class Role extends BasicModel<Role> {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
-    @TableId(value = "role_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "名称")
@@ -50,21 +51,9 @@ public class Role extends BasicModel<Role> {
     @ApiModelProperty(value = "数据权限")
     private String dataScope;
 
-//    @ApiModelProperty(value = "创建者")
-//    @TableField(fill = FieldFill.INSERT)
-//    private String createBy;
-//
-//    @ApiModelProperty(value = "更新者")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private String updateBy;
-//
-//    @ApiModelProperty(value = "创建日期")
-//    @TableField(fill = FieldFill.INSERT)
-//    private LocalDateTime createTime;
-//
-//    @ApiModelProperty(value = "更新时间")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private LocalDateTime updateTime;
+    @ApiModelProperty(value = "是否受保护（内置角色，1为内置角色，默认值为0）")
+    @TableField(value = "is_protection")
+    private Boolean protection;
 
     @Override
     protected Serializable pkVal() {

@@ -139,6 +139,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
      */
     private LambdaQueryWrapper<User> buildUserQueryCriteria(UserQueryCriteria criteria) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getDeleted, false);
         if (ObjectUtil.isNotNull(criteria.getId())) {
             wrapper.eq(User::getId, criteria.getId());
         }
@@ -345,8 +346,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         User user = getById(SecurityUtils.getCurrentUserId());
         String oldPath = user.getAvatarPath();
         File file = FileUtils.upload(multipartFile, fileProperties.getPath());
-        user.setAvatarPath(Objects.requireNonNull(file).getPath());
-        user.setAvatarName(file.getName());
+        user.setAvatarPath(Objects.requireNonNull(file).getName());
         updateById(user);
         if (StringUtils.isNotBlank(oldPath)) {
             FileUtil.del(oldPath);
