@@ -29,7 +29,7 @@ public class UserInsertOrUpdateDTO {
     private String nickName;
 
     @ApiModelProperty(value = "性别")
-    private String gender;
+    private Boolean gender;
 
     @ApiModelProperty(value = "手机号码")
     private String phone;

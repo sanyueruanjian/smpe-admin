@@ -343,8 +343,8 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
             int count = this.count(queryWrapper);
             LambdaUpdateWrapper<Menu> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Menu::getSubCount, count).eq(Menu::getId, menuId);
-            boolean idUpdate = this.update(updateWrapper);
-            if (! idUpdate) {
+            boolean isUpdate = this.update(updateWrapper);
+            if (! isUpdate) {
                 log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menuId);
                 throw new BadRequestException("更新父节点菜单数目失败");
             }
