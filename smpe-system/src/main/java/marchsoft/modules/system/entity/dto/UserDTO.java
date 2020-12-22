@@ -39,7 +39,7 @@ public class UserDTO extends BaseDTO implements Serializable {
 
     private String phone;
 
-    private String gender;
+    private Boolean gender;
 
     private String avatarName;
 
