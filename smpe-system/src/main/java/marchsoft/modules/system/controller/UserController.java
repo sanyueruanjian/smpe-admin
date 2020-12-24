@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.annotation.Log;
 import marchsoft.base.PageVO;
 import marchsoft.config.bean.RsaProperties;
 import marchsoft.enums.ResultEnum;
@@ -107,6 +108,7 @@ public class UserController {
         return null;
     }
 
+    @Log("新增用户")
     @ApiOperation("新增用户")
     @PostMapping
     @ApiParam(name = "userInsertOrUpdateDTO", value = "新增用户参数列表")

@@ -5,7 +5,6 @@ import marchsoft.annotation.rest.AnonymousGetMapping;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
  * '@EnableTransactionManagement' //开启事务支持，之后可以使用@Transactiona
  **/
 
-@EnableAsync
 @RestController
 @Api(hidden = true)
 @SpringBootApplication
