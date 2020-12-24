@@ -213,7 +213,8 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         queryWrapper.eq(User::getUsername, userInsertOrUpdateDTO.getUsername());
         // modify @RenShiWei 2020/11/24 description:list() ——> count()
         if (this.count(queryWrapper) > 0) {
-            log.error("【新增用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增用户用户名已存在：" + userInsertOrUpdateDTO.getUsername());
+            log.error(StrUtil.format("【新增用户失败】新增用户用户名已存在。操作人id：{}，用户名：{}", SecurityUtils.getCurrentUserId(),
+                    userInsertOrUpdateDTO.getUsername()));
             throw new BadRequestException(ResultEnum.USER_USERNAME_EXIST);
         }
 
@@ -222,7 +223,8 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         queryWrapper.eq(User::getEmail, userInsertOrUpdateDTO.getEmail());
         // modify @RenShiWei 2020/11/24 description:增加邮箱判断
         if (this.count(queryWrapper) > 0) {
-            log.error("【新增用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增用户邮箱已存在：" + userInsertOrUpdateDTO.getEmail());
+            log.error(StrUtil.format("【新增用户失败】新增用户邮箱已存在。操作人id：{}，邮箱：{}", SecurityUtils.getCurrentUserId(),
+                    userInsertOrUpdateDTO.getEmail()));
             throw new BadRequestException(ResultEnum.USER_EMAIL_EXIST);
         }
 
@@ -232,24 +234,26 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         //新增用户
         boolean save = save(user);
         if (! save) {
-            log.error("【新增用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增用户用户名：" + userInsertOrUpdateDTO.getUsername());
+            log.error(StrUtil.format("【新增用户失败】操作人id：{}，用户名：{}", SecurityUtils.getCurrentUserId(),
+                    userInsertOrUpdateDTO.getUsername()));
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
 
         //维护中间表
         int count = userMapper.saveUserAtRole(user.getId(), userInsertOrUpdateDTO.getRoles());
         if (count <= 0) {
-            log.error("【新增用户失败】维护角色中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId());
+            log.error(StrUtil.format("【新增用户失败】维护角色中间表失败。操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
 
         count = userMapper.saveUserAtJob(user.getId(), userInsertOrUpdateDTO.getJobs());
         if (count <= 0) {
-            log.error("【新增用户失败】维护岗位中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId());
+            log.error(StrUtil.format("【新增用户失败】维护岗位中间表失败。操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
 
-        log.info("【新增用户成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增用户用户名：" + userInsertOrUpdateDTO.getUsername());
+        log.info(StrUtil.format("【新增用户成功】操作人id：{}，用户名：{}", SecurityUtils.getCurrentUserId(),
+                userInsertOrUpdateDTO.getUsername()));
     }
 
     /**
