@@ -38,7 +38,7 @@ public class User extends BasicModel<User> {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
-    @TableId(value = "user_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "部门部门id")
@@ -51,7 +51,7 @@ public class User extends BasicModel<User> {
     private String nickName;
 
     @ApiModelProperty(value = "性别")
-    private String gender;
+    private Boolean gender;
 
     @ApiModelProperty(value = "手机号码")
     private String phone;
@@ -59,10 +59,7 @@ public class User extends BasicModel<User> {
     @ApiModelProperty(value = "邮箱")
     private String email;
 
-    @ApiModelProperty(value = "头像地址")
-    private String avatarName;
-
-    @ApiModelProperty(value = "头像真实路径")
+    @ApiModelProperty(value = "头像路径")
     private String avatarPath;
 
     @ApiModelProperty(value = "密码")
@@ -76,22 +73,6 @@ public class User extends BasicModel<User> {
 
     @ApiModelProperty(value = "修改密码的时间")
     private LocalDateTime pwdResetTime;
-
-//    @ApiModelProperty(value = "创建者")
-//    @TableField(fill = FieldFill.INSERT)
-//    private String createBy;
-//
-//    @ApiModelProperty(value = "更新者")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private String updateBy;
-//
-//    @ApiModelProperty(value = "创建日期")
-//    @TableField(fill = FieldFill.INSERT)
-//    private LocalDateTime createTime;
-//
-//    @ApiModelProperty(value = "更新时间")
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    private LocalDateTime updateTime;
 
     @Override
     protected Serializable pkVal() {

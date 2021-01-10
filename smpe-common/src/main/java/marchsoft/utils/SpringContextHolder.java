@@ -6,6 +6,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 /**
  * 通过SpringContextHolder获取bean对象的工具类
@@ -36,6 +37,44 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
     public static <T> T getBean(Class<T> requiredType) {
         assertContextInjected();
         return applicationContext.getBean(requiredType);
+    }
+
+    /**
+     * 获取SpringBoot 配置信息
+     *
+     * @param property     属性key
+     * @param defaultValue 默认值
+     * @param requiredType 返回类型
+     * @return /
+     */
+    public static <T> T getProperties(String property, T defaultValue, Class<T> requiredType) {
+        T result = defaultValue;
+        try {
+            result = getBean(Environment.class).getProperty(property, requiredType);
+        } catch (Exception ignored) {
+        }
+        return result;
+    }
+
+    /**
+     * 获取SpringBoot 配置信息
+     *
+     * @param property 属性key
+     * @return /
+     */
+    public static String getProperties(String property) {
+        return getProperties(property, null, String.class);
+    }
+
+    /**
+     * 获取SpringBoot 配置信息
+     *
+     * @param property     属性key
+     * @param requiredType 返回类型
+     * @return /
+     */
+    public static <T> T getProperties(String property, Class<T> requiredType) {
+        return getProperties(property, null, requiredType);
     }
 
     /**

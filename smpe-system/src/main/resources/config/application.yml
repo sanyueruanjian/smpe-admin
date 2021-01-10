@@ -19,8 +19,9 @@ spring:
 mybatis-plus:
   global-config:
     db-config:
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+      logic-delete-field: deleted  #全局逻辑删除字段值 3.3.0开始支持
+      logic-delete-value: 1         # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0     # 逻辑未删除值(默认为 0)
   configuration:
     map-underscore-to-camel-case: true  # 开启驼峰命名规则的转换
     call-setters-on-nulls: true # 如果查询结果中包含空值的列，则 mybatis 在映射的时候，不会映射这个字段

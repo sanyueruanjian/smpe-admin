@@ -1,6 +1,6 @@
 package marchsoft.annotation;
 
-import marchsoft.aspect.LimitType;
+import marchsoft.enums.LimitType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

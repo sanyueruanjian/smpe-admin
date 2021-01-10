@@ -31,11 +31,11 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
 
     @ApiModelProperty(value = "创建者")
     @TableField(fill = FieldFill.INSERT)
-    private String createBy;
+    private Long createBy;
 
     @ApiModelProperty(value = "更新者")
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateBy;
+    private Long updateBy;
 
     @ApiModelProperty(value = "创建日期")
     @TableField(fill = FieldFill.INSERT)
@@ -44,6 +44,10 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
     @ApiModelProperty(value = "更新时间")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "更新时间")
+    @TableField(value = "is_deleted")
+    private Boolean deleted;
 
     /**
      * description:重写父类的selectOne方法，添加"LIMIT 1"的限制，默认查第一条；

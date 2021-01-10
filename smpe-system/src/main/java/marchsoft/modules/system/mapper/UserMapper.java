@@ -35,7 +35,7 @@ public interface UserMapper extends BasicMapper<User> {
      * @author RenShiWei
      * Date: 2020/11/25 16:19
      */
-    @Select("SELECT user_id FROM sys_user u WHERE u.username = #{name}")
+    @Select("SELECT id FROM sys_user u WHERE u.username = #{name} AND is_deleted=0")
     Long findUserIdByName(String name);
 
     /**
@@ -47,19 +47,19 @@ public interface UserMapper extends BasicMapper<User> {
      * @author Wangmingcan
      * @date 2020-08-23 15:50
      */
-    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+    @Select("SELECT id,dept_id,username,nick_name,gender,phone,email,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
-            " FROM sys_user u WHERE u.user_id = #{id}")
+            " FROM sys_user u WHERE u.id = #{id} AND is_deleted=0")
     @Results({
-            @Result(column = "user_id", property = "id"),
+            @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
             @Result(column = "dept_id", property = "dept",
                     one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "roles",
+            @Result(column = "id", property = "roles",
                     many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "jobs",
+            @Result(column = "id", property = "jobs",
                     many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
                             fetchType = FetchType.EAGER))
     })
@@ -73,19 +73,19 @@ public interface UserMapper extends BasicMapper<User> {
      * @author RenShiWei
      * Date: 2020/11/24 16:06
      */
-    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+    @Select("SELECT id,dept_id,username,nick_name,gender,phone,email,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
             " FROM sys_user u #{ew.customSqlSegment}")
     @Results({
-            @Result(column = "user_id", property = "id"),
+            @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
             @Result(column = "dept_id", property = "dept",
                     one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "roles",
+            @Result(column = "id", property = "roles",
                     many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "jobs",
+            @Result(column = "id", property = "jobs",
                     many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
                             fetchType = FetchType.EAGER))
     })
@@ -100,19 +100,19 @@ public interface UserMapper extends BasicMapper<User> {
      * @author RenShiWei
      * Date: 2020/11/24 16:06
      */
-    @Select("SELECT user_id,dept_id,username,nick_name,gender,phone,email,avatar_name,avatar_path,password," +
+    @Select("SELECT id,dept_id,username,nick_name,gender,phone,email,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
             " FROM sys_user u ${ew.customSqlSegment}")
     @Results({
-            @Result(column = "user_id", property = "id"),
+            @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
             @Result(column = "dept_id", property = "dept",
                     one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "roles",
+            @Result(column = "id", property = "roles",
                     many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
                             fetchType = FetchType.EAGER)),
-            @Result(column = "user_id", property = "jobs",
+            @Result(column = "id", property = "jobs",
                     many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
                             fetchType = FetchType.EAGER))
     })
@@ -189,7 +189,7 @@ public interface UserMapper extends BasicMapper<User> {
      */
     @Select({"<script>" +
             "SELECT count(1) FROM sys_user u, sys_users_roles r WHERE " +
-            "u.user_id = r.user_id AND r.role_id IN " +
+            "u.id = r.user_id AND u.is_deleted=0 AND r.role_id IN " +
             "<foreach collection='roleIds' item='item' index='index' open='(' separator=',' close=')'> " +
             "#{item}" +
             "</foreach>" +
@@ -204,49 +204,13 @@ public interface UserMapper extends BasicMapper<User> {
      * @return /
      */
     @Select("<script>" +
-            "SELECT count(1) FROM sys_user u, sys_users_jobs j WHERE u.user_id = j.user_id AND j.job_id IN " +
+            "SELECT count(1) FROM sys_user u, sys_users_jobs j WHERE u.id = j.user_id AND u.is_deleted=0 AND j.job_id" +
+            " " +
+            "IN " +
             "<foreach collection='ids' item='item' index='index' open='(' separator=',' close=')'> " +
             "#{item}" +
             "</foreach>" +
             "</script>")
     int countByJobs(@Param("ids") Set<Long> ids);
-
-    /*
-        -----------------------以下方法暂未使用，暂未进行修改和审核----------------------------
-     */
-
-    /**
-     * @param id
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-25 15:44
-     * @description 根据角色中的部门查询
-     */
-    @Select("SELECT u.* FROM sys_user u, sys_users_roles r, sys_roles_depts d WHERE " +
-            "u.user_id = r.user_id AND r.role_id = d.role_id AND r.role_id = ${id} group by u.user_id")
-    @Result(column = "user_id", property = "id")
-    @Result(column = "dept_id", property = "deptId")
-    List<User> findByDeptRoleId(Long id);
-
-
-    /**
-     * @param id 菜单ID
-     * @return
-     * @author Wangmingcan
-     * @date 2020-08-26 14:26
-     * @description 根据菜单查询
-     */
-    @Select("SELECT u.* FROM sys_user u, sys_users_roles ur, sys_roles_menus rm WHERE " +
-            "u.user_id = ur.user_id AND ur.role_id = rm.role_id AND rm.menu_id = ${id} group by u.user_id")
-    @Result(column = "user_id", property = "id")
-    @Result(column = "dept_id", property = "deptId")
-    List<User> findByMenuId(Long id);
-
-
-    @Select("SELECT u.* FROM sys_user u, sys_users_roles r WHERE " +
-            " u.user_id = r.user_id AND r.role_id = ${roleId}")
-    @Result(column = "user_id", property = "id")
-    List<User> findByRoleId(Long roleId);
-
 
 }

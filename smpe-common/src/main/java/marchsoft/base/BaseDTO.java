@@ -18,11 +18,13 @@ import java.time.LocalDateTime;
 @ToString
 public class BaseDTO implements Serializable {
 
+    private static final long serialVersionUID = - 4289279747443003946L;
+
     /** 创建者 */
-    private String createBy;
+    private Long createBy;
 
     /** 更新者 */
-    private String updatedBy;
+    private Long updatedBy;
 
     /** 创建时间 */
     private LocalDateTime createTime;

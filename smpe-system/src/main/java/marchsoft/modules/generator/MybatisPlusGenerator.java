@@ -218,7 +218,7 @@ public class MybatisPlusGenerator {
                 // 设置实体类的父类
                 .setSuperEntityClass(BasicModel.class)
                 //设置写入实体父类的字段
-                .setSuperEntityColumns("create_time", "update_time", "create_by", "update_by")
+//                .setSuperEntityColumns("create_time", "update_time", "create_by", "update_by", "is_deleted")
                 .setSuperMapperClass("marchsoft.base.BasicMapper")
                 .setSuperServiceClass(IBasicService.class)
                 .setSuperServiceImplClass(BasicServiceImpl.class);

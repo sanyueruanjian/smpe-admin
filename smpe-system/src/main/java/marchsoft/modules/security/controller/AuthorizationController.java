@@ -27,6 +27,7 @@ import marchsoft.utils.RedisUtils;
 import marchsoft.utils.RsaUtils;
 import marchsoft.utils.SecurityUtils;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -90,6 +91,8 @@ public class AuthorizationController {
         } catch (BadCredentialsException e) {
             //账号或密码错误
             throw new BadRequestException(ResultEnum.LOGIN_FAIL);
+        } catch (InternalAuthenticationServiceException e) {
+            throw new BadRequestException(ResultEnum.COUNT_NOT_ENABLE);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 生成令牌
