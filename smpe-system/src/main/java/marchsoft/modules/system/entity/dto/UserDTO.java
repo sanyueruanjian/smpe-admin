@@ -2,6 +2,7 @@ package marchsoft.modules.system.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import marchsoft.base.BaseDTO;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ import java.util.Set;
  * @author RenShiWei
  * Date: 2020/11/24 17:26
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class UserDTO extends BaseDTO implements Serializable {
 
@@ -37,7 +39,7 @@ public class UserDTO extends BaseDTO implements Serializable {
 
     private String phone;
 
-    private String gender;
+    private Boolean gender;
 
     private String avatarName;
 

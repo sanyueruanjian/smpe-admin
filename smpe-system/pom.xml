@@ -20,6 +20,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>marchsoft</groupId>
+            <artifactId>smpe-log</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!--监控sql日志-->
         <dependency>
             <groupId>org.bgee.log4jdbc-log4j2</groupId>
