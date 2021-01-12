@@ -45,7 +45,7 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "是否已删除")
     @TableField(value = "is_deleted")
     private Boolean deleted;
 

@@ -3,6 +3,8 @@ package marchsoft.modules.system.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import marchsoft.annotation.Queries;
+import marchsoft.annotation.Query;
 import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.User;
@@ -22,7 +24,7 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
+//@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 @Component
 public interface UserMapper extends BasicMapper<User> {
 
@@ -53,15 +55,23 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-            @Result(column = "dept_id", property = "dept",
-                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "roles",
-                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "jobs",
-                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-                            fetchType = FetchType.EAGER))
+//            @Result(column = "dept_id", property = "dept",
+//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "roles",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "jobs",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
+//                            fetchType = FetchType.EAGER))
+    })
+    @Queries({
+            @Query(column = "id", property = "roles",
+                    select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId"),
+            @Query(column = "id", property = "jobs",
+                    select = "marchsoft.modules.system.mapper.JobMapper.findByUserId"),
+            @Query(column = "dept_id", property = "dept",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.selectById")
     })
     UserBO findUserDetailById(Long id);
 
@@ -79,15 +89,23 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-            @Result(column = "dept_id", property = "dept",
-                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "roles",
-                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "jobs",
-                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-                            fetchType = FetchType.EAGER))
+//            @Result(column = "dept_id", property = "dept",
+//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "roles",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "jobs",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
+//                            fetchType = FetchType.EAGER))
+    })
+    @Queries({
+            @Query(column = "id", property = "roles",
+                    select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId"),
+            @Query(column = "id", property = "jobs",
+                    select = "marchsoft.modules.system.mapper.JobMapper.findByUserId"),
+            @Query(column = "dept_id", property = "dept",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.selectById")
     })
     List<UserBO> queryUserDetailsList(@Param(Constants.WRAPPER) LambdaQueryWrapper<User> queryWrapper);
 
@@ -106,15 +124,23 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-            @Result(column = "dept_id", property = "dept",
-                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "roles",
-                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "jobs",
-                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-                            fetchType = FetchType.EAGER))
+//            @Result(column = "dept_id", property = "dept",
+//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "roles",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
+//                            fetchType = FetchType.EAGER)),
+//            @Result(column = "id", property = "jobs",
+//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
+//                            fetchType = FetchType.EAGER))
+    })
+    @Queries({
+            @Query(column = "id", property = "roles",
+                    select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId"),
+            @Query(column = "id", property = "jobs",
+                    select = "marchsoft.modules.system.mapper.JobMapper.findByUserId"),
+            @Query(column = "dept_id", property = "dept",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.selectById")
     })
     IPage<UserBO> queryUserDetailsListPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<User> queryWrapper,
                                            IPage<User> page);
