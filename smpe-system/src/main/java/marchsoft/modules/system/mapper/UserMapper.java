@@ -6,11 +6,9 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import marchsoft.annotation.Queries;
 import marchsoft.annotation.Query;
 import marchsoft.base.BasicMapper;
-import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.mapping.FetchType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -47,7 +45,7 @@ public interface UserMapper extends BasicMapper<User> {
      * @param id 用户id
      * @return User
      * @author Wangmingcan
-     * @date 2020-08-23 15:50
+     * Date : 2020-08-23 15:50
      */
     @Select("SELECT id,dept_id,username,nick_name,gender,phone,email,avatar_path,password," +
             "is_admin,enabled,create_by,update_by,pwd_reset_time,create_time,update_time" +
