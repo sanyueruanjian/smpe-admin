@@ -3,6 +3,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import marchsoft.annotation.Queries;
 import marchsoft.annotation.Query;
 import marchsoft.utils.SpringContextHolder;
+import marchsoft.utils.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,8 +14,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -102,17 +101,14 @@ public class QueryAspect {
         //获取需要执行的方法
         String select = query.select();
         //获取关联的列，并转驼峰
-        String column = query.column();
-        if (column.contains("_")) {
-            column = lineToHump(column);
-        }
+        String column = StringUtils.toCamelCase(query.column());
         try {
             //目标方法返回值类型class
             Class<?> resultClass = result.getClass();
             //通过反射获取get方法并调用来获取关联列的值
             Method getMethod = resultClass.getMethod("get" +
                     column.substring(0, 1).toUpperCase() + column.substring(1));
-            Object columnValue = getMethod.invoke(result);
+            Serializable columnValue = (Serializable) getMethod.invoke(result);
             //通过反射获取该select方法所在的类
             int pointIndex = select.lastIndexOf(".");
             Class<?> selectMethodClass = Class.forName(select.substring(0, pointIndex));
@@ -128,18 +124,5 @@ public class QueryAspect {
         }catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /** 下划线转驼峰 */
-    private String lineToHump(String str) {
-        Pattern linePattern = Pattern.compile("_(\\w)");
-        str = str.toLowerCase();
-        Matcher matcher = linePattern.matcher(str);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, matcher.group(1).toUpperCase());
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
     }
 }
