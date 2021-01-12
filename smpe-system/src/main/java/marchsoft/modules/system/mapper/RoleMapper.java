@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -193,7 +194,7 @@ public interface RoleMapper extends BasicMapper<Role> {
                     many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
                             fetchType = FetchType.EAGER))
     })
-    Set<RoleBO> findWithMenuByUserId(Long userId);
+    Set<RoleBO> findWithMenuByUserId(Serializable userId);
 
     // MODIFY  description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
     @Select("<script>" +
