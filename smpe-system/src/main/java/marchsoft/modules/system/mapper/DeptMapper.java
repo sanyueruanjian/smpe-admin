@@ -6,8 +6,11 @@ import marchsoft.modules.system.entity.Dept;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -19,7 +22,8 @@ import java.util.Set;
  * @since 2020-08-17
  */
 @Component
-@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
+//@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
+@CacheConfig(cacheNames = "dept")
 public interface DeptMapper extends BasicMapper<Dept> {
 
 
@@ -36,6 +40,9 @@ public interface DeptMapper extends BasicMapper<Dept> {
             " AND r.role_id" +
             " = #{roleId}")
     Set<Dept> findByRoleId(Long roleId);
+
+    @Cacheable(key = "'id:' + #p0")
+    Dept selectById(Serializable id);
 
     /**
      * description:删除角色，维护角色部门中间表
