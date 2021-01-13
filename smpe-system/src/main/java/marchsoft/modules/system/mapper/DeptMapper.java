@@ -42,7 +42,7 @@ public interface DeptMapper extends BasicMapper<Dept> {
     Set<Dept> findByRoleId(Long roleId);
 
     @Cacheable(key = "'id:' + #p0")
-    Dept selectById(Serializable id);
+    Dept selectById(Long id);
 
     /**
      * description:删除角色，维护角色部门中间表

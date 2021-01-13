@@ -2,6 +2,7 @@ package marchsoft.aspect;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import marchsoft.annotation.Queries;
 import marchsoft.annotation.Query;
+import marchsoft.exception.BadRequestException;
 import marchsoft.utils.SpringContextHolder;
 import marchsoft.utils.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -113,7 +114,7 @@ public class QueryAspect {
             int pointIndex = select.lastIndexOf(".");
             Class<?> selectMethodClass = Class.forName(select.substring(0, pointIndex));
             //通过反射获取需要调用的select方法
-            Method selectMethod = selectMethodClass.getMethod(select.substring(pointIndex+1), Serializable.class);
+            Method selectMethod = selectMethodClass.getMethod(select.substring(pointIndex+1), getMethod.getReturnType());
             //调用并获取select方法的结果
             Object selectResult = selectMethod.invoke(SpringContextHolder.getBean(selectMethodClass),
                     columnValue);
@@ -121,8 +122,10 @@ public class QueryAspect {
             Method setMethod = resultClass.getMethod("set" +
                     property.substring(0, 1).toUpperCase() + property.substring(1), selectMethod.getReturnType());
             setMethod.invoke(result, selectResult);
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NoSuchMethodException e) {
+            throw new BadRequestException("找不到select方法 : " + e.getMessage());
+        }catch (Exception ignored) {
+            ignored.printStackTrace();
         }
     }
 }
