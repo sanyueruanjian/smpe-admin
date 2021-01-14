@@ -239,7 +239,12 @@ public interface RoleMapper extends BasicMapper<Role> {
      * @return
      * @description 根据菜单Id查询（清理menu缓存时调用）
      */
-    @Select("SELECT r.id FROM sys_role r, sys_roles_menus m WHERE " +
-            " r.id = m.role_id AND r.is_deleted=0 AND m.menu_id in #{menuIds}")
+    @Select("<script>" +
+            "SELECT r.id FROM sys_role r, sys_roles_menus m WHERE " +
+            " r.id = m.role_id AND r.is_deleted=0 AND m.menu_id IN " +
+            "<foreach collection='menuIds' item='item' index='index' open='(' separator=',' close=')'> " +
+            "#{item}" +
+            "</foreach>" +
+            "</script>")
     List<Role> findInMenuId(List<Long> menuIds);
 }
