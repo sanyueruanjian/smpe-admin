@@ -3,12 +3,16 @@ package marchsoft.modules.system.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import marchsoft.annotation.Queries;
+import marchsoft.annotation.Query;
 import marchsoft.base.BasicMapper;
 import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -24,7 +28,7 @@ import java.util.Set;
  * @since 2020-08-17
  */
 @Component
-@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
+@CacheConfig(cacheNames = "role")
 public interface RoleMapper extends BasicMapper<Role> {
 
     /**
@@ -40,14 +44,15 @@ public interface RoleMapper extends BasicMapper<Role> {
             "FROM sys_role r WHERE r.id = #{roleId} AND is_deleted=0")
     @Results({
             @Result(column = "id", property = "id"),
-            @Result(column = "is_protection", property = "protection"),
-            @Result(column = "id", property = "menus",
-                    many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "depts",
-                    many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
-                            fetchType = FetchType.EAGER))
+            @Result(column = "is_protection", property = "protection")
     })
+    @Queries({
+            @Query(column = "id", property = "menus",
+                    select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId"),
+            @Query(column = "id", property = "depts",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId")
+    })
+    @Cacheable(key = "'id:' + #p0")
     RoleBO findById(Long roleId);
 
     /**
@@ -62,13 +67,13 @@ public interface RoleMapper extends BasicMapper<Role> {
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "id", property = "id"),
-            @Result(column = "is_protection", property = "protection"),
-            @Result(column = "id", property = "menus",
-                    many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "depts",
-                    many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
-                            fetchType = FetchType.EAGER))
+            @Result(column = "is_protection", property = "protection")
+    })
+    @Queries({
+            @Query(column = "id", property = "menus",
+                    select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId"),
+            @Query(column = "id", property = "depts",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId")
     })
     List<RoleBO> findRoleDetailAll(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper);
 
@@ -85,13 +90,13 @@ public interface RoleMapper extends BasicMapper<Role> {
             "FROM sys_role ${ew.customSqlSegment}")
     @Results({
             @Result(column = "id", property = "id"),
-            @Result(column = "is_protection", property = "protection"),
-            @Result(column = "id", property = "menus",
-                    many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
-                            fetchType = FetchType.EAGER)),
-            @Result(column = "id", property = "depts",
-                    many = @Many(select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId",
-                            fetchType = FetchType.EAGER))
+            @Result(column = "is_protection", property = "protection")
+    })
+    @Queries({
+            @Query(column = "id", property = "menus",
+                    select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId"),
+            @Query(column = "id", property = "depts",
+                    select = "marchsoft.modules.system.mapper.DeptMapper.findByRoleId")
     })
     IPage<RoleBO> findRoleDetailAllPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<Role> queryWrapper,
                                         IPage<Role> page);
@@ -113,6 +118,16 @@ public interface RoleMapper extends BasicMapper<Role> {
             @Result(column = "is_protection", property = "protection"),
     })
     Set<Role> findRoleByUserId(Long userId);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 15:21
+     * @param id 部门id
+     * @return
+     * @description 根据部门id查询角色（清除dept中的role缓存时使用）
+     */
+    @Select("SELECT role_id FROM sys_roles_depts WHERE dept_id = #{id} GROUP BY role_id")
+    List<Long> findInDeptId(Long id);
 
     /**
      * description:新增角色，维护角色部门中间表
@@ -189,12 +204,12 @@ public interface RoleMapper extends BasicMapper<Role> {
             " AND r.is_deleted=0")
     @Results({
             @Result(column = "id", property = "id"),
-            @Result(column = "is_protection", property = "protection"),
-            @Result(column = "id", property = "menus",
-                    many = @Many(select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId",
-                            fetchType = FetchType.EAGER))
+            @Result(column = "is_protection", property = "protection")
     })
-    Set<RoleBO> findWithMenuByUserId(Serializable userId);
+    @Query(column = "id", property = "menus",
+            select = "marchsoft.modules.system.mapper.MenuMapper.findByRoleId")
+    @Cacheable(key = "'user:' + #p0")
+    Set<RoleBO> findWithMenuByUserId(Long userId);
 
     // MODIFY  description: 修改为script标签进行in查询  @liuxingxing 2020/11/29
     @Select("<script>" +
@@ -216,4 +231,15 @@ public interface RoleMapper extends BasicMapper<Role> {
      */
     @Delete("DELETE FROM sys_roles_menus WHERE menu_id = ${menuId}")
     Integer untiedMenu(Long menuId);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 14:31
+     * @param menuIds
+     * @return
+     * @description 根据菜单Id查询（清理menu缓存时调用）
+     */
+    @Select("SELECT r.id FROM sys_role r, sys_roles_menus m WHERE " +
+            " r.id = m.role_id AND r.is_deleted=0 AND m.menu_id in #{menuIds}")
+    List<Role> findInMenuId(List<Long> menuIds);
 }
