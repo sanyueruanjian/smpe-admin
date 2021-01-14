@@ -22,21 +22,33 @@ public interface CacheKey {
      * 用户
      */
     String USER_ID = "user::id:";
-    String USER_NAME = "user::username:";
     /**
      * 数据
      */
-    String DATE_USER = "data::user:";
+    String DATA_USER = "data::user:";
     /**
      * 菜单
      */
+    String MENU_ID = "menu::id:";
     String MENU_USER = "menu::user:";
+    String MENU_ROLE = "menu::role:";
     /**
      * 角色授权
      */
     String ROLE_AUTH = "role::auth:";
+    String ROLE_USER = "role::user:";
     /**
      * 角色信息
      */
     String ROLE_ID = "role::id:";
+    /**
+     * 部门信息
+     */
+    String DEPT_ID = "dept::id:";
+    String DEPT_ROLE = "dept::role:";
+    /**
+     * 岗位信息
+     */
+    String JOB_ID = "job::id:";
+    String JOB_USER = "job::user:";
 }

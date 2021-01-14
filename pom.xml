@@ -82,7 +82,6 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
-                <scope>runtime</scope>
             </dependency>
 
             <!-- druid数据源驱动 -->
@@ -183,7 +182,6 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!--    获取客户端浏览器类型、客户端操作系统、ip地址等信息    -->
@@ -233,6 +231,19 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!--        &lt;!&ndash;Java 实体映射工具 —— mapStruct依赖&ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.mapstruct</groupId>-->
+        <!--            <artifactId>mapstruct</artifactId>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.mapstruct</groupId>-->
+        <!--            <artifactId>mapstruct-processor</artifactId>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
+    </dependencies>
 
     <repositories>
         <repository>
