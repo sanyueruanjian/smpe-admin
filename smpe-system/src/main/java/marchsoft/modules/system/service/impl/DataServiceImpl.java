@@ -9,6 +9,7 @@ import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +36,7 @@ public class DataServiceImpl implements IDataService {
      * description 用户角色改变时需清理缓存
      */
     @Override
+    @Cacheable(key = "'user:' + #p0.id")
     public List<Long> getDataScopeWithDeptIds(UserDTO user) {
         // 用于存储部门id
         Set<Long> deptIds = new HashSet<>();
@@ -73,13 +75,10 @@ public class DataServiceImpl implements IDataService {
      */
     private Set<Long> getCustomize(Set<Long> deptIds, RoleSmallDTO role) {
         /* 添加当前角色的所有部门id，包括子部门 */
-        Set<Dept> deptSet = deptService.findByRoleId(role.getId());
-        for (Dept dept : deptSet) {
+        Set<Dept> depts = deptService.findByRoleId(role.getId());
+        for (Dept dept : depts) {
             deptIds.add(dept.getId());
-            List<Dept> deptChildren = null;
-            if (dept.getPid() != null) {
-                deptChildren = deptService.findByPid(dept.getId());
-            }
+            List<Dept> deptChildren = deptService.findByPid(dept.getId());
             if (deptChildren != null && deptChildren.size() != 0) {
                 deptIds.addAll(deptService.getDeptChildren(deptChildren));
             }
