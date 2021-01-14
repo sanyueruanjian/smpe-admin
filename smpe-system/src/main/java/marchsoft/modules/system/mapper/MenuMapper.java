@@ -8,6 +8,8 @@ import marchsoft.modules.system.entity.Menu;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.Set;
  * @author Jiaoqianjin
  * Date: 2020/11/23 9:33
  */
-@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
+@CacheConfig(cacheNames = "menu")
 public interface MenuMapper extends BasicMapper<Menu> {
 
     /**
@@ -34,6 +36,7 @@ public interface MenuMapper extends BasicMapper<Menu> {
             "m.i_frame,m.cache,m.hidden,m.permission,m.create_by,m.update_by,m.create_time,m.update_time " +
             "FROM sys_menu m, sys_roles_menus rm " +
             "WHERE m.id = rm.menu_id AND rm.role_id = ${id} AND m.is_deleted=0")
+    @Cacheable(key = "'role:' + #p0")
     Set<Menu> findByRoleId(Long id);
 
     /**
@@ -83,6 +86,7 @@ public interface MenuMapper extends BasicMapper<Menu> {
     @Select("SELECT id,pid,sub_count,type,title,name,component,menu_sort,icon,path,i_frame," +
             "cache,hidden,permission,create_by,update_by,create_time,update_time FROM sys_menu " +
             "WHERE id = #{id} AND is_deleted=0")
+    @Cacheable(key = "'id:' + #p0")
     Menu getMenuById(Long menuId);
 
     @Select("SELECT id,pid,sub_count,type,title,name,component,menu_sort,icon,path,i_frame," +

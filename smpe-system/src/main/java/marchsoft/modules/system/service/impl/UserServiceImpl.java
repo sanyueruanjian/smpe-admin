@@ -26,10 +26,7 @@ import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.UserMapStruct;
-import marchsoft.utils.FileUtils;
-import marchsoft.utils.PageUtil;
-import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.StringUtils;
+import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
@@ -62,6 +59,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     private final UserCacheClean userCacheClean;
     private final FileProperties fileProperties;
     private final JobMapper jobMapper;
+    private final RedisUtils redisUtils;
 
     /**
      * description:根据用户名查用户id
@@ -326,14 +324,21 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         if (! isUpdate) {
             log.error("【修改用户信息失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
         }
-
+        // 如果用户的角色改变
+        if (roleIds.size() != userInsertOrUpdateDTO.getRoles().size() ||
+                !roleIds.containsAll(userInsertOrUpdateDTO.getRoles())) {
+            redisUtils.del(CacheKey.DATA_USER + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.MENU_USER + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.ROLE_AUTH + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.ROLE_USER + userInsertOrUpdateDTO.getId());
+        }
         // 如果用户被禁用，则清除用户登录信息
         if (! user.getEnabled()) {
             onlineUserService.kickOutForUsername(userBO.getUsername());
         }
         log.info("【修改用户信息成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
         //刷新缓存
-        flushCache(user.getId());
+        delCaches(user.getId());
     }
 
     /**
@@ -359,11 +364,21 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
         //刷新缓存
-        flushCache(user.getId());
+        delCaches(user.getId());
         Map<String, String> map = new HashMap<>(1);
         map.put("avatar", file.getName());
         log.info("【修改用户头像成功】" + "用户id：" + SecurityUtils.getCurrentUserId() + "上传文件名：" + file.getName());
         return map;
+    }
+
+    /**
+     * 清理缓存
+     *
+     * @param id /
+     */
+    private void delCaches(Long id) {
+        redisUtils.del(CacheKey.USER_ID + id);
+        flushCache(id);
     }
 
     /**
