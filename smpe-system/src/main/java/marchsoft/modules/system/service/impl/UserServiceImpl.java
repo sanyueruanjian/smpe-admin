@@ -299,19 +299,28 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         Set<Long> roleIds = userBO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         Set<Long> jobIds = userBO.getJobs().stream().map(Job::getId).collect(Collectors.toSet());
         //如果角色id集合、岗位id集合与原先不同，先删除再新增（即修改操作）
+        //如果角色发生变化
         if (! CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
             Integer count = userMapper.delUserAtRole(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtRole(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getRoles());
+            //清除缓存
+            redisUtils.del(CacheKey.DATA_USER + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.MENU_USER + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.ROLE_AUTH + userInsertOrUpdateDTO.getId());
+            redisUtils.del(CacheKey.ROLE_USER + userInsertOrUpdateDTO.getId());
             if (count <= 0 && count2 <= 0) {
                 log.error("【修改用户失败】维护角色中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
+        //如果岗位发生变化
         if (! CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
             Integer count = jobMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getJobs());
+            //清除缓存
+            redisUtils.del(CacheKey.JOB_USER + userInsertOrUpdateDTO.getId());
             if (count <= 0 && count2 <= 0) {
                 log.error("【修改用户失败】维护岗位中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
@@ -323,14 +332,6 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         boolean isUpdate = this.updateById(user);
         if (! isUpdate) {
             log.error("【修改用户信息失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
-        }
-        // 如果用户的角色改变
-        if (roleIds.size() != userInsertOrUpdateDTO.getRoles().size() ||
-                !roleIds.containsAll(userInsertOrUpdateDTO.getRoles())) {
-            redisUtils.del(CacheKey.DATA_USER + userInsertOrUpdateDTO.getId());
-            redisUtils.del(CacheKey.MENU_USER + userInsertOrUpdateDTO.getId());
-            redisUtils.del(CacheKey.ROLE_AUTH + userInsertOrUpdateDTO.getId());
-            redisUtils.del(CacheKey.ROLE_USER + userInsertOrUpdateDTO.getId());
         }
         // 如果用户被禁用，则清除用户登录信息
         if (! user.getEnabled()) {
