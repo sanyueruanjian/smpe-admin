@@ -20,14 +20,18 @@ import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
+import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
 import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.mapper.RoleMapper;
+import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
+import marchsoft.utils.CacheKey;
 import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +57,10 @@ import java.util.stream.Collectors;
 public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implements IDeptService {
 
     private final DeptMapper deptMapper;
-
     private final DeptMapStruct deptMapStruct;
-
     private final IUserService userService;
-
+    private final UserMapper userMapper;
+    private final RedisUtils redisUtils;
     private final RoleMapper roleMapper;
 
     /**
@@ -370,6 +373,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
         log.info("【修改部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标dept：" + resources);
+        //清理缓存
+        delCaches(resources.getId());
     }
 
     /**
@@ -434,6 +439,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     @Transactional(rollbackFor = Exception.class)
     public void deleteDept(Set<DeptDTO> deptDTOList) {
         for (DeptDTO deptDTO : deptDTOList) {
+            // 清理缓存
+            delCaches(deptDTO.getId());
             this.removeById(deptDTO.getId());
             updateSubCnt(deptDTO.getPid());
             log.info("【删除部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t删除目标dept：" + deptDTO);
@@ -469,4 +476,17 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     }
 
 
+    /**
+     * 清理缓存
+     * @param id /
+     */
+    private void delCaches(Long id){
+        List<Long> userIds = userMapper.findIdByDeptRoleId(id);
+        // 删除数据权限
+        redisUtils.delByKeys(CacheKey.DATA_USER, new HashSet<>(userIds));
+        redisUtils.del(CacheKey.DEPT_ID + id);
+        // 清除 Role 缓存
+        List<Long> roleIds = roleMapper.findInDeptId(id);
+        redisUtils.delByKeys(CacheKey.DEPT_ROLE, new HashSet<>(roleIds));
+    }
 }

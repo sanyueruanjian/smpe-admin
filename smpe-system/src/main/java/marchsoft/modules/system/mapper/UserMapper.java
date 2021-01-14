@@ -9,6 +9,8 @@ import marchsoft.base.BasicMapper;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import org.apache.ibatis.annotations.*;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,8 +24,8 @@ import java.util.Set;
  * @author Wangmingcan
  * @since 2020-08-17
  */
-//@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 @Component
+@CacheConfig(cacheNames = "user")
 public interface UserMapper extends BasicMapper<User> {
 
     /**
@@ -53,15 +55,6 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-//            @Result(column = "dept_id", property = "dept",
-//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "roles",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "jobs",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-//                            fetchType = FetchType.EAGER))
     })
     @Queries({
             @Query(column = "id", property = "roles",
@@ -71,6 +64,7 @@ public interface UserMapper extends BasicMapper<User> {
             @Query(column = "dept_id", property = "dept",
                     select = "marchsoft.modules.system.mapper.DeptMapper.selectById")
     })
+    @Cacheable(key = "'id:' + #p0")
     UserBO findUserDetailById(Long id);
 
     /**
@@ -87,15 +81,6 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-//            @Result(column = "dept_id", property = "dept",
-//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "roles",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "jobs",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-//                            fetchType = FetchType.EAGER))
     })
     @Queries({
             @Query(column = "id", property = "roles",
@@ -122,15 +107,6 @@ public interface UserMapper extends BasicMapper<User> {
     @Results({
             @Result(column = "id", property = "id"),
             @Result(column = "dept_id", property = "deptId"),
-//            @Result(column = "dept_id", property = "dept",
-//                    one = @One(select = "marchsoft.modules.system.mapper.DeptMapper.selectById",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "roles",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.RoleMapper.findWithMenuByUserId",
-//                            fetchType = FetchType.EAGER)),
-//            @Result(column = "id", property = "jobs",
-//                    many = @Many(select = "marchsoft.modules.system.mapper.JobMapper.findByUserId",
-//                            fetchType = FetchType.EAGER))
     })
     @Queries({
             @Query(column = "id", property = "roles",
@@ -142,6 +118,43 @@ public interface UserMapper extends BasicMapper<User> {
     })
     IPage<UserBO> queryUserDetailsListPage(@Param(Constants.WRAPPER) LambdaQueryWrapper<User> queryWrapper,
                                            IPage<User> page);
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 14:10
+     * @param id 角色id
+     * @description 根据角色中的部门查询用户Id （清理dept缓存时调用）
+     */
+    @Select("SELECT r.user_id FROM sys_users_roles r, sys_roles_depts d WHERE " +
+            " r.role_id = d.role_id AND r.role_id = #{id} GROUP BY r.user_id")
+    List<Long> findIdByDeptRoleId(Long id);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 14:43
+     * @param id 角色id
+     * @description 根据角色查询用户Id（清理role缓存时调用）
+     */
+    @Select("SELECT user_id FROM sys_users_roles WHERE role_id = #{id}")
+    List<Long> findIdByRoleId(Long id);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 14:27
+     * @param id 菜单id
+     * @description 根据菜单查询用户Id (清理menu缓存时调用)
+     */
+    @Select("SELECT ur.user_id FROM sys_users_roles ur, sys_roles_menus rm WHERE " +
+            " ur.role_id = rm.role_id AND rm.menu_id = #{id} GROUP BY ur.user_id")
+    List<Long> findIdByMenuId(Long id);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-01-14 14:27
+     * @param id 岗位id
+     * @description 根据岗位查询用户Id (清理job缓存时调用)
+     */
+    @Select("SELECT user_id FROM sys_users_jobs WHERE job_id = #{id} group by user_id")
+    List<Long> findByJobId(Long id);
 
     /**
      * description:新增用户，维护用户角色中间表
