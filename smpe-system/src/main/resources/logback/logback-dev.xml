@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
     <contextName>SMPE-ADMIN</contextName>
-    <property name="LOG_HOME" value="logs/"/>
-    <!--    <property name="showtable" value="info"/>-->
+    <property name="LOG_HOME" value="logs/%d{yyyy-MM}/"/>
     <property name="LOG_" value="logs/"/>
     <property name="log.charset" value="utf-8"/>
     <property name="log.pattern"
@@ -16,26 +15,25 @@
     </appender>
 
     <!-- 按照每天生成日志文件 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${LOG_HOME}/server.%d{yyyy-MM-dd-HH}.log</FileNamePattern>
             <MaxHistory>60</MaxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>[%level] %d{yyyy-MM-dd HH:mm:ss.SSS} %X{logId} %c.java - %msg%n</pattern>
-            <charset>utf-8</charset>
+            <pattern>${log.pattern}</pattern>
+            <charset>${log.charset}</charset>
         </encoder>
     </appender>
 
     <appender name="redis" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_HOME}/redis.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${LOG_HOME}/redis.%d{yyyy-MM-dd-HH}.log</FileNamePattern>
             <MaxHistory>60</MaxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>[%level] %d{yyyy-MM-dd HH:mm:ss.SSS} %X{logId} %c.java - %msg%n</pattern>
-            <charset>utf-8</charset>
+            <pattern>${log.pattern}</pattern>
+            <charset>${log.charset}</charset>
         </encoder>
     </appender>
 
@@ -68,9 +66,7 @@
 
     <!--普通日志输出到控制台-->
     <root level="info">
-        <!-- 标识这个appender将会添加到这个logger -->
+        <!-- 开发环境日志只输出到控制台，不输出到文件 -->
         <appender-ref ref="console"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="redis"/>
     </root>
 </configuration>

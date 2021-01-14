@@ -15,14 +15,18 @@ import marchsoft.base.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Job;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.JobDTO;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;
 import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.modules.system.service.mapstruct.JobMapStruct;
+import marchsoft.utils.CacheKey;
 import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -47,6 +52,7 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     private final JobMapper jobMapper;
     private final UserMapper userMapper;
     private final JobMapStruct jobMapStruct;
+    private final RedisUtils redisUtils;
 
     /**
      * Description:
@@ -73,7 +79,7 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
      **/
     @Override
     public JobDTO findById(Long id) {
-        Job job = getById(id);
+        Job job = jobMapper.selectById(id);
         if (ObjectUtil.isEmpty(job)) {
             log.error("【查询岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询岗位id：" + id);
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
@@ -191,6 +197,8 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
             throw new BadRequestException("已存在：" + resources.getName());
         }
         updateById(resources);
+        //清理缓存
+        delCaches(resources.getId());
         log.info("【修改岗位成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标job：" + resources);
     }
 
@@ -205,6 +213,10 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
+        //清理缓存
+        for (Long id : ids) {
+            delCaches(id);
+        }
         removeByIds(ids);
         log.info("【删除岗位成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t删除目标jobs：" + ids.toString());
     }
@@ -250,6 +262,17 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
         }
         return wrapper;
+    }
+
+    /**
+     * 清理缓存
+     * @param id /
+     */
+    private void delCaches(Long id){
+        List<Long> userIds = userMapper.findByJobId(id);
+        // 删除数据权限
+        redisUtils.delByKeys(CacheKey.JOB_USER, new HashSet<>(userIds));
+        redisUtils.del(CacheKey.JOB_ID + id);
     }
 
 }
