@@ -33,7 +33,7 @@ public interface JobMapper extends BasicMapper<Job> {
      */
     @Select("SELECT j.id, j.name, j.enabled, j.job_sort, j.create_by, j.update_by, j.create_time, j.update_time " +
             "FROM sys_job j, sys_users_jobs uj WHERE j.id = uj.job_id AND uj.user_id = ${id} AND j.is_deleted=0")
-    Set<Job> findByUserId(Serializable id);
+    Set<Job> findByUserId(Long id);
 
     /**
      * description:删除用户维护用户岗位中间表
