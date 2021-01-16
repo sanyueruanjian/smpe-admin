@@ -13,19 +13,22 @@ import marchsoft.base.BasicServiceImpl;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Menu;
+import marchsoft.modules.system.entity.Role;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.MenuDTO;
 import marchsoft.modules.system.entity.dto.MenuQueryCriteria;
 import marchsoft.modules.system.entity.dto.RoleSmallDTO;
 import marchsoft.modules.system.entity.vo.MenuMetaVo;
 import marchsoft.modules.system.entity.vo.MenuVo;
 import marchsoft.modules.system.mapper.MenuMapper;
+import marchsoft.modules.system.mapper.RoleMapper;
+import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IMenuService;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.MenuMapStruct;
-import marchsoft.utils.FileUtils;
-import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.StringUtils;
+import marchsoft.utils.*;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +52,10 @@ import java.util.stream.Collectors;
 public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implements IMenuService {
 
     private final MenuMapper menuMapper;
-
+    private final UserMapper userMapper;
     private final IRoleService roleService;
-
+    private final RoleMapper roleMapper;
+    private final RedisUtils redisUtils;
     private final MenuMapStruct menuMapStruct;
 
     /**
@@ -93,7 +97,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
      * Date: 2020/11/26 17:06
      */
     @Override
-//    @Cacheable(key = "'user:' + #p0")
+    @Cacheable(key = "'user:' + #p0")
     public List<MenuDTO> findMenuByUserId(Long currentUserId) {
         List<RoleSmallDTO> roles = roleService.findRoleByUserId(currentUserId);
         Set<Long> roleIds = roles.stream().map(RoleSmallDTO::getId).collect(Collectors.toSet());
@@ -411,6 +415,8 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         // 计算父级菜单节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
+        // 清理缓存
+        delCaches(resources.getId());
     }
 
     /**
@@ -464,8 +470,9 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Menu> menuSet) {
-
         for (Menu menu : menuSet) {
+            // 清理缓存
+            delCaches(menu.getId());
             // 解绑菜单
             roleService.untiedMenu(menu.getId());
             // 更新父节点菜单数目
@@ -500,5 +507,21 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
             }
         }
         return menuSet;
+    }
+
+    /**
+     * 清理缓存
+     * @param id 菜单ID
+     */
+    private void delCaches(Long id){
+        List<Long> userIds = userMapper.findIdByMenuId(id);
+        redisUtils.del(CacheKey.MENU_ID +id);
+        redisUtils.delByKeys(CacheKey.MENU_USER, new HashSet<>(userIds));
+        // 清除 Role 缓存
+        List<Role> roles = roleMapper.findInMenuId(new ArrayList<Long>(){{
+            add(id);
+        }});
+        redisUtils.delByKeys(CacheKey.ROLE_ID, roles.stream().map(Role::getId).collect(Collectors.toSet()));
+        redisUtils.delByKeys(CacheKey.MENU_ROLE, roles.stream().map(Role::getId).collect(Collectors.toSet()));
     }
 }

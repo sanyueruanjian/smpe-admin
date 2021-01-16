@@ -103,29 +103,52 @@ public class QueryAspect {
         String select = query.select();
         //获取关联的列，并转驼峰
         String column = StringUtils.toCamelCase(query.column());
+        //关联属性的类型（也为select的参数类型）
+        Class<?> columnType;
+        //关联列的值
+        Serializable columnValue;
+        //select方法返回值类型
+        Class<?> selectMethodReturnType;
+        //select方法返回结果
+        Object selectResult;
         try {
             //目标方法返回值类型class
             Class<?> resultClass = result.getClass();
             //通过反射获取get方法并调用来获取关联列的值
-            Method getMethod = resultClass.getMethod("get" +
-                    column.substring(0, 1).toUpperCase() + column.substring(1));
-            Serializable columnValue = (Serializable) getMethod.invoke(result);
+            try {
+                Method getMethod = resultClass.getMethod("get" +
+                        column.substring(0, 1).toUpperCase() + column.substring(1));
+                columnValue = (Serializable) getMethod.invoke(result);
+                columnType = getMethod.getReturnType();
+            }catch (NoSuchMethodException get) {
+                throw new BadRequestException("找不到get方法 : " + get.getMessage() +
+                        "，请检查column参数" + column + "是否填写正确");
+            }
             //通过反射获取该select方法所在的类
             int pointIndex = select.lastIndexOf(".");
             Class<?> selectMethodClass = Class.forName(select.substring(0, pointIndex));
             //通过反射获取需要调用的select方法
-            Method selectMethod = selectMethodClass.getMethod(select.substring(pointIndex+1), getMethod.getReturnType());
-            //调用并获取select方法的结果
-            Object selectResult = selectMethod.invoke(SpringContextHolder.getBean(selectMethodClass),
-                    columnValue);
+            try{
+                Method selectMethod = selectMethodClass.getMethod(select.substring(pointIndex+1), columnType);
+                //调用并获取select方法的结果
+                selectResult = selectMethod.invoke(SpringContextHolder.getBean(selectMethodClass),
+                        columnValue);
+                selectMethodReturnType = selectMethod.getReturnType();
+            }catch (NoSuchMethodException selectExc) {
+                throw new BadRequestException("找不到select方法 : " + selectExc.getMessage() +
+                        "，请检查select方法的名称和参数类型");
+            }
             //通过反射获取set方法并调用来完成赋值
-            Method setMethod = resultClass.getMethod("set" +
-                    property.substring(0, 1).toUpperCase() + property.substring(1), selectMethod.getReturnType());
-            setMethod.invoke(result, selectResult);
-        }catch (NoSuchMethodException e) {
-            throw new BadRequestException("找不到select方法 : " + e.getMessage());
-        }catch (Exception ignored) {
-            ignored.printStackTrace();
+            try{
+                Method setMethod = resultClass.getMethod("set" +
+                        property.substring(0, 1).toUpperCase() + property.substring(1), selectMethodReturnType);
+                setMethod.invoke(result, selectResult);
+            }catch (NoSuchMethodException set) {
+                throw new BadRequestException("找不到set方法 : " + set.getMessage() +
+                        "，请检查" + property + "的类型与方法" + select + "的返回值是否一致");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
