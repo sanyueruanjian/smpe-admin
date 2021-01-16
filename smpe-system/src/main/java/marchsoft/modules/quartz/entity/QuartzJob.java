@@ -1,16 +1,28 @@
 package marchsoft.modules.quartz.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import marchsoft.base.BasicModel;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
+@Data
+@Accessors(chain = true)
+@ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel(value = "sys_quartz_job", description = "定时任务实体")
+@TableName("sys_quartz_job")
 public class QuartzJob extends BasicModel<QuartzJob> implements Serializable {
     public static final String JOB_KEY = "JOB_KEY";
 
     @ApiModelProperty(value = "ID")
-    @TableId(value = "job_id")
+    @TableId(value = "id")
     private Long id;
 
     @ApiModelProperty(value = "用于子任务唯一标识", hidden = true)

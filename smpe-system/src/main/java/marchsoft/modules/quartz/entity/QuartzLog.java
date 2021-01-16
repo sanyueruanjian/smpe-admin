@@ -42,7 +42,7 @@ import java.sql.Timestamp;
 @TableName( "sys_quartz_log")
 public class QuartzLog extends BasicModel<QuartzLog> implements Serializable {
 
-    @TableId(value = "log_id")
+    @TableId(value = "id")
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
 
@@ -70,8 +70,6 @@ public class QuartzLog extends BasicModel<QuartzLog> implements Serializable {
     @ApiModelProperty(value = "执行耗时", hidden = true)
     private Long time;
 
-    @ApiModelProperty(value = "创建时间", hidden = true)
-    private Timestamp createTime;
 
 
 }
