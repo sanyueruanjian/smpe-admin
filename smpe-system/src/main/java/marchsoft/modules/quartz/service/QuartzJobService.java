@@ -28,6 +28,7 @@ public interface QuartzJobService {
      * @param tasks /
      * @return void
      * @date 2021/1/15 15:55
+     * @throws InterruptedException /
      */
     void executionSubJob(String[] tasks) throws InterruptedException;
 
