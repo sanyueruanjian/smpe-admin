@@ -14,9 +14,11 @@ import marchsoft.base.BasicServiceImpl;
 import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
+import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.Role;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.mapper.DeptMapper;
@@ -25,12 +27,10 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.RoleMapStruct;
 import marchsoft.modules.system.service.mapstruct.RoleSmallMapStruct;
-import marchsoft.utils.FileUtils;
-import marchsoft.utils.PageUtil;
-import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.StringUtils;
+import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -60,6 +60,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     private final RoleMapStruct roleMapStruct;
     private final RoleSmallMapStruct roleSmallMapStruct;
     private final DeptMapper deptMapper;
+    private final UserCacheClean userCacheClean;
+    private final RedisUtils redisUtils;
 
     /**
      * description:根据角色id查询一条角色信息
@@ -272,7 +274,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         }
 
         log.info("【修改角色成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
-
+        // 更新相关缓存
+        delCaches(role.getId());
     }
 
     /**
@@ -300,7 +303,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
             }
             log.info("【修改角色菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleId);
         }
-
+        delCaches(roleId);
     }
 
     /**
@@ -360,10 +363,10 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> roleIds) {
-//        for (Long id : roleIds) {
-//            // 更新相关缓存
-//            delCaches(id, null);
-//        }
+        for (Long id : roleIds) {
+            // 更新相关缓存
+            delCaches(id);
+        }
         boolean isDel = removeByIds(roleIds);
         if (! isDel) {
             log.error("【删除角色失败】角色id集合：" + roleIds);
@@ -381,6 +384,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
      * @date 2020-08-23 16:06
      */
     @Override
+    @Cacheable(key = "'auth:' + #p0.id")
     public List<GrantedAuthority> mapToGrantedAuthorities(UserDTO user) {
         Set<String> permissions = new HashSet<>();
         // 如果是管理员直接返回
@@ -467,6 +471,24 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         // 更新菜单
         roleMapper.untiedMenu(menuId);
         // MODIFY:@Jiaoqianjin 2020/12/1 description: 菜单绑定角色可以为空
+    }
+
+    /**
+     * 清理缓存
+     * @param id /
+     */
+    private void delCaches(Long id) {
+        List<Long> users = userMapper.findIdByRoleId(id);
+        if (CollectionUtil.isNotEmpty(users)) {
+            users.forEach(userCacheClean::cleanUserCache);
+            Set<Long> userIds = new HashSet<>(users);
+            redisUtils.delByKeys(CacheKey.DATA_USER, userIds);
+            redisUtils.delByKeys(CacheKey.MENU_USER, userIds);
+            redisUtils.delByKeys(CacheKey.ROLE_AUTH, userIds);
+            redisUtils.delByKeys(CacheKey.ROLE_USER, userIds);
+        }
+        redisUtils.del(CacheKey.ROLE_ID + id);
+        redisUtils.del(CacheKey.MENU_ROLE + id);
     }
 
 }

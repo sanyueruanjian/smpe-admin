@@ -1,14 +1,21 @@
 package marchsoft.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.annotation.Log;
 import marchsoft.base.BasicServiceImpl;
 import marchsoft.entity.SysLog;
+import marchsoft.entity.dto.SysLogDTO;
+import marchsoft.entity.dto.SysLogQueryCriteria;
 import marchsoft.mapper.SysLogMapper;
 import marchsoft.service.ISysLogService;
+import marchsoft.service.mapstruct.SysLogMapStruct;
+import marchsoft.utils.PageUtil;
 import marchsoft.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -37,6 +44,7 @@ import java.util.Map;
 public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog> implements ISysLogService {
 
     private final SysLogMapper sysLogMapper;
+    private final SysLogMapStruct sysLogMapStruct;
 
     /**
      * description:保存日志记录
@@ -73,6 +81,61 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
     }
 
     /**
+     * description: 分页查询日志信息
+     *
+     * @param criteria /
+     * @param page     /
+     * @return 日志的详细信息
+     * @author ZhangYuKun
+     * Date: 2021/1/14 20:14
+     */
+    @Override
+    public IPage<SysLogDTO> queryAll(SysLogQueryCriteria criteria, IPage<SysLog> page) {
+        IPage<SysLog> sysLogIPage = sysLogMapper.selectPage(page, buildSysLogQueryCriteria(criteria));
+        List<SysLogDTO> sysLogDTOList = sysLogMapStruct.toDto(sysLogIPage.getRecords());
+        return PageUtil.toMapStructPage(sysLogIPage, sysLogDTOList);
+    }
+
+    /**
+     * description: 查询所有日志信息
+     *
+     * @param criteria /
+     * @return 所有日志的详细信息
+     * @author ZhangYuKun
+     * Date: 2021/1/14 20:50
+     */
+    @Override
+    public List<SysLogDTO> queryAll(SysLogQueryCriteria criteria) {
+        return sysLogMapStruct.toDto(sysLogMapper.selectList(buildSysLogQueryCriteria(criteria)));
+    }
+
+
+    /**
+     * description: 构建查询角色的LambdaQueryWrapper
+     *
+     * @param criteria  /
+     * @author ZhangYuKun
+     * Date: 2021/1/14 20:12
+     */
+    public LambdaQueryWrapper<SysLog> buildSysLogQueryCriteria(SysLogQueryCriteria criteria) {
+        LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<>();
+        // 判断查询条件是否为空
+        if (StrUtil.isNotEmpty(criteria.getBlurry())) {
+            wrapper.like(SysLog::getDescription, criteria.getBlurry()).or()
+                    .like(SysLog::getAddress, criteria.getBlurry()).or()
+                    .like(SysLog::getRequestIp, criteria.getBlurry()).or()
+                    .like(SysLog::getMethod, criteria.getBlurry()).or()
+                    .like(SysLog::getParams, criteria.getBlurry());
+        }
+        // 判断是否添加创建时间范围条件
+        if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
+            wrapper.between(SysLog::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
+        }
+        return wrapper;
+    }
+
+
+    /**
      * description:解析@Log标识的接口参数
      *
      * @param method 方法
@@ -95,7 +158,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
             if (requestParam != null) {
                 Map<String, Object> map = new HashMap<>();
                 String key = parameters[i].getName();
-                if (! StrUtil.isEmpty(requestParam.value())) {
+                if (!StrUtil.isEmpty(requestParam.value())) {
                     key = requestParam.value();
                 }
                 map.put(key, args[i]);
