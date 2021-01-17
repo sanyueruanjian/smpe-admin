@@ -27,7 +27,7 @@ public interface SysLogMapper extends BasicMapper<SysLog> {
     /**
      * description:根据条件构造返回查询的所有匹配的日志信息集合
      *
-     * @param queryWrapper
+     * @param queryWrapper /
      * @return /
      * @author ZhangYuKun
      * Date: 2021/1/15 16:31
@@ -66,7 +66,7 @@ public interface SysLogMapper extends BasicMapper<SysLog> {
      * 单表不使用mp，为了走mybatis二级缓存
      *
      * @param id /
-     * @return
+     * @return /
      * @author ZhangYuKun
      * Date: 2021/1/15 18:47
      */
@@ -79,7 +79,6 @@ public interface SysLogMapper extends BasicMapper<SysLog> {
      * description:根据日志类型删除日志
      *
      * @param logType /
-     * @return
      * @author ZhangYuKun
      * Date: 2021/1/15 22:23
      */

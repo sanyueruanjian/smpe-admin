@@ -42,7 +42,7 @@ public interface ISysLogService extends IBasicService<SysLog> {
      * @param page     /
      * @return 日志的详细记录
      * Date: 2021/1/14 15:02
-     * @author: ZhangYuKun
+     * @author ZhangYuKun
      */
     IPage<SysLogDTO> queryAll(SysLogQueryCriteria criteria, IPage<SysLog> page);
 
@@ -51,7 +51,7 @@ public interface ISysLogService extends IBasicService<SysLog> {
      *
      * @param criteria /
      * @return 所有的日志详细记录
-     * @author: ZhangYuKun
+     * @author ZhangYuKun
      * Date: 2021/1/14:20:48
      */
     List<SysLogDTO> queryAll(SysLogQueryCriteria criteria);
@@ -69,13 +69,13 @@ public interface ISysLogService extends IBasicService<SysLog> {
     /**
      * description:导出日志
      *
-     * @param sysLogDTOS 待导出的日志
+     * @param sysLogDTOList 待导出的日志
      * @param response   /
-     * @return
+     * @throws IOException IO异常
      * @author ZhangYuKun
      * Date: 2021/1/16 16:54
      */
-    void download(List<SysLogDTO> sysLogDTOS, HttpServletResponse response) throws IOException;
+    void download(List<SysLogDTO> sysLogDTOList, HttpServletResponse response) throws IOException;
 
     /**
      * description:删除所有错误日志
