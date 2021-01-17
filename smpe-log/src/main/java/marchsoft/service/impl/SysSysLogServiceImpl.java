@@ -1,34 +1,40 @@
 package marchsoft.service.impl;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.annotation.Log;
 import marchsoft.base.BasicServiceImpl;
 import marchsoft.entity.SysLog;
+import marchsoft.entity.bo.SysLogBO;
 import marchsoft.entity.dto.SysLogDTO;
 import marchsoft.entity.dto.SysLogQueryCriteria;
+import marchsoft.enums.SysLogEnum;
 import marchsoft.mapper.SysLogMapper;
 import marchsoft.service.ISysLogService;
 import marchsoft.service.mapstruct.SysLogMapStruct;
+import marchsoft.utils.FileUtils;
 import marchsoft.utils.PageUtil;
 import marchsoft.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -55,6 +61,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      * Date: 2020/12/14 17:38
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void save(ProceedingJoinPoint joinPoint, SysLog sysLog) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -91,9 +98,9 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      */
     @Override
     public IPage<SysLogDTO> queryAll(SysLogQueryCriteria criteria, IPage<SysLog> page) {
-        IPage<SysLog> sysLogIPage = sysLogMapper.selectPage(page, buildSysLogQueryCriteria(criteria));
-        List<SysLogDTO> sysLogDTOList = sysLogMapStruct.toDto(sysLogIPage.getRecords());
-        return PageUtil.toMapStructPage(sysLogIPage, sysLogDTOList);
+        IPage<SysLogBO> sysLogPage = sysLogMapper.queryLogDetailsListPage(buildSysLogQueryCriteria(criteria), page);
+        List<SysLogDTO> sysLogDTOList = sysLogMapStruct.toDto(sysLogPage.getRecords());
+        return PageUtil.toMapStructPage(sysLogPage, sysLogDTOList);
     }
 
     /**
@@ -106,19 +113,89 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      */
     @Override
     public List<SysLogDTO> queryAll(SysLogQueryCriteria criteria) {
-        return sysLogMapStruct.toDto(sysLogMapper.selectList(buildSysLogQueryCriteria(criteria)));
+        List<SysLogBO> sysLogList = sysLogMapper.queryLogDetailsList(buildSysLogQueryCriteria(criteria));
+        return sysLogMapStruct.toDto(sysLogList);
     }
 
+    /**
+     * description:查询异常详情
+     *
+     * @param id /
+     * @return 异常日志的详细信息
+     * @author ZhangYuKun
+     * Date: 2021/1/15 21:12
+     */
+    @Override
+    public SysLogDTO findByErrDetail(Long id) {
+        SysLogBO sysLogBO = sysLogMapper.queryErrDetail(id);
+        return sysLogMapStruct.toDto(sysLogBO);
+    }
+
+    /**
+     * description:导出日志
+     *
+     * @param sysLogDTOList /
+     * @param response      /
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:33
+     */
+    @Override
+    public void download(List<SysLogDTO> sysLogDTOList, HttpServletResponse response) throws IOException {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (SysLogDTO sysLogDTO : sysLogDTOList) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("操作用户名", sysLogDTO.getUsername());
+            map.put("描述", sysLogDTO.getDescription());
+            map.put("方法名", sysLogDTO.getMethod());
+            map.put("参数", sysLogDTO.getParams());
+            map.put("请求ip", sysLogDTO.getRequestIp());
+            map.put("请求耗时（毫秒值）", sysLogDTO.getRequestTime());
+            map.put("地址", sysLogDTO.getAddress());
+            map.put("浏览器", sysLogDTO.getBrowser());
+            map.put("详细异常", sysLogDTO.getExceptionDetail());
+            map.put("创建时间", ObjectUtils.isNotNull(sysLogDTO.getCreateTime()) ? null :
+                    LocalDateTimeUtil.format(sysLogDTO.getCreateTime()
+                            , DatePattern.NORM_DATETIME_FORMATTER));
+            list.add(map);
+        }
+        FileUtils.downloadExcel(list, response);
+    }
+
+    /**
+     * description:删除所有错误日志
+     *
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:35
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delAllByError() {
+        sysLogMapper.deleteByLogType(SysLogEnum.ERROR.getLogType());
+    }
+
+    /**
+     * description:删除所有INFO日志
+     *
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:35
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delAllByInfo() {
+        sysLogMapper.deleteByLogType(SysLogEnum.INFO.getLogType());
+    }
 
     /**
      * description: 构建查询角色的LambdaQueryWrapper
      *
-     * @param criteria  /
+     * @param criteria /
      * @author ZhangYuKun
      * Date: 2021/1/14 20:12
      */
     public LambdaQueryWrapper<SysLog> buildSysLogQueryCriteria(SysLogQueryCriteria criteria) {
         LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<>();
+        // 设置查询的日志类型
+        wrapper.eq(SysLog::getLogType, criteria.getLogType());
         // 判断查询条件是否为空
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
             wrapper.like(SysLog::getDescription, criteria.getBlurry()).or()
@@ -133,7 +210,6 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         }
         return wrapper;
     }
-
 
     /**
      * description:解析@Log标识的接口参数
@@ -170,7 +246,6 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         }
         return argList.size() == 1 ? JSON.toJSONString(argList.get(0)) : JSON.toJSONString(argList);
     }
-
 
 }
 

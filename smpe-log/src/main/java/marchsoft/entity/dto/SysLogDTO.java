@@ -12,7 +12,9 @@ import java.io.Serializable;
 @Data
 public class SysLogDTO extends BaseDTO implements Serializable {
 
-    private Long userId;
+    private Long id;
+
+    private String username;
 
     private String description;
 
