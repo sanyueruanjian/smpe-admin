@@ -45,21 +45,37 @@ import java.util.*;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    /** token提供对象 */
+    /**
+     * token提供对象
+     */
     private final TokenProvider tokenProvider;
-    /** 默认过滤 */
+    /**
+     * 默认过滤
+     */
     private final CorsFilter corsFilter;
-    /** 认证失败处理类 */
+    /**
+     * 认证失败处理类
+     */
     private final JwtAuthenticationEntryPoint authenticationErrorHandler;
-    /** 权限不足处理类 */
+    /**
+     * 权限不足处理类
+     */
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    /** 应用上下文 */
+    /**
+     * 应用上下文
+     */
     private final ApplicationContext applicationContext;
-    /** Security配置 */
+    /**
+     * Security配置
+     */
     private final SecurityProperties properties;
-    /** 在线用户服务 */
+    /**
+     * 在线用户服务
+     */
     private final OnlineUserService onlineUserService;
-    /** 清除用户缓存 */
+    /**
+     * 清除用户缓存
+     */
     private final UserCacheClean userCacheClean;
 
     /**
@@ -159,7 +175,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 所有类型的接口都放行
                 .antMatchers(anonymousUrls.get(RequestMethodEnum.ALL.getType()).toArray(new String[0])).permitAll()
                 // 所有请求都需要认证
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
                 .and().apply(securityConfigurerAdapter());
     }
 

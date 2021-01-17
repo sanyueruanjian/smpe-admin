@@ -61,6 +61,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      * Date: 2020/12/14 17:38
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void save(ProceedingJoinPoint joinPoint, SysLog sysLog) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -97,9 +98,9 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      */
     @Override
     public IPage<SysLogDTO> queryAll(SysLogQueryCriteria criteria, IPage<SysLog> page) {
-        IPage<SysLogBO> logBOIPage = sysLogMapper.queryLogDetailsListPage(buildSysLogQueryCriteria(criteria), page);
-        List<SysLogDTO> sysLogDTOList = sysLogMapStruct.toDto(logBOIPage.getRecords());
-        return PageUtil.toMapStructPage(logBOIPage, sysLogDTOList);
+        IPage<SysLogBO> sysLogPage = sysLogMapper.queryLogDetailsListPage(buildSysLogQueryCriteria(criteria), page);
+        List<SysLogDTO> sysLogDTOList = sysLogMapStruct.toDto(sysLogPage.getRecords());
+        return PageUtil.toMapStructPage(sysLogPage, sysLogDTOList);
     }
 
     /**
@@ -112,8 +113,8 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      */
     @Override
     public List<SysLogDTO> queryAll(SysLogQueryCriteria criteria) {
-        List<SysLogBO> sysLogBOList = sysLogMapper.queryLogDetailsList(buildSysLogQueryCriteria(criteria));
-        return sysLogMapStruct.toDto(sysLogBOList);
+        List<SysLogBO> sysLogList = sysLogMapper.queryLogDetailsList(buildSysLogQueryCriteria(criteria));
+        return sysLogMapStruct.toDto(sysLogList);
     }
 
     /**
@@ -130,10 +131,18 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         return sysLogMapStruct.toDto(sysLogBO);
     }
 
+    /**
+     * description:导出日志
+     *
+     * @param sysLogDTOList /
+     * @param response      /
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:33
+     */
     @Override
-    public void download(List<SysLogDTO> sysLogDTOS, HttpServletResponse response) throws IOException {
+    public void download(List<SysLogDTO> sysLogDTOList, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (SysLogDTO sysLogDTO : sysLogDTOS) {
+        for (SysLogDTO sysLogDTO : sysLogDTOList) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("操作用户名", sysLogDTO.getUsername());
             map.put("描述", sysLogDTO.getDescription());
@@ -152,13 +161,24 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         FileUtils.downloadExcel(list, response);
     }
 
+    /**
+     * description:删除所有错误日志
+     *
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:35
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delAllByError() {
         sysLogMapper.deleteByLogType(SysLogEnum.ERROR.getLogType());
-
     }
 
+    /**
+     * description:删除所有INFO日志
+     *
+     * @author ZhangYuKun
+     * Date: 2021/1/17 9:35
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delAllByInfo() {
@@ -174,6 +194,8 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      */
     public LambdaQueryWrapper<SysLog> buildSysLogQueryCriteria(SysLogQueryCriteria criteria) {
         LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<>();
+        // 设置查询的日志类型
+        wrapper.eq(SysLog::getLogType, criteria.getLogType());
         // 判断查询条件是否为空
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
             wrapper.like(SysLog::getDescription, criteria.getBlurry()).or()
@@ -188,7 +210,6 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         }
         return wrapper;
     }
-
 
     /**
      * description:解析@Log标识的接口参数
@@ -225,7 +246,6 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         }
         return argList.size() == 1 ? JSON.toJSONString(argList.get(0)) : JSON.toJSONString(argList);
     }
-
 
 }
 
