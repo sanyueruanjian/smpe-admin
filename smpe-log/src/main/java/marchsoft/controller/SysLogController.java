@@ -46,7 +46,7 @@ public class SysLogController {
             @ApiImplicitParam(name = "criteria", value = "条件")
     })
     @GetMapping(value = "/download")
-    @PreAuthorize("smpe.check()")
+    @PreAuthorize("@smpe.check()")
     public void downLoad(HttpServletResponse response, SysLogQueryCriteria criteria) throws Exception {
         log.info(StrUtil.format("【导出日志数据 /api/logs/download】操作人userId:{}; 日志查询条件 criteria:{}"), SecurityUtils.getCurrentUserId(), criteria);
         criteria.setLogType(Convert.toStr(SysLogEnum.INFO.getLogType()));
@@ -60,7 +60,7 @@ public class SysLogController {
             @ApiImplicitParam(name = "criteria", value = "条件")
     })
     @GetMapping(value = "/error/download")
-    @PreAuthorize("smpe.check()")
+    @PreAuthorize("@smpe.check()")
     public void downloadErrorLog(HttpServletResponse response, SysLogQueryCriteria criteria) throws Exception {
         log.info(StrUtil.format("【导出错误日志数据 /api/logs/error/download】操作人userId:{}; 日志查询条件 criteria:{}"), SecurityUtils.getCurrentUserId(), criteria);
         criteria.setLogType(Convert.toStr(SysLogEnum.ERROR.getLogType()));
