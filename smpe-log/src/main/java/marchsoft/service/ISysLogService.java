@@ -3,7 +3,6 @@ package marchsoft.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import marchsoft.base.IBasicService;
 import marchsoft.entity.SysLog;
-import marchsoft.entity.bo.SysLogBO;
 import marchsoft.entity.dto.SysLogDTO;
 import marchsoft.entity.dto.SysLogQueryCriteria;
 import org.aspectj.lang.ProceedingJoinPoint;
