@@ -1,14 +1,18 @@
 package marchsoft.modules.quartz.utils;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.quartz.entity.QuartzJob;
 import marchsoft.modules.system.entity.Job;
+import marchsoft.utils.SecurityUtils;
 import org.quartz.*;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.springframework.stereotype.Component;
 import static org.quartz.TriggerBuilder.newTrigger;
 import javax.annotation.Resource;
+import java.sql.Struct;
 import java.util.Date;
 
 /**
@@ -30,7 +34,7 @@ public class QuartzManage {
      * description: 添加一个任务
      *
      * @author: lixiangxiang
-     * @param quartzJob
+     * @param quartzJob /
      * @return void
      * @date 2021/1/14 21:01
      */
@@ -63,7 +67,8 @@ public class QuartzManage {
                 pauseJob(quartzJob);
              }
          } catch (Exception e) {
-             log.error("创建定时任务失败",e);
+             log.error(StrUtil.format("【创建定时任务失败】操作人id: {} 定时任务id：{}",
+                     SecurityUtils.getCurrentUser()),quartzJob.getId() ,e);
              throw new BadRequestException("创建定时任务失败");
          }
      }
@@ -81,7 +86,8 @@ public class QuartzManage {
             JobKey jobKey = JobKey.jobKey(JOB_NAME+quartzJob.getId());
             scheduled.pauseJob(jobKey);
         } catch (Exception e) {
-          log.error("定时任务暂停失败",e);
+          log.error(StrUtil.format("【定时任务暂停失败】操作人id: {}，定时任务id：{}",
+                  SecurityUtils.getCurrentUser(),quartzJob.getId()),e);
           throw new BadRequestException("定时任务暂停失败");
         }
     }
