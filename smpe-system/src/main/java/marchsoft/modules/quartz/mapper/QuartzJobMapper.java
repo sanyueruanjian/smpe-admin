@@ -14,4 +14,5 @@ import org.apache.ibatis.annotations.CacheNamespace;
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 public interface QuartzJobMapper extends  BasicMapper<QuartzJob> {
 
+
 }

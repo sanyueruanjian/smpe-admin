@@ -1,6 +1,5 @@
 package marchsoft.modules.quartz.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -26,7 +25,6 @@ public class QuartzJob extends BasicModel<QuartzJob> implements Serializable {
     @TableId(value = "id")
     private Long id;
 
-    @TableField(value = "sub_task")
     @ApiModelProperty(value = "用于子任务唯一标识", hidden = true)
     private String uuid;
 
