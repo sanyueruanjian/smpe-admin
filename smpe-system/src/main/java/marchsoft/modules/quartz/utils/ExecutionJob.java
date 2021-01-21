@@ -5,10 +5,7 @@ import marchsoft.modules.quartz.entity.QuartzJob;
 import marchsoft.modules.quartz.entity.QuartzLog;
 import marchsoft.modules.quartz.mapper.QuartzLogMapper;
 import marchsoft.modules.quartz.service.QuartzJobService;
-import marchsoft.utils.RedisUtils;
-import marchsoft.utils.SpringContextHolder;
-import marchsoft.utils.StringUtils;
-import marchsoft.utils.ThreadPoolExecutorUtil;
+import marchsoft.utils.*;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.annotation.Async;
@@ -67,6 +64,7 @@ public class ExecutionJob extends QuartzJobBean {
             }
             //任务状态
             quartzLog.setIsSuccess(true);
+
             log.info("定时任务执行完毕，任务名称:"+quartzJob.getJobName()+",执行时间:"+times+"ms");
             log.info("------------------------------------------------------");
             //判断是否存在子任务
@@ -86,6 +84,8 @@ public class ExecutionJob extends QuartzJobBean {
             quartzLog.setTime(times);
             //任务状态 0; 成功 1 ;失败 0
             quartzLog.setIsSuccess(false);
+            //存入异常信息
+            quartzLog.setExceptionDetail(ThrowableUtil.getStackTrace(e));
             //如果任务失败则暂停
             if (quartzJob.getPauseAfterFailure() != null && quartzJob.getPauseAfterFailure()) {
                 quartzJob.setIsPause(false);
