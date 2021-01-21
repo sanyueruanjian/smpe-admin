@@ -2,7 +2,6 @@ package marchsoft.modules.quartz.utils;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.quartz.entity.QuartzJob;
@@ -33,7 +32,7 @@ public class QuartzManage {
      * description: 添加一个任务
      *
      * @author: lixiangxiang
-     * @param quartzJob /
+     * @param quartzJob
      * @return void
      * @date 2021/1/14 21:01
      */
@@ -60,7 +59,6 @@ public class QuartzManage {
 
              //执行定时任务
              scheduler.scheduleJob(jobDetail,cronTrigger);
-
              //如果设置暂停，暂停任务
              if (quartzJob.getIsPause()){
                 pauseJob(quartzJob);
@@ -90,7 +88,6 @@ public class QuartzManage {
           throw new BadRequestException("定时任务暂停失败");
         }
     }
-
     /**
      * description: 恢复一个job
      *

@@ -19,15 +19,14 @@ import marchsoft.modules.quartz.service.QuartzJobService;
 import marchsoft.modules.quartz.utils.QuartzManage;
 import marchsoft.modules.quartz.entity.dto.JobQueryCriteria;
 import marchsoft.utils.*;
+import marchsoft.utils.RedisUtils;
 import org.quartz.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 /**
  * @author lixiangxiang
  * @description
@@ -232,5 +231,4 @@ public class QuartzJobServiceImpl extends BasicServiceImpl<QuartzJobMapper,Quart
         }
         return wrapper;
     }
-
 }

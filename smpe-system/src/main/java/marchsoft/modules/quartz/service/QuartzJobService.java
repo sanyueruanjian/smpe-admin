@@ -4,7 +4,6 @@ import marchsoft.base.PageVO;
 import marchsoft.modules.quartz.entity.QuartzJob;
 import marchsoft.modules.quartz.entity.QuartzLog;
 import marchsoft.modules.quartz.entity.dto.JobQueryCriteria;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +17,10 @@ import java.util.Set;
 public interface QuartzJobService {
 
     /**
+<<<<<<< HEAD
+=======
+     * fetch
+>>>>>>> e3a3bf34b550c0152717336113be4c341b64f6d6
      * description: 创建定时任务
      *
      * @author: lixiangxiang
@@ -135,7 +138,7 @@ public interface QuartzJobService {
      *
      * @author: lixiangxiang
      * @param response /
-     * @param criteria /
+     * @param quartzLogs /
      * @return void
      * @date 2021/1/21 16:02
      */
@@ -150,6 +153,5 @@ public interface QuartzJobService {
      * @date 2021/1/21 16:06
      */
     List<QuartzLog>  queryAllLog(JobQueryCriteria criteria);
-
 
 }

@@ -14,11 +14,9 @@ import marchsoft.response.Result;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
-
 /**
  * @author lixiangxiang
  * @description 定时任务
@@ -112,4 +110,3 @@ public class QuartzJobController {
         quartzJobService.downloadLog(response, quartzJobService.queryAllLog(criteria));
     }
 }
-
