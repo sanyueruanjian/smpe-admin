@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.annotation.AnonymousAccess;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.upload.service.FileService;
@@ -56,6 +57,7 @@ public class FileController {
     @ApiOperation(value = "文件获取=>ALL", notes = " \n author：RenShiWei 2020/11/28")
     @ApiImplicitParam(name = "fileName", value = "文件名", paramType = "path")
     @GetMapping(value = "/download/{fileName:.+}", produces = "application/octet-stream;charset=UTF-8")
+    @AnonymousAccess
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
                                                  HttpServletResponse response) {
         //加载文件资源
