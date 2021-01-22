@@ -52,7 +52,7 @@ public class ExecutionJob extends QuartzJobBean {
         //执行任务
         try {
             log.info("-----------------------------------");
-            log.info("定时任务开始执行，任务名称: "+quartzJob.getJobName());
+            log.info(StrUtil.format("【定时任务开始执行】 任务名称: {} ", quartzJob.getJobName()));
             //创建定时任务线程
             QuartzRunnable task = new QuartzRunnable(quartzJob.getBeanName(),quartzJob.getMethodName(),quartzJob.getParams());
            //用future管理task
@@ -67,8 +67,7 @@ public class ExecutionJob extends QuartzJobBean {
             }
             //任务状态
             quartzLog.setIsSuccess(true);
-
-            log.info("定时任务执行完毕，任务名称:"+quartzJob.getJobName()+",执行时间:"+times+"ms");
+            log.info(StrUtil.format("【定时任务执行完毕】 任务名称: {}, 执行时间: {} ms", quartzJob.getJobName(),times));
             log.info("------------------------------------------------------");
             //判断是否存在子任务
             if(quartzJob.getSubTask() != null){
@@ -83,8 +82,7 @@ public class ExecutionJob extends QuartzJobBean {
             if (StringUtils.isNotBlank(uuid)) {
                 redisUtils.set(uuid, false);
             }
-            log.info(StrUtil.format("【任务执行失败】任务名称: {} ",
-                    quartzJob.getJobName()));
+            log.info(StrUtil.format("【任务执行失败】任务名称: {} ", quartzJob.getJobName()));
             log.info("-------------------------------------------");
             long times = System.currentTimeMillis() - startTime;
             quartzLog.setTime(times);

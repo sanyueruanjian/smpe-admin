@@ -135,7 +135,7 @@ public interface QuartzJobService {
      *
      * @author: lixiangxiang
      * @param response /
-     * @param criteria /
+     * @param quartzLogs /
      * @return void
      * @date 2021/1/21 16:02
      */
