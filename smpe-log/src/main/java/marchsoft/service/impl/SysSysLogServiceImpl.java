@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.annotation.Log;
 import marchsoft.base.BasicServiceImpl;
+import marchsoft.config.SysLogConfig;
 import marchsoft.entity.SysLog;
 import marchsoft.entity.bo.SysLogBO;
 import marchsoft.entity.dto.SysLogDTO;
@@ -22,6 +23,7 @@ import marchsoft.service.ISysLogService;
 import marchsoft.service.mapstruct.SysLogMapStruct;
 import marchsoft.utils.FileUtils;
 import marchsoft.utils.PageUtil;
+import marchsoft.utils.SecurityUtils;
 import marchsoft.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -48,7 +50,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog> implements ISysLogService {
-
+    private final SysLogConfig sysLogConfig;
     private final SysLogMapper sysLogMapper;
     private final SysLogMapStruct sysLogMapStruct;
 
@@ -57,12 +59,16 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
      *
      * @param joinPoint /
      * @param sysLog    /
-     * @author RenShiWei
+     * @author RenShiWei, ZhangYuKun
      * Date: 2020/12/14 17:38
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void save(ProceedingJoinPoint joinPoint, SysLog sysLog) {
+        // 判断是否取消日志实例化
+        if (ObjectUtils.isNotNull(sysLogConfig.isTest()) && !sysLogConfig.isTest()) {
+            return;
+        }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         Log aopLog = method.getAnnotation(Log.class);
@@ -83,7 +89,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
 
         int count = sysLogMapper.insert(sysLog);
         if (count <= 0) {
-            log.error("【接口切面日志保存失败】");
+            log.error(StrUtil.format("【接口切面日志保存失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
         }
     }
 
@@ -153,7 +159,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
             map.put("地址", sysLogDTO.getAddress());
             map.put("浏览器", sysLogDTO.getBrowser());
             map.put("详细异常", sysLogDTO.getExceptionDetail());
-            map.put("创建时间", ObjectUtils.isNotNull(sysLogDTO.getCreateTime()) ? null :
+            map.put("创建时间", ObjectUtil.isNull(sysLogDTO.getCreateTime()) ? null :
                     LocalDateTimeUtil.format(sysLogDTO.getCreateTime()
                             , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);

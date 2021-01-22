@@ -205,7 +205,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
             }
         }
         if (trees.size() == 0) {
-            trees = menuDtos.stream().filter(s -> ! ids.contains(s.getId())).collect(Collectors.toList());
+            trees = menuDtos.stream().filter(s -> !ids.contains(s.getId())).collect(Collectors.toList());
         }
         return trees;
     }
@@ -231,15 +231,15 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
                         menuVo.setPath(menuDTO.getPid().equals(0L) ? "/" + menuDTO.getPath() : menuDTO.getPath());
                         menuVo.setHidden(menuDTO.getHidden());
                         // 如果不是外链
-                        if (! menuDTO.getIFrame()) {
+                        if (!menuDTO.getIFrame()) {
                             if (menuDTO.getPid().equals(0L)) {
                                 menuVo.setComponent(StrUtil.isEmpty(menuDTO.getComponent()) ? "Layout" :
                                         menuDTO.getComponent());
-                            } else if (! StrUtil.isEmpty(menuDTO.getComponent())) {
+                            } else if (!StrUtil.isEmpty(menuDTO.getComponent())) {
                                 menuVo.setComponent(menuDTO.getComponent());
                             }
                         }
-                        menuVo.setMeta(new MenuMetaVo(menuDTO.getTitle(), menuDTO.getIcon(), ! menuDTO.getCache()));
+                        menuVo.setMeta(new MenuMetaVo(menuDTO.getTitle(), menuDTO.getIcon(), !menuDTO.getCache()));
                         if (menuDtoList != null && menuDtoList.size() != 0) {
                             menuVo.setAlwaysShow(true);
                             menuVo.setRedirect("noredirect");
@@ -249,7 +249,7 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
                             MenuVo menuVo1 = new MenuVo();
                             menuVo1.setMeta(menuVo.getMeta());
                             // 非外链
-                            if (! menuDTO.getIFrame()) {
+                            if (!menuDTO.getIFrame()) {
                                 menuVo1.setPath("index");
                                 menuVo1.setName(menuVo.getName());
                                 menuVo1.setComponent(menuVo.getComponent());
@@ -306,7 +306,8 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         titleQueryWrapper.eq(Menu::getTitle, menu.getTitle());
         // MODIFY:@Jiaoqianjin 2020/11/26 description: list() --> count()
         if (this.count(titleQueryWrapper) > 0) {
-            log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增菜单标题已存在：" + menu.getTitle());
+            log.error(StrUtil.format("【新增菜单失败】操作人id：{}，新增菜单标题已存在：{}", SecurityUtils.getCurrentUserId(),
+                    menu.getTitle()));
             throw new BadRequestException("菜单标题已存在");
         }
         LambdaQueryWrapper<Menu> componentQuery = new LambdaQueryWrapper<>();
@@ -314,7 +315,8 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         // MODIFY:@Jiaoqianjin 2020/11/26 description: list() --> count()
         if (StringUtils.isNotBlank(menu.getName())) {
             if (this.count(componentQuery) > 0) {
-                log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增组件名已存在：" + menu.getTitle());
+                log.error(StrUtil.format("【新增菜单失败】操作人id：{}，新增组件名已存在：{}", SecurityUtils.getCurrentUserId(),
+                        menu.getTitle()));
                 throw new BadRequestException("组件名称已存在");
             }
         }
@@ -323,17 +325,19 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
 //        }
         if (menu.getIFrame()) {
             String http = "http://", https = "https://";
-            if (! (menu.getPath().toLowerCase().startsWith(http) || menu.getPath().toLowerCase().startsWith(https))) {
-                log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "外链必须以http://或者https://开头:" + menu.getIFrame());
+            if (!(menu.getPath().toLowerCase().startsWith(http) || menu.getPath().toLowerCase().startsWith(https))) {
+                log.error(StrUtil.format("【新增菜单失败】操作人id：{}，外链必须以http://或者https://开头：{}", SecurityUtils.getCurrentUserId(),
+                        menu.getIFrame()));
                 throw new BadRequestException("外链必须以http://或者https://开头");
             }
         }
         boolean insert = menu.insert();
-        if (! insert) {
-            log.error("【新增菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
+        if (!insert) {
+            log.error(StrUtil.format("【新增菜单失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
-        log.info("【新增菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增菜单Id：" + menu.getId());
+        log.info(StrUtil.format("【新增菜单成功】操作人id：{}，新增菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                menu.getId()));
         // 计算子节点数目
         menu.setSubCount(0);
         // 更新父节点菜单数目
@@ -341,18 +345,20 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
     }
 
     private void updateSubCnt(Long menuId) {
-        if (! menuId.equals(0L)) {
+        if (!menuId.equals(0L)) {
             LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Menu::getPid, menuId);
             int count = this.count(queryWrapper);
             LambdaUpdateWrapper<Menu> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Menu::getSubCount, count).eq(Menu::getId, menuId);
             boolean isUpdate = this.update(updateWrapper);
-            if (! isUpdate) {
-                log.error("【更新父节点菜单数目失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menuId);
+            if (!isUpdate) {
+                log.error(StrUtil.format("【更新父节点菜单数目失败】操作人id：{}，菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                        menuId));
                 throw new BadRequestException("更新父节点菜单数目失败");
             }
-            log.info("【更新父节点菜单数目成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + " 菜单Id：" + menuId);
+            log.info(StrUtil.format("【更新父节点菜单数目成功】操作人id：{}，菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                    menuId));
         }
     }
 
@@ -367,18 +373,21 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
     @Transactional(rollbackFor = Exception.class)
     public void updateMenu(Menu resources) {
         if (resources.getId().equals(resources.getPid())) {
-            log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "上级不能为自己,菜单Id：" + resources.getId());
+            log.error(StrUtil.format("【修改菜单失败】操作人id：{}，上级不能为自己,菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                    resources.getId()));
             throw new BadRequestException("上级不能为自己");
         }
         Menu menu = this.getById(resources.getId());
         if (ObjectUtil.isEmpty(menu)) {
-            log.error("【修改菜单信息失败】此菜单不存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改菜单Id：" + resources.getId());
+            log.error(StrUtil.format("【修改菜单信息失败】此菜单不存在。操作人id：{}，修改菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                    resources.getId()));
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         if (resources.getIFrame()) {
             String http = "http://", https = "https://";
-            if (! (resources.getPath().toLowerCase().startsWith(http) || resources.getPath().toLowerCase().startsWith(https))) {
-                log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "外链必须以http://或者https://开头:" + menu.getIFrame());
+            if (!(resources.getPath().toLowerCase().startsWith(http) || resources.getPath().toLowerCase().startsWith(https))) {
+                log.error(StrUtil.format("【修改菜单失败】操作人id：{}，外链必须以http://或者https://开头：{}", SecurityUtils.getCurrentUserId(),
+                        menu.getIFrame()));
                 throw new BadRequestException("外链必须以http://或者https://开头");
             }
         }
@@ -386,8 +395,9 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Menu::getTitle, resources.getTitle());
         Menu menu1 = getOne(queryWrapper);
-        if (menu1 != null && ! menu1.getId().equals(menu.getId())) {
-            log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "该菜单标题已存在：" + menu.getTitle());
+        if (menu1 != null && !menu1.getId().equals(menu.getId())) {
+            log.error(StrUtil.format("【修改菜单失败】操作人id：{}，该菜单标题已存在：{}", SecurityUtils.getCurrentUserId(),
+                    menu.getTitle()));
             throw new BadRequestException("菜单标题已存在");
         }
         // 判断菜单组件名称是否已经存在
@@ -395,8 +405,9 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
             LambdaQueryWrapper<Menu> nameQuery = new LambdaQueryWrapper<>();
             nameQuery.eq(Menu::getName, resources.getName());
             menu1 = getOne(nameQuery);
-            if (menu1 != null && ! menu1.getId().equals(menu.getId())) {
-                log.error("【修改菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "该菜单组件名称已存在：" + menu.getName());
+            if (menu1 != null && !menu1.getId().equals(menu.getId())) {
+                log.error(StrUtil.format("【修改菜单失败】操作人id：{}，该菜单组件名称已存在：{}", SecurityUtils.getCurrentUserId(),
+                        menu.getName()));
                 throw new BadRequestException("组件名称已存在");
             }
         }
@@ -411,7 +422,8 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         // 属性拷贝
         BeanUtil.copyProperties(resources, menu);
         menu.insertOrUpdate();
-        log.info("【修改菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单Id：" + menu.getId());
+        log.info(StrUtil.format("【修改菜单成功】操作人id：{}，菜单Id：{}", SecurityUtils.getCurrentUserId(),
+                menu.getId()));
         // 计算父级菜单节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
@@ -480,10 +492,10 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         }
         Set<Long> menuIds = menuSet.stream().map(Menu::getId).collect(Collectors.toSet());
         boolean isRemove = this.removeByIds(menuIds);
-        if (! isRemove) {
-            log.error("【删除菜单失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);
+        if (!isRemove) {
+            log.error(StrUtil.format("【删除菜单失败】操作人id：{}，菜单数据：{}", SecurityUtils.getCurrentUserId(), menuIds));
         }
-        log.info("【删除菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "菜单数据：" + menuIds);
+        log.info(StrUtil.format("【删除菜单成功】操作人id：{}，菜单数据：{}", SecurityUtils.getCurrentUserId(), menuIds));
     }
 
     /**
@@ -511,14 +523,15 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
 
     /**
      * 清理缓存
+     *
      * @param id 菜单ID
      */
-    private void delCaches(Long id){
+    private void delCaches(Long id) {
         List<Long> userIds = userMapper.findIdByMenuId(id);
-        redisUtils.del(CacheKey.MENU_ID +id);
+        redisUtils.del(CacheKey.MENU_ID + id);
         redisUtils.delByKeys(CacheKey.MENU_USER, new HashSet<>(userIds));
         // 清除 Role 缓存
-        List<Role> roles = roleMapper.findInMenuId(new ArrayList<Long>(){{
+        List<Role> roles = roleMapper.findInMenuId(new ArrayList<Long>() {{
             add(id);
         }});
         redisUtils.delByKeys(CacheKey.ROLE_ID, roles.stream().map(Role::getId).collect(Collectors.toSet()));
