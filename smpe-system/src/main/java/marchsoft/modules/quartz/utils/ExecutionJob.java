@@ -1,14 +1,14 @@
 package marchsoft.modules.quartz.utils;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.exception.BadRequestException;
 import marchsoft.modules.quartz.entity.QuartzJob;
 import marchsoft.modules.quartz.entity.QuartzLog;
 import marchsoft.modules.quartz.mapper.QuartzLogMapper;
 import marchsoft.modules.quartz.service.QuartzJobService;
-import marchsoft.utils.RedisUtils;
-import marchsoft.utils.SpringContextHolder;
-import marchsoft.utils.StringUtils;
-import marchsoft.utils.ThreadPoolExecutorUtil;
+import marchsoft.utils.*;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.annotation.Async;
@@ -67,25 +67,31 @@ public class ExecutionJob extends QuartzJobBean {
             }
             //任务状态
             quartzLog.setIsSuccess(true);
+
             log.info("定时任务执行完毕，任务名称:"+quartzJob.getJobName()+",执行时间:"+times+"ms");
             log.info("------------------------------------------------------");
             //判断是否存在子任务
             if(quartzJob.getSubTask() != null){
                 String[] tasks = quartzJob.getSubTask().split("[,，]");
                 //执行子任务
-                quartzJobService.executionSubJob(tasks);
+                if(ArrayUtil.isNotEmpty(tasks)){
+                    quartzJobService.executionSubJob(tasks);
+                }
             }
         } catch (Exception e) {
             //保存执行状态
             if (StringUtils.isNotBlank(uuid)) {
                 redisUtils.set(uuid, false);
             }
-            log.info("任务执行失败，任务名称" + quartzJob.getJobName());
+            log.info(StrUtil.format("【任务执行失败】任务名称: {} ",
+                    quartzJob.getJobName()));
             log.info("-------------------------------------------");
             long times = System.currentTimeMillis() - startTime;
             quartzLog.setTime(times);
             //任务状态 0; 成功 1 ;失败 0
             quartzLog.setIsSuccess(false);
+            //存入异常信息
+            quartzLog.setExceptionDetail(ThrowableUtil.getStackTrace(e));
             //如果任务失败则暂停
             if (quartzJob.getPauseAfterFailure() != null && quartzJob.getPauseAfterFailure()) {
                 quartzJob.setIsPause(false);
@@ -97,6 +103,7 @@ public class ExecutionJob extends QuartzJobBean {
                 System.out.println("发送邮箱");
             }
             e.printStackTrace();
+            throw new BadRequestException("定时任务执行失败");
         }finally {
             //日志信息存入数据库
             quartzLogMapper.insert(quartzLog);
