@@ -15,17 +15,19 @@
  */
 package marchsoft.modules.quartz.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import marchsoft.base.BasicModel;
+
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 /**
  * <p>
@@ -34,7 +36,9 @@ import java.sql.Timestamp;
  * @author lixiangxiang
  * @date 2021-1-13
  */
+
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -42,7 +46,7 @@ import java.sql.Timestamp;
 @TableName( "sys_quartz_log")
 public class QuartzLog extends BasicModel<QuartzLog> implements Serializable {
 
-    @TableId(value = "id")
+    @TableId(value = "id",type = IdType.AUTO)
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
 
