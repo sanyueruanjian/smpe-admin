@@ -90,7 +90,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public DeptDTO findById(Long id) {
         Dept dept = deptMapper.selectById(id);
         if (ObjectUtil.isEmpty(dept)) {
-            log.error("【查找部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查找目标id：" + id);
+            log.error(StrUtil.format("【查找部门失败】操作人id：{}，查找目标id：{}", SecurityUtils.getCurrentUserId(), id));
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         return deptMapStruct.toDto(dept);
@@ -156,7 +156,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             map.put("部门状态", deptDto.getEnabled() ? "启用" : "停用");
             map.put("创建日期", ObjectUtil.isNull(deptDto.getCreateTime()) ? null :
                     LocalDateTimeUtil.format(deptDto.getCreateTime()
-                    , DatePattern.NORM_DATETIME_FORMATTER));
+                            , DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -196,13 +196,13 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
         String dataScopeType = SecurityUtils.getDataScopeType();
         IPage<DeptDTO> returnPage = pageVO.buildPage();
         if (isQuery) {
-            if (! dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+            if (!dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
                 if (ObjectUtil.isNotNull(criteria.getPid())) {
                     List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
-                    if (! currentUserDataScope.contains(criteria.getPid())) {
+                    if (!currentUserDataScope.contains(criteria.getPid())) {
                         // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
-//                        log.info("【查询部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询部门目标dept：" +
-//                        criteria.getPid());
+//                        log.error(StrUtil.format("【查询部门失败】操作人id：{}，查询部门目标dept：{}", SecurityUtils.getCurrentUserId(),
+//                                criteria.getPid() ));
 //                        throw new BadRequestException("您没有查询部门目标dept：" + criteria.getPid() + "的权限。");
                         return returnPage;
                     }
@@ -213,7 +213,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
                     Field[] fields = ReflectUtil.getFields(criteria.getClass());
                     for (Field field : fields) {
                         if (ObjectUtil.isNotNull(ReflectUtil.getFieldValue(criteria, field))) {
-                            if (! field.getName().equals("enabled")) {
+                            if (!field.getName().equals("enabled")) {
                                 isAllNull = false;
                                 break;
                             }
@@ -298,7 +298,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             }
             if (isChild) {
                 depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && ! deptNames.contains(findById(deptDto.getPid()).getName())) {
+            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
                 depts.add(deptDto);
             }
         }
@@ -322,7 +322,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public void create(Dept dept) {
         save(dept.setSubCount(0));
         updateSubCnt(ObjectUtil.isNull(dept.getPid()) ? 0 : dept.getPid());
-        log.info("【添加部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t新增目标dept：" + dept);
+        log.info(StrUtil.format("【添加部门成功】操作人id：{}，新增目标dept：{}", SecurityUtils.getCurrentUserId(),
+                dept));
     }
 
     /**
@@ -341,7 +342,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             LambdaUpdateWrapper<Dept> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Dept::getSubCount, count).eq(Dept::getId, deptId);
             update(updateWrapper);
-            log.info("【修改部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标dept：" + deptId + "的子部门数量：" + count);
+            log.info(StrUtil.format("【修改部门成功】操作人id：{}，修改目标dept：{}的子部门数量：{}", SecurityUtils.getCurrentUserId(),
+                    deptId, count));
         }
     }
 
@@ -358,21 +360,24 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public void updateDept(Dept resources) {
         Dept dept = getById(resources.getId());
         if (ObjectUtil.isEmpty(dept)) {
-            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标不存在,修改目标deptId：" + resources.getId());
+            log.error(StrUtil.format("【修改部门失败】操作人id：{}，修改目标不存在,修改目标deptId：{}", SecurityUtils.getCurrentUserId(),
+                    resources.getId()));
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         // 旧部门 pid
         Long oldPid = dept.getPid();
         Long newPid = resources.getPid();
         if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
-            log.error("【修改部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标的上级不能是自己,当前dept：" + resources);
+            log.error(StrUtil.format("【修改部门失败】操作人id：{}，修改目标的上级不能是自己,当前dept：{}", SecurityUtils.getCurrentUserId(),
+                    resources));
             throw new BadRequestException("上级不能为自己");
         }
         resources.insertOrUpdate();
         // 更新父节点中子节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
-        log.info("【修改部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标dept：" + resources);
+        log.info(StrUtil.format("【修改部门成功】操作人id：{}，修改目标dept：{}", SecurityUtils.getCurrentUserId(),
+                resources));
         //清理缓存
         delCaches(resources.getId());
     }
@@ -416,13 +421,13 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.in(User::getDeptId, deptIds);
         if (userService.count(userLambdaQueryWrapper) > 0) {
-            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() +
-                    "存在用户关联，请解除后再试！");
+            log.error(StrUtil.format("【删除部门失败】操作人id：{}，所选部门：{}存在用户关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
+                    deptIds.toString()));
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
         if (roleMapper.countByDeptIds(deptIds) > 0) {
-            log.error("【删除部门失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选部门" + deptIds.toString() +
-                    "存在角色关联，请解除后再试！");
+            log.error(StrUtil.format("【删除部门失败】操作人id：{}，所选部门：{}存在角色关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
+                    deptIds.toString()));
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }
@@ -443,7 +448,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             delCaches(deptDTO.getId());
             this.removeById(deptDTO.getId());
             updateSubCnt(deptDTO.getPid());
-            log.info("【删除部门成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t删除目标dept：" + deptDTO);
+            log.info(StrUtil.format("【删除部门成功】操作人id：{}，删除目标dept：{}", SecurityUtils.getCurrentUserId(),
+                    deptDTO));
         }
     }
 
@@ -478,9 +484,10 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
 
     /**
      * 清理缓存
+     *
      * @param id /
      */
-    private void delCaches(Long id){
+    private void delCaches(Long id) {
         List<Long> userIds = userMapper.findIdByDeptRoleId(id);
         // 删除数据权限
         redisUtils.delByKeys(CacheKey.DATA_USER, new HashSet<>(userIds));

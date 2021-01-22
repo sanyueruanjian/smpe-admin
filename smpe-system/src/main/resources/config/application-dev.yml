@@ -73,9 +73,9 @@ spring:
       max-file-size: 200MB
       # 最大请求大小
       max-request-size: 215MB
-#  aop:
-#    # 取消切面自动代理，保证开发环境不会进行日志实例化
-#    auto: false
+  logging:
+    test: false
+    # 开发环境不进行日志实例化
 
 # 登录相关配置
 login:

@@ -1,5 +1,6 @@
 package marchsoft.modules.upload.controller;
 
+import cn.hutool.core.util.StrUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,7 @@ import marchsoft.exception.BadRequestException;
 import marchsoft.modules.upload.service.FileService;
 import marchsoft.response.Result;
 import marchsoft.utils.FileUtils;
+import marchsoft.utils.SecurityUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -47,8 +49,8 @@ public class FileController {
     @ApiOperation("文件上传（图片）")
     @PostMapping(value = "/uploadImage")
     public Result<String> uploadImage(@RequestPart MultipartFile file) {
-        if (! FileUtils.isImage(file)) {
-            log.error("【图片上传失败-文件类型不符合】");
+        if (!FileUtils.isImage(file)) {
+            log.error(StrUtil.format("【图片上传失败-文件类型不符合】操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException(ResultEnum.FILE_TYPE_IMAGE_FAIL);
         }
         return Result.success(fileService.upload(file));
@@ -69,7 +71,7 @@ public class FileController {
             assert resource != null;
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            log.warn("Could not determine file type.");
+            log.warn(StrUtil.format("【Could not determine file type】操作人id：{}", SecurityUtils.getCurrentUserId()));
         }
 
         // Fallback to the default content type if type could not be determined

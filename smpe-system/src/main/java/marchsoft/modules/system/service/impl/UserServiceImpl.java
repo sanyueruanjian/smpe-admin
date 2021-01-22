@@ -74,7 +74,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     public Long findUserIdByName(String username) {
         Long id = userMapper.findUserIdByName(username);
         if (ObjectUtil.isEmpty(id)) {
-            log.error("【查询用户id失败】用户名不存在。用户名：" + username);
+            log.error(StrUtil.format("【查询用户id失败】用户名不存在。用户名：{}", username));
         }
         return id;
     }
@@ -231,7 +231,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         BeanUtil.copyProperties(userInsertOrUpdateDTO, user);
         //新增用户
         boolean save = save(user);
-        if (! save) {
+        if (!save) {
             log.error(StrUtil.format("【新增用户失败】操作人id：{}，用户名：{}", SecurityUtils.getCurrentUserId(),
                     userInsertOrUpdateDTO.getUsername()));
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
@@ -267,30 +267,33 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         // 根据id查询用户数据
         UserBO userBO = this.findUserDetailById(userInsertOrUpdateDTO.getId());
         if (ObjectUtil.isEmpty(userBO)) {
-            log.error("【修改用户信息失败】此用户不存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+            log.error(StrUtil.format("【修改用户信息失败】此用户不存在。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
+                    userInsertOrUpdateDTO.getId()));
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
 
         //如果用户名修改了
-        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getUsername()) && ! userInsertOrUpdateDTO.getUsername().equals(userBO.getUsername())) {
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getUsername()) && !userInsertOrUpdateDTO.getUsername().equals(userBO.getUsername())) {
             //判断用户名不能重复
             queryWrapper.eq(User::getUsername, userInsertOrUpdateDTO.getUsername());
             // modify @RenShiWei 2020/11/24 description:list() ——> count()
             if (this.count(queryWrapper) > 0) {
-                log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户用户名已存在：" + userInsertOrUpdateDTO.getUsername());
+                log.error(StrUtil.format("【修改用户失败】修改用户用户名已存在。操作人id：{}，修改用户用户名：{}", SecurityUtils.getCurrentUserId(),
+                        userInsertOrUpdateDTO.getUsername()));
                 throw new BadRequestException(ResultEnum.USER_USERNAME_EXIST);
             }
         }
 
         //如果邮箱修改了
-        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getEmail()) && ! userInsertOrUpdateDTO.getEmail().equals(userBO.getEmail())) {
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getEmail()) && !userInsertOrUpdateDTO.getEmail().equals(userBO.getEmail())) {
             //判断邮箱不能重复
             queryWrapper.clear();
             queryWrapper.eq(User::getEmail, userInsertOrUpdateDTO.getEmail());
             // modify @RenShiWei 2020/11/24 description:增加邮箱判断
             if (this.count(queryWrapper) > 0) {
-                log.error("【修改用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户邮箱已存在：" + userInsertOrUpdateDTO.getUsername());
+                log.error(StrUtil.format("【修改用户失败】修改用户邮箱已存在。操作人id：{}，修改用户邮箱：{}", SecurityUtils.getCurrentUserId(),
+                        userInsertOrUpdateDTO.getUsername()));
                 throw new BadRequestException(ResultEnum.USER_EMAIL_EXIST);
             }
         }
@@ -300,7 +303,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         Set<Long> jobIds = userBO.getJobs().stream().map(Job::getId).collect(Collectors.toSet());
         //如果角色id集合、岗位id集合与原先不同，先删除再新增（即修改操作）
         //如果角色发生变化
-        if (! CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
+        if (!CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
             Integer count = userMapper.delUserAtRole(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtRole(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getRoles());
@@ -310,19 +313,21 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             redisUtils.del(CacheKey.ROLE_AUTH + userInsertOrUpdateDTO.getId());
             redisUtils.del(CacheKey.ROLE_USER + userInsertOrUpdateDTO.getId());
             if (count <= 0 && count2 <= 0) {
-                log.error("【修改用户失败】维护角色中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+                log.error(StrUtil.format("【修改用户失败】维护角色中间表失败。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
+                        userInsertOrUpdateDTO.getId()));
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
         //如果岗位发生变化
-        if (! CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
+        if (!CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
             Integer count = jobMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getJobs());
             //清除缓存
             redisUtils.del(CacheKey.JOB_USER + userInsertOrUpdateDTO.getId());
             if (count <= 0 && count2 <= 0) {
-                log.error("【修改用户失败】维护岗位中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+                log.error(StrUtil.format("【修改用户失败】维护岗位中间表失败。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
+                        userInsertOrUpdateDTO.getId()));
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
         }
@@ -330,14 +335,16 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         User user = new User();
         BeanUtil.copyProperties(userInsertOrUpdateDTO, user);
         boolean isUpdate = this.updateById(user);
-        if (! isUpdate) {
-            log.error("【修改用户信息失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+        if (!isUpdate) {
+            log.error(StrUtil.format("【修改用户信息失败】操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
+                    userInsertOrUpdateDTO.getId()));
         }
         // 如果用户被禁用，则清除用户登录信息
-        if (! user.getEnabled()) {
+        if (!user.getEnabled()) {
             onlineUserService.kickOutForUsername(userBO.getUsername());
         }
-        log.info("【修改用户信息成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改用户id：" + userInsertOrUpdateDTO.getId());
+        log.info(StrUtil.format("【修改用户信息成功】操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
+                userInsertOrUpdateDTO.getId()));
         //刷新缓存
         delCaches(user.getId());
     }
@@ -368,7 +375,8 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         delCaches(user.getId());
         Map<String, String> map = new HashMap<>(1);
         map.put("avatar", file.getName());
-        log.info("【修改用户头像成功】" + "用户id：" + SecurityUtils.getCurrentUserId() + "上传文件名：" + file.getName());
+        log.info(StrUtil.format("【修改用户头像成功】用户id：{}，上传文件名：{}", SecurityUtils.getCurrentUserId(),
+                file.getName()));
         return map;
     }
 

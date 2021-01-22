@@ -8,6 +8,7 @@ import marchsoft.modules.security.config.bean.SecurityProperties;
 import marchsoft.modules.security.entity.dto.OnlineUserDto;
 import marchsoft.modules.security.service.OnlineUserService;
 import marchsoft.modules.security.service.UserCacheClean;
+import marchsoft.utils.SecurityUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -31,16 +32,24 @@ import java.util.Objects;
 @Slf4j
 public class TokenFilter extends GenericFilterBean {
 
-    /** Token配置 */
+    /**
+     * Token配置
+     */
     private final TokenProvider tokenProvider;
 
-    /** JWT配置 */
+    /**
+     * JWT配置
+     */
     private final SecurityProperties properties;
 
-    /** 用户在线业务处理 */
+    /**
+     * 用户在线业务处理
+     */
     private final OnlineUserService onlineUserService;
 
-    /** 用户缓存清理工具 */
+    /**
+     * 用户缓存清理工具
+     */
     private final UserCacheClean userCacheClean;
 
     @Override
@@ -56,7 +65,8 @@ public class TokenFilter extends GenericFilterBean {
                 //从redis中获取一条用户信息
                 onlineUserDto = onlineUserService.getOne(properties.getOnlineKey() + token);
             } catch (ExpiredJwtException e) {
-                log.error(e.getMessage());
+                log.error(StrUtil.format("【从redis中获取用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(),
+                        e.getMessage()));
                 cleanUserCache = true;
             } finally {
                 //出现异常或者用户信息为空时，清除用户缓存
@@ -92,7 +102,7 @@ public class TokenFilter extends GenericFilterBean {
             return bearerToken.replace(properties.getTokenStartWith(), "");
         } else {
             //未携带token会进行记录
-            log.debug("非法Token：{}", bearerToken);
+            log.debug(StrUtil.format("非法Token：{}", bearerToken));
         }
         return null;
     }
