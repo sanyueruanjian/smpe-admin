@@ -67,7 +67,6 @@ public class SysLogController {
         logService.download(logService.queryAll(criteria), response);
     }
 
-    @Log("测试操作日志")
     @ApiOperation(value = "条件查询日志信息", notes = "根据各种条件查询，可分页 \n author：ZhangYuKun 2021/1/14")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "criteria", value = "条件"),
@@ -81,7 +80,6 @@ public class SysLogController {
         return Result.success(logService.queryAll(criteria, pageVO.buildPage()));
     }
 
-    @Log("测试异常日志")
     @ApiOperation(value = "条件查询错误日志", notes = "根据各种条件查询，可分页 \n author：ZhangYuKun 2021/1/15")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "criteria", value = "条件"),

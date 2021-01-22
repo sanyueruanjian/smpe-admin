@@ -204,11 +204,11 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
         wrapper.eq(SysLog::getLogType, criteria.getLogType());
         // 判断查询条件是否为空
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
-            wrapper.like(SysLog::getDescription, criteria.getBlurry()).or()
+            wrapper.and(true, i -> i.like(SysLog::getDescription, criteria.getBlurry()).or()
                     .like(SysLog::getAddress, criteria.getBlurry()).or()
                     .like(SysLog::getRequestIp, criteria.getBlurry()).or()
                     .like(SysLog::getMethod, criteria.getBlurry()).or()
-                    .like(SysLog::getParams, criteria.getBlurry());
+                    .like(SysLog::getParams, criteria.getBlurry()));
         }
         // 判断是否添加创建时间范围条件
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
