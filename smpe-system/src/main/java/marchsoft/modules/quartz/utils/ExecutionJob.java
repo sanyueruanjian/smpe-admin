@@ -13,7 +13,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
