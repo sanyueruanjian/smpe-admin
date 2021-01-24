@@ -22,7 +22,7 @@ public class QuartzRunnable implements Callable<Object> {
     private final Method method;
     private final String params;
 
-    QuartzRunnable(String beanName,String methodName,String  params) throws NoSuchMethodException {
+    QuartzRunnable(String beanName,String methodName,String  params) throws NoSuchMethodException, ClassNotFoundException {
         //获取到bean对象
         this.target = SpringContextHolder.getBean(beanName);
         //获取到参数
