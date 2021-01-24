@@ -48,7 +48,7 @@ public class QuartzManage {
              Trigger cronTrigger = newTrigger()
                      //设置触发器的名字 作为任务标识
                      .withIdentity(JOB_NAME + quartzJob.getId())
-                     //立即执行
+                     //立即生效
                      .startNow()
                      //创建cron
                      .withSchedule(CronScheduleBuilder.cronSchedule(quartzJob.getCronExpression()))
