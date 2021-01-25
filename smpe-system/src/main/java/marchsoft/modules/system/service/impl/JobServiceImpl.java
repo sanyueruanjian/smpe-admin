@@ -282,6 +282,8 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
         // 删除数据权限
         redisUtils.delByKeys(CacheKey.JOB_USER, new HashSet<>(userIds));
         redisUtils.del(CacheKey.JOB_ID + id);
+        //清除 user 缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, new HashSet<>(userIds));
     }
 
 }
