@@ -11,7 +11,6 @@ import org.springframework.cache.annotation.CacheConfig;
  * @description /
  * @date 2021/1/14 17:07
  */
-@CacheConfig(cacheNames = "quartzJob")
 public interface QuartzJobMapper extends BasicMapper<QuartzJob> {
 
 }
