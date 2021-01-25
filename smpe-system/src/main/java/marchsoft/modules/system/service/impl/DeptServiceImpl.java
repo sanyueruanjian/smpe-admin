@@ -495,5 +495,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
         // 清除 Role 缓存
         List<Long> roleIds = roleMapper.findInDeptId(id);
         redisUtils.delByKeys(CacheKey.DEPT_ROLE, new HashSet<>(roleIds));
+        //清除 user 缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, new HashSet<>(userIds));
     }
 }
