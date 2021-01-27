@@ -121,9 +121,9 @@ public class MenuServiceImpl extends BasicServiceImpl<MenuMapper, Menu> implemen
         }
         // 判断是否添加菜单标题or菜单组件or菜单权限模糊查询条件
         if (StrUtil.isNotEmpty(criteria.getBlurry())) {
-            menuDtoQueryWrapper.like(Menu::getTitle, criteria.getBlurry()).or()
+            menuDtoQueryWrapper.and(i -> i.like(Menu::getTitle, criteria.getBlurry()).or()
                     .like(Menu::getComponent, criteria.getBlurry()).or()
-                    .like(Menu::getPermission, criteria.getBlurry());
+                    .like(Menu::getPermission, criteria.getBlurry()));
         }
         // 判断是否添加创建时间范围条件
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
