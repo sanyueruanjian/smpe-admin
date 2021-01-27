@@ -142,9 +142,9 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             wrapper.eq(User::getId, criteria.getId());
         }
         if (StrUtil.isNotBlank(criteria.getBlurry())) {
-            wrapper.like(User::getEmail, criteria.getBlurry()).or()
+            wrapper.and(i -> i.like(User::getEmail, criteria.getBlurry()).or()
                     .like(User::getNickName, criteria.getBlurry()).or()
-                    .like(User::getUsername, criteria.getBlurry());
+                    .like(User::getUsername, criteria.getBlurry()));
         }
         if (ObjectUtil.isNotNull(criteria.getEnabled())) {
             wrapper.eq(User::getEnabled, criteria.getEnabled());

@@ -141,8 +141,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Role::getDeleted, false);
         if (StrUtil.isNotBlank(criteria.getBlurry())) {
-            wrapper.like(Role::getName, criteria.getBlurry()).or()
-                    .like(Role::getDescription, criteria.getBlurry());
+            wrapper.and(i -> i.like(Role::getName, criteria.getBlurry()).or()
+                    .like(Role::getDescription, criteria.getBlurry()));
         }
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
             wrapper.between(Role::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
