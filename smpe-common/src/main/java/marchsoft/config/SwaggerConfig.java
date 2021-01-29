@@ -1,5 +1,6 @@
 package marchsoft.config;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.google.common.base.Predicates;
 import lombok.RequiredArgsConstructor;
 import marchsoft.config.bean.SwaggerProperties;
@@ -31,6 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Configuration
 @EnableSwagger2
+@EnableKnife4j
 public class SwaggerConfig {
 
     private final SwaggerProperties swaggerProperties;
