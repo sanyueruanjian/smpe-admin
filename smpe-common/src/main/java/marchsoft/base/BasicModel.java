@@ -66,7 +66,9 @@ public class BasicModel<T extends Model<?>> extends Model<T> implements Serializ
     }
 
     /**
-     * description:批量新增，一条sql插入所有的sql语句<p>
+     * description:批量新增，一条sql插入所有的sql语句<br>
+     * 批量新增，直接传实体的集合对象，底层执行的是类似于如下的sql:<br>
+     * insert into user(id, name, age) values (1, "a", 17), (2,"b", 18),(3,"c",19);
      * 使用Collection<T>其中一个对象执行即可批量插入
      *
      * @param batchList 新增数据的集合对象
