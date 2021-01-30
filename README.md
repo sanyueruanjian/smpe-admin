@@ -3,7 +3,7 @@
 # 项目简介
 一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
-**开发文档：**  待完善
+**[官方文档](https://shiwei-ren.github.io/smpe-admin-doc/)**  
 
 **默认管理员账号密码：** `admin / 123456`
 
@@ -19,6 +19,9 @@
 - 支持接口级别的功能权限与数据权限，可自定义操作
 - 自定义权限注解与匿名接口注解，可快速对接口拦截与放行
 - 前后端统一异常拦截处理，统一输出异常，避免繁琐的判断
+- 自定义扩展Mybatis-Plus的功能
+- 高效率开发，代码生成器可一键生成前后端代码
+- 完善的日志记录体系简单注解即可实现
 
 
 ##  系统功能
@@ -27,12 +30,19 @@
 - 菜单管理：已实现菜单动态路由，后端可配置化，支持多级菜单
 - 部门管理：可配置系统组织架构，树形表格展示
 - 岗位管理：配置各个部门的职位
+- 任务调度：管理定时任务
+
+## 系统监控
+- 在线用户：记录登陆系统的用户
+- 操作日志：记录用户的操作情况
+- 异常日志：记录用户的异常操作情况
 
 ## 项目结构
 项目采用按功能分模块的开发方式，结构如下
 
 - `smpe-common` 为系统的公共模块，各种工具类，公共配置存在该模块
 - `smpe-system` 为系统核心模块也是项目入口模块，也是最终需要打包部署的模块
+- `smpe-log` 为日志模块
 
 ## 详细结构
 
@@ -42,12 +52,20 @@
     - aspect 自定义注解的切面
     - base 提供了常用基类
     - bean 读取yml中的通用配置类
-    - config 全局配置文件，例如swagger、mybatisplus、redis、跨域处理等的配置
+    - config 全局配置文件，例如swagger、MyBatis-Plus、redis、跨域处理等的配置
         - thread 线程池相关
     - enums 全局枚举类
     - exception 项目统一异常的处理
     - response 统一返回前端数据封装
     - utils 系统通用工具类
+- smpe-log 日志模块
+    - annotation 日志自定义注解
+    - aspect 自定义日志切面
+    - controller 日志控制层
+    - entity 日志实体
+    - enums 日志常用枚举
+    - mapper 日志接口
+    - service 日志服务
 - smpe-system 系统核心模块（系统启动入口）
     - config 核心模块配置（非全局配置）
     - modules 系统相关模块(登录授权、用户部门管理等、自定义业务)
@@ -76,26 +94,8 @@
 ```
 
 # 使用指南
+参考[官方文档](https://shiwei-ren.github.io/smpe-admin-doc/)
 
-## 常用技术参考文档
-
-1. 后端持久层框架使用MybatisPlus，参考：[MybatisPlus官方文档](https://hutool.cn/docs/#/)
-2. Java轻量级开发工具包HuTool，参考：[HuTool官方文档](https://hutool.cn/docs/#/)。*暂时不使用hutool-json*
-3. lombok，参考：
-4. Java 实体映射工具——MapStruct，参考：[SpringBoot使用MapStruct自动映射DTO](https://www.jianshu.com/p/3f20ca1a93b0)
-5. FastJson（阿里巴巴），参考[Fastjson 简明教程](https://www.runoob.com/w3cnote/fastjson-intro.html)
-6. 待完善...
-
-- **开发流程**
-  - 数据库新建表之后，使用MybatisPlusGenerator在business下生成相应文件。
-  - 之后接口开发和往常相同，接口需要权限则加上@PreAuthorize("@smpe.check('xxx')")；
-  
-### 自定义代码生成
-关于代码生成类`MybatisPlusGenerator`的使用参考：[自定义深度定制人性化的MybatisPlus的代码生成策略](https://blog.csdn.net/qq_42937522/article/details/110725251)
-
-### 自定义扩展MybatisPlus的方法
-参考：[如何深度定制扩展MybatisPlus提供的Model、Mapper、Service层的方法](https://blog.csdn.net/qq_42937522/article/details/110740545)
-  
 ## 服务器部署
 参考：
 1. [docker安装及docker常用命令](https://blog.csdn.net/qq_42937522/article/details/106274293)
@@ -104,7 +104,10 @@
 4. [docker 构建centos7+git+nvm镜像，实现自主切换node版本统一部署前端vue项目](https://blog.csdn.net/qq_42937522/article/details/108702775)
 
 # 鸣谢
-- [@三月软件](http://www.marchsoft.cn/)提供技术支持
-- 主要参考[EL-ADMIN](https://el-admin.vip/)
-- 由[@shiwei-Ren](https://github.com/shiwei-Ren)、[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv](https://github.com/pangyv)、[@jie-fei30](https://github.com/jie-fei30)参与初版的开发维护
+- 感谢 [三月软件](http://www.marchsoft.cn/) 提供技术支持
+- 感谢 [EL-ADMIN](https://el-admin.vip/) 开源框架
+- 感谢[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv ](https://github.com/pangyv)、[@jie-fei30)](https://github.com/jie-fei30)、[@Nancy](https://github.com/NancyDancy)参与初版的开发维护
+- 感谢每一位为 SMPE-ADMIN 做出过贡献的开发者
 
+# 反馈交流
+QQ交流群：571506692
