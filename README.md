@@ -11,7 +11,7 @@
 
 |     |   后端源码  |   前端源码  |
 |---  |--- | --- |
-|  GitHub  | https://github.com/shiwei-Ren/smpe-admin |   https://github.com/shiwei-Ren/smpe-admin-web  |
+|  GitHub  | https://github.com/sanyueruanjian/smpe-admin |   https://github.com/sanyueruanjian/smpe-admin-web  |
 
 ## 主要特性
 - 使用最新技术栈，社区资源丰富。
