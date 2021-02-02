@@ -20,6 +20,8 @@ import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.response.Result;
+import marchsoft.utils.CacheKey;
+import marchsoft.utils.RedisUtils;
 import marchsoft.utils.RsaUtils;
 import marchsoft.utils.SecurityUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +58,7 @@ public class UserController {
     private final IDeptService deptService;
     private final IRoleService roleService;
     private final UserCacheClean userCacheClean;
+    private final RedisUtils redisUtils;
 
     @ApiOperation(value = "导出用户数据", notes = " \n author：RenShiWei 2020/11/24")
     @ApiImplicitParam(name = "criteria", value = "条件")
@@ -151,7 +154,9 @@ public class UserController {
             log.error(StrUtil.format("【修改用户失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
+        //清除缓存
         userCacheClean.cleanUserCache(userPersonalInfoDTO.getId());
+        redisUtils.del(CacheKey.USER_ID + userPersonalInfoDTO.getId());
         return Result.success();
     }
 
@@ -171,6 +176,8 @@ public class UserController {
             log.error(StrUtil.format("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id集合：{}", SecurityUtils.getCurrentUserId(), ids));
             throw new BadRequestException("【删除用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
         }
+        //清除缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, ids);
         return Result.success();
     }
 
@@ -195,7 +202,9 @@ public class UserController {
             log.error(StrUtil.format("修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
             throw new BadRequestException("【修改密码失败");
         }
+        //清除缓存
         userCacheClean.cleanUserCache(user.getId());
+        redisUtils.del(CacheKey.USER_ID + user.getId());
         log.info(StrUtil.format("【修改密码成功】操作人id：{}", SecurityUtils.getCurrentUserId()));
         return Result.success();
     }
@@ -204,7 +213,10 @@ public class UserController {
     @PostMapping(value = "/updateAvatar")
     public Result<Map<String, String>> updateAvatar(@RequestParam MultipartFile avatar) {
         Map<String, String> map = userService.updateAvatar(avatar);
-        userCacheClean.cleanUserCache(SecurityUtils.getCurrentUserId());
+        //清除缓存
+        Long userId = SecurityUtils.getCurrentUserId();
+        userCacheClean.cleanUserCache(userId);
+        redisUtils.del(CacheKey.USER_ID + userId);
         return Result.success(map);
     }
 
