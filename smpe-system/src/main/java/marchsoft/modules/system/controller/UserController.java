@@ -53,12 +53,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final PasswordEncoder passwordEncoder;
     private final IUserService userService;
     private final IDeptService deptService;
     private final IRoleService roleService;
-    private final UserCacheClean userCacheClean;
-    private final RedisUtils redisUtils;
 
     @ApiOperation(value = "导出用户数据", notes = " \n author：RenShiWei 2020/11/24")
     @ApiImplicitParam(name = "criteria", value = "条件")
@@ -120,8 +117,6 @@ public class UserController {
             log.error(StrUtil.format("【新增用户失败】用户角色权限不足。操作人id：{}，新增用户用户名：{}", SecurityUtils.getCurrentUserId(), userInsertOrUpdateDTO.getUsername()));
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
-        // 默认密码 123456
-        userInsertOrUpdateDTO.setPassword(passwordEncoder.encode("123456"));
         userService.insertUserWithDetail(userInsertOrUpdateDTO);
         return Result.success();
     }
@@ -147,16 +142,7 @@ public class UserController {
             log.error(StrUtil.format("【修改用户个人资料失败】不能修改他人资料。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(), userPersonalInfoDTO.getId()));
             throw new BadRequestException("不能修改他人资料");
         }
-        User user = new User();
-        BeanUtil.copyProperties(userPersonalInfoDTO, user);
-        boolean isUpdate = userService.updateById(user);
-        if (!isUpdate) {
-            log.error(StrUtil.format("【修改用户失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
-            throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
-        }
-        //清除缓存
-        userCacheClean.cleanUserCache(userPersonalInfoDTO.getId());
-        redisUtils.del(CacheKey.USER_ID + userPersonalInfoDTO.getId());
+        userService.updateUserPersonalInfo(userPersonalInfoDTO);
         return Result.success();
     }
 
@@ -171,40 +157,14 @@ public class UserController {
                 throw new BadRequestException("角色权限不足，不能删除：" + userService.getById(id).getUsername());
             }
         }
-        boolean isDel = userService.removeByIds(ids);
-        if (!isDel) {
-            log.error(StrUtil.format("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id集合：{}", SecurityUtils.getCurrentUserId(), ids));
-            throw new BadRequestException("【删除用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
-        }
-        //清除缓存
-        redisUtils.delByKeys(CacheKey.USER_ID, ids);
+        userService.delete(ids);
         return Result.success();
     }
 
     @ApiOperation("修改密码")
     @PostMapping(value = "/updatePass")
-    public Result<Void> updatePass(@RequestBody UserPassVo passVo) throws Exception {
-        String oldPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getOldPass());
-        String newPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getNewPass());
-        //获取现在的密码
-        User user = userService.getById(SecurityUtils.getCurrentUserId());
-        String password = user.getPassword();
-        if (!passwordEncoder.matches(oldPass, password)) {
-            log.error(StrUtil.format("修改密码失败】修改失败，旧密码错误。操作人id：{}", SecurityUtils.getCurrentUserId()));
-            throw new BadRequestException("修改密码失败】修改失败，旧密码错误");
-        }
-        if (passwordEncoder.matches(newPass, password)) {
-            log.error(StrUtil.format("修改密码失败】新密码不能与旧密码相同。操作人id：{}", SecurityUtils.getCurrentUserId()));
-            throw new BadRequestException("修改密码失败】新密码不能与旧密码相同");
-        }
-        boolean isUpdate = userService.updateById(user.setPassword(passwordEncoder.encode(newPass)));
-        if (!isUpdate) {
-            log.error(StrUtil.format("修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
-            throw new BadRequestException("【修改密码失败");
-        }
-        //清除缓存
-        userCacheClean.cleanUserCache(user.getId());
-        redisUtils.del(CacheKey.USER_ID + user.getId());
+    public Result<Void> updatePass(@RequestBody UserPassVo passVo){
+        userService.updatePass(passVo);
         log.info(StrUtil.format("【修改密码成功】操作人id：{}", SecurityUtils.getCurrentUserId()));
         return Result.success();
     }
@@ -213,10 +173,6 @@ public class UserController {
     @PostMapping(value = "/updateAvatar")
     public Result<Map<String, String>> updateAvatar(@RequestParam MultipartFile avatar) {
         Map<String, String> map = userService.updateAvatar(avatar);
-        //清除缓存
-        Long userId = SecurityUtils.getCurrentUserId();
-        userCacheClean.cleanUserCache(userId);
-        redisUtils.del(CacheKey.USER_ID + userId);
         return Result.success(map);
     }
 

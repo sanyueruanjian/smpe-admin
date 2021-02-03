@@ -6,13 +6,17 @@ import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.entity.dto.UserInsertOrUpdateDTO;
+import marchsoft.modules.system.entity.dto.UserPersonalInfoDTO;
 import marchsoft.modules.system.entity.dto.UserQueryCriteria;
+import marchsoft.modules.system.entity.vo.UserPassVo;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -106,5 +110,32 @@ public interface IUserService extends IBasicService<User> {
      * Date: 2020/11/25 15:35
      */
     Map<String, String> updateAvatar(MultipartFile file);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-02-03 11:09
+     * @param userPersonalInfoDTO 个人信息参数列表
+     * @return void
+     * @description 修改用户：个人中心
+     */
+    void updateUserPersonalInfo(UserPersonalInfoDTO userPersonalInfoDTO);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-02-03 11:14
+     * @param ids 用户id集合
+     * @return void
+     * @description  删除用户
+     */
+    void delete(Set<Long> ids);
+
+    /**
+     * @author Wangmingcan
+     * @date 2021-02-03 11:18
+     * @param passVo 密码
+     * @return void
+     * @description 修改密码
+     */
+    void updatePass(UserPassVo passVo);
 
 }

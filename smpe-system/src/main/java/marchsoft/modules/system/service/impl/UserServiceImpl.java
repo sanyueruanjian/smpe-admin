@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.BasicServiceImpl;
 import marchsoft.config.bean.FileProperties;
+import marchsoft.config.bean.RsaProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.security.service.OnlineUserService;
@@ -22,6 +23,7 @@ import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.*;
+import marchsoft.modules.system.entity.vo.UserPassVo;
 import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
@@ -29,6 +31,7 @@ import marchsoft.modules.system.service.mapstruct.UserMapStruct;
 import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,6 +63,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     private final FileProperties fileProperties;
     private final JobMapper jobMapper;
     private final RedisUtils redisUtils;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * description:根据用户名查用户id
@@ -205,6 +209,8 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void insertUserWithDetail(UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
+        // 默认密码 123456
+        userInsertOrUpdateDTO.setPassword(passwordEncoder.encode("123456"));
         userInsertOrUpdateDTO.setEnabled(true);
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         //判断用户名不能重复
@@ -349,6 +355,61 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         delCaches(user.getId());
     }
 
+    @Override
+    public void updateUserPersonalInfo(UserPersonalInfoDTO userPersonalInfoDTO) {
+        User user = new User();
+        BeanUtil.copyProperties(userPersonalInfoDTO, user);
+        boolean isUpdate = updateById(user);
+        if (!isUpdate) {
+            log.error(StrUtil.format("【修改用户失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
+        }
+        //清除缓存
+        delCaches(userPersonalInfoDTO.getId());
+    }
+
+    @Override
+    public void delete(Set<Long> ids) {
+        boolean isDel = removeByIds(ids);
+        if (!isDel) {
+            log.error(StrUtil.format("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id集合：{}", SecurityUtils.getCurrentUserId(), ids));
+            throw new BadRequestException("【删除用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
+        }
+        //清除缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, ids);
+    }
+
+    @Override
+    public void updatePass(UserPassVo passVo) {
+        try{
+            String oldPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getOldPass());
+            String newPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getNewPass());
+        //获取现在的密码
+        User user = getById(SecurityUtils.getCurrentUserId());
+        String password = user.getPassword();
+        if (!passwordEncoder.matches(oldPass, password)) {
+            log.error(StrUtil.format("【修改密码失败】修改失败，旧密码错误。操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException("【修改密码失败】修改失败，旧密码错误");
+        }
+        if (passwordEncoder.matches(newPass, password)) {
+            log.error(StrUtil.format("【修改密码失败】新密码不能与旧密码相同。操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException("【修改密码失败】新密码不能与旧密码相同");
+        }
+        boolean isUpdate = updateById(user.setPassword(passwordEncoder.encode(newPass)));
+
+        if (!isUpdate) {
+            log.error(StrUtil.format("【修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException("【修改密码失败】");
+        }
+
+        //清除缓存
+        delCaches(user.getId());
+        }catch (Exception e) {
+            log.error(StrUtil.format("【修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException("【修改密码失败】" + e.getMessage());
+        }
+    }
+
     /**
      * description:修改头像
      *
@@ -371,12 +432,12 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         if (ObjectUtil.isNull(user)) {
             throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
-        //刷新缓存
-        delCaches(user.getId());
         Map<String, String> map = new HashMap<>(1);
         map.put("avatar", file.getName());
         log.info(StrUtil.format("【修改用户头像成功】用户id：{}，上传文件名：{}", SecurityUtils.getCurrentUserId(),
                 file.getName()));
+        //刷新缓存
+        delCaches(user.getId());
         return map;
     }
 
