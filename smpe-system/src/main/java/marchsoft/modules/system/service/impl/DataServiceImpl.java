@@ -8,6 +8,7 @@ import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
+import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -48,12 +49,16 @@ public class DataServiceImpl implements IDataService {
             switch (Objects.requireNonNull(dataScopeEnum)) {
                 case THIS_LEVEL:
                     //如果是本级设置为当前用户的部门id
-                    deptIds.add(user.getDept().getId());
-                    break;
+                    // MODIFY description: 现在本级权限包括子部门，如果以后是多部门需要修改本方法 @liuxingxing 2021-02-06
+                    ArrayList<Dept> depts = new ArrayList<Dept>() {{
+                        add(deptService.getById(user.getDeptId()));
+                    }};
+                    deptIds.addAll(deptService.getDeptChildren(depts));
+                    continue;
                 case CUSTOMIZE:
                     //当前角色的部门和子部门权限
                     deptIds.addAll(getCustomize(deptIds, role));
-                    break;
+                    continue;
                 default:
                     //默认为全部，返回null
                     return new ArrayList<>(deptIds);
