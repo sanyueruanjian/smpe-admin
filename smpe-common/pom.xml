@@ -5,11 +5,13 @@
     <parent>
         <artifactId>smpe-admin</artifactId>
         <groupId>marchsoft</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>smpe-common</artifactId>
+    <name>公共模块</name>
+    <description>公共模块（可供任何模块调用的基础服务）</description>
 
     <dependencies>
 
@@ -17,12 +19,6 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>cn.hutool</groupId>
-                    <artifactId>hutool-json</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- fastjson -->
@@ -82,6 +78,10 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
+            <!--Swagger异常：AbstractSerializableParameter : Illegal DefaultValue null for parameter type integer
+                由于实体类使用@ApiModelProperty时，example属性没有赋值导致的，会进行非空判断
+                解决： 排除后，上传更高版本
+            -->
             <exclusions>
                 <exclusion>
                     <groupId>io.swagger</groupId>
@@ -105,6 +105,13 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+        <!--       swagger   end     -->
+
+        <!-- Knife4j -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
         </dependency>
         <!--       swagger   end     -->
 
@@ -142,7 +149,6 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>1</version>
         </dependency>
 
         <!--    获取ip的详细地址    -->

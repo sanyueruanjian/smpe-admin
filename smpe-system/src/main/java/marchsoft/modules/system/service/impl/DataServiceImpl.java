@@ -8,7 +8,9 @@ import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
+import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +37,7 @@ public class DataServiceImpl implements IDataService {
      * description 用户角色改变时需清理缓存
      */
     @Override
+    @Cacheable(key = "'user:' + #p0.id")
     public List<Long> getDataScopeWithDeptIds(UserDTO user) {
         // 用于存储部门id
         Set<Long> deptIds = new HashSet<>();
@@ -46,7 +49,11 @@ public class DataServiceImpl implements IDataService {
             switch (Objects.requireNonNull(dataScopeEnum)) {
                 case THIS_LEVEL:
                     //如果是本级设置为当前用户的部门id
-                    deptIds.add(user.getDept().getId());
+                    // MODIFY description: 现在本级权限包括子部门，如果以后是多部门需要修改本方法 @liuxingxing 2021-02-06
+                    ArrayList<Dept> depts = new ArrayList<Dept>() {{
+                        add(deptService.getById(user.getDeptId()));
+                    }};
+                    deptIds.addAll(deptService.getDeptChildren(depts));
                     break;
                 case CUSTOMIZE:
                     //当前角色的部门和子部门权限
@@ -73,13 +80,10 @@ public class DataServiceImpl implements IDataService {
      */
     private Set<Long> getCustomize(Set<Long> deptIds, RoleSmallDTO role) {
         /* 添加当前角色的所有部门id，包括子部门 */
-        Set<Dept> deptSet = deptService.findByRoleId(role.getId());
-        for (Dept dept : deptSet) {
+        Set<Dept> depts = deptService.findByRoleId(role.getId());
+        for (Dept dept : depts) {
             deptIds.add(dept.getId());
-            List<Dept> deptChildren = null;
-            if (dept.getPid() != null) {
-                deptChildren = deptService.findByPid(dept.getId());
-            }
+            List<Dept> deptChildren = deptService.findByPid(dept.getId());
             if (deptChildren != null && deptChildren.size() != 0) {
                 deptIds.addAll(deptService.getDeptChildren(deptChildren));
             }

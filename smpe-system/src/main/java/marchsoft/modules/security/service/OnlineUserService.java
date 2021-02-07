@@ -1,5 +1,6 @@
 package marchsoft.modules.security.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,8 @@ public class OnlineUserService {
             onlineUserDto = new OnlineUserDto(jwtUserDto.getUsername(), jwtUserDto.getUser().getNickName(), dept,
                     browser, ip, address, EncryptUtils.desEncrypt(token), new Date());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error(StrUtil.format("【保存在线用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(),
+                    e.getMessage()));
         }
         redisUtils.set(properties.getOnlineKey() + token, onlineUserDto, properties.getTokenValidityInSeconds() / 1000);
     }
@@ -156,13 +158,13 @@ public class OnlineUserService {
                 try {
                     //token加密策略改为基于HuTool的DES加密策略，并混入逻辑运算  @RenShiWei 2020/11/17
                     String token = EncryptUtils.desDecrypt(onlineUserDto.getKey());
-                    if (StringUtils.isNotBlank(ignoreToken) && ! ignoreToken.equals(token)) {
+                    if (StringUtils.isNotBlank(ignoreToken) && !ignoreToken.equals(token)) {
                         this.kickOut(token);
                     } else if (StringUtils.isBlank(ignoreToken)) {
                         this.kickOut(token);
                     }
                 } catch (Exception e) {
-                    log.error("checkUser is error", e);
+                    log.error(StrUtil.format("【checkUser is error】操作人id：{}，异常信息：{}", SecurityUtils.getCurrentUserId(), e));
                 }
             }
         }

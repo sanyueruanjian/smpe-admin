@@ -14,9 +14,11 @@ import marchsoft.base.BasicServiceImpl;
 import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
+import marchsoft.modules.security.service.UserCacheClean;
 import marchsoft.modules.system.entity.Dept;
 import marchsoft.modules.system.entity.Menu;
 import marchsoft.modules.system.entity.Role;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.RoleBO;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.mapper.DeptMapper;
@@ -25,12 +27,10 @@ import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.mapstruct.RoleMapStruct;
 import marchsoft.modules.system.service.mapstruct.RoleSmallMapStruct;
-import marchsoft.utils.FileUtils;
-import marchsoft.utils.PageUtil;
-import marchsoft.utils.SecurityUtils;
-import marchsoft.utils.StringUtils;
+import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -60,6 +60,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     private final RoleMapStruct roleMapStruct;
     private final RoleSmallMapStruct roleSmallMapStruct;
     private final DeptMapper deptMapper;
+    private final UserCacheClean userCacheClean;
+    private final RedisUtils redisUtils;
 
     /**
      * description:根据角色id查询一条角色信息
@@ -75,7 +77,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     public RoleDTO findById(Long roleId) {
         RoleBO roleBO = roleMapper.findById(roleId);
         if (ObjectUtil.isEmpty(roleBO)) {
-            log.error("【查询角色失败】用户名不存在。角色id：" + roleId);
+            log.error(StrUtil.format("【查询角色失败】用户名不存在。操作人id：{}，角色id：{}", SecurityUtils.getCurrentUserId(),
+                    roleId));
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         return roleMapStruct.toDto(roleBO);
@@ -138,8 +141,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Role::getDeleted, false);
         if (StrUtil.isNotBlank(criteria.getBlurry())) {
-            wrapper.like(Role::getName, criteria.getBlurry()).or()
-                    .like(Role::getDescription, criteria.getBlurry());
+            wrapper.and(i -> i.like(Role::getName, criteria.getBlurry()).or()
+                    .like(Role::getDescription, criteria.getBlurry()));
         }
         if (ObjectUtil.isNotNull(criteria.getStartTime()) && ObjectUtil.isNotNull(criteria.getEndTime())) {
             wrapper.between(Role::getCreateTime, criteria.getStartTime(), criteria.getEndTime());
@@ -176,7 +179,8 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     public void insertRole(RoleInsertOrUpdateDTO roleInsertOrUpdateDTO) {
         // modify @RenShiWei 2020/11/26 description:角色名重复判断条件  查询一条 ——> count
         if (isExistRoleName(roleInsertOrUpdateDTO.getName())) {
-            log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名已存在：" + roleInsertOrUpdateDTO.getName());
+            log.error(StrUtil.format("【新增角色失败】新增角色名已存在。操作人id：{}，新增角色名：{}", SecurityUtils.getCurrentUserId(),
+                    roleInsertOrUpdateDTO.getName()));
             throw new BadRequestException(ResultEnum.ROLE_NAME_EXIST);
         }
 
@@ -184,8 +188,9 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean save = save(role);
-        if (! save) {
-            log.error("【新增角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "新增角色名：" + roleInsertOrUpdateDTO.getName());
+        if (!save) {
+            log.error(StrUtil.format("【新增角色失败】操作人id：{}，新增角色名：{}", SecurityUtils.getCurrentUserId(),
+                    roleInsertOrUpdateDTO.getName()));
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
         }
         // MODIFY:@Jiaoqianjin 2020/12/1 description: 新增角色 不用 维护角色菜单中间表
@@ -197,13 +202,15 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
             if (CollectionUtil.isNotEmpty(roleInsertOrUpdateDTO.getDepts())) {
                 Integer count = roleMapper.saveRoleAtDept(role.getId(), roleInsertOrUpdateDTO.getDepts());
                 if (count <= 0) {
-                    log.error("【新增角色失败】维护角色部门中间表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色id：" + role.getId());
+                    log.error(StrUtil.format("【新增角色失败】维护角色部门中间表失败。操作人id：{}，角色id：{}", SecurityUtils.getCurrentUserId(),
+                            role.getId()));
                     throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
                 }
             }
         }
 
-        log.info("【新增角色成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色id：" + role.getId());
+        log.info(StrUtil.format("【新增角色成功】操作人id：{}，角色id：{}", SecurityUtils.getCurrentUserId(),
+                role.getId()));
     }
 
     /**
@@ -218,13 +225,15 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     public void updateRole(RoleInsertOrUpdateDTO roleInsertOrUpdateDTO) {
         RoleBO roleBO = roleMapper.findById(roleInsertOrUpdateDTO.getId());
         if (ObjectUtil.isEmpty(roleBO)) {
-            log.error("【修改角色信息失败】此角色不存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
+            log.error(StrUtil.format("【修改角色信息失败】此角色不存在。操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                    roleInsertOrUpdateDTO.getId()));
             throw new BadRequestException(ResultEnum.ALTER_DATA_NOT_EXIST);
         }
         //角色名重复判断条件
-        if (! roleInsertOrUpdateDTO.getName().equals(roleBO.getName())) {
+        if (!roleInsertOrUpdateDTO.getName().equals(roleBO.getName())) {
             if (isExistRoleName(roleInsertOrUpdateDTO.getName())) {
-                log.error("【修改角色失败】角色名已存在" + "操作人id：" + SecurityUtils.getCurrentUserId() + "角色名：" + roleInsertOrUpdateDTO.getName());
+                log.error(StrUtil.format("【修改角色失败】角色名已存在。操作人id：{}，角色名：{}", SecurityUtils.getCurrentUserId(),
+                        roleInsertOrUpdateDTO.getName()));
                 throw new BadRequestException(ResultEnum.ROLE_NAME_EXIST);
             }
         }
@@ -235,7 +244,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         Set<Long> deptIds = roleBO.getDepts().stream().map(Dept::getId).collect(Collectors.toSet());
         try {
             //维护角色部门中间表
-            if (! CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
+            if (!CollectionUtils.isEqualCollection(deptIds, roleInsertOrUpdateDTO.getDepts())) {
                 //传入和原来的DeptIds都为null，不处理
                 if (CollectionUtil.isEmpty(roleInsertOrUpdateDTO.getDepts())) {
                     //传入deptIds为null
@@ -260,19 +269,23 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
                 }
             }
         } catch (Exception e) {
-            log.error("【修改角色失败】维护角色部门表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
+            log.error(StrUtil.format("【修改角色失败】维护角色部门表失败。操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                    roleInsertOrUpdateDTO.getId()));
             throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
         }
 
         Role role = new Role();
         BeanUtil.copyProperties(roleInsertOrUpdateDTO, role);
         boolean isUpdate = this.updateById(role);
-        if (! isUpdate) {
-            log.error("【修改角色失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
+        if (!isUpdate) {
+            log.error(StrUtil.format("【修改角色失败】操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                    roleInsertOrUpdateDTO.getId()));
         }
 
-        log.info("【修改角色成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleInsertOrUpdateDTO.getId());
-
+        log.info(StrUtil.format("【修改角色成功】操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                roleInsertOrUpdateDTO.getId()));
+        // 更新相关缓存
+        delCaches(role.getId());
     }
 
     /**
@@ -291,16 +304,19 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         //对比之前有修改再进行操作（先删除后修改）
         // MODIFY:@Jiaoqianjin 2020/11/28 description: CollectionUtil.containsAll() --> CollectionUtils
         //  .isEqualCollection()
-        if (! CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
+        if (!CollectionUtils.isEqualCollection(menuIds, oldMenuIds)) {
             Integer count = roleMapper.delRoleAtMenu(roleId);
             Integer count2 = roleMapper.saveRoleAtMenu(roleId, menuIds);
             if (count <= 0 && count2 <= 0) {
-                log.error("【修改角色菜单失败】维护角色菜单表失败。" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleId);
+                log.error(StrUtil.format("【修改角色菜单失败】维护角色菜单表失败。操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                        roleId));
                 throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
             }
-            log.info("【修改角色菜单成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "修改角色id：" + roleId);
-        }
 
+            log.info(StrUtil.format("【修改角色菜单成功】操作人id：{}，修改角色id：{}", SecurityUtils.getCurrentUserId(),
+                    roleId));
+        }
+        delCaches(roleId);
     }
 
     /**
@@ -344,7 +360,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     @Override
     public boolean isRolesWithUser(Set<Long> roleIds) {
         if (userMapper.countByUserByRoleIds(roleIds) > 0) {
-            log.info("【角色与用户存在绑定关系】角色id集合：" + roleIds);
+            log.info(StrUtil.format("【角色与用户存在绑定关系】操作人id：{}，角色id集合：{}", SecurityUtils.getCurrentUserId(), roleIds));
             return true;
         }
         return false;
@@ -360,13 +376,13 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> roleIds) {
-//        for (Long id : roleIds) {
-//            // 更新相关缓存
-//            delCaches(id, null);
-//        }
+        for (Long id : roleIds) {
+            // 更新相关缓存
+            delCaches(id);
+        }
         boolean isDel = removeByIds(roleIds);
-        if (! isDel) {
-            log.error("【删除角色失败】角色id集合：" + roleIds);
+        if (!isDel) {
+            log.error(StrUtil.format("【删除角色失败】操作人id：{}，角色id集合：{}", SecurityUtils.getCurrentUserId(), roleIds));
             throw new BadRequestException("删除角色失败");
         }
     }
@@ -381,6 +397,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
      * @date 2020-08-23 16:06
      */
     @Override
+    @Cacheable(key = "'auth:' + #p0.id")
     public List<GrantedAuthority> mapToGrantedAuthorities(UserDTO user) {
         Set<String> permissions = new HashSet<>();
         // 如果是管理员直接返回
@@ -467,6 +484,27 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         // 更新菜单
         roleMapper.untiedMenu(menuId);
         // MODIFY:@Jiaoqianjin 2020/12/1 description: 菜单绑定角色可以为空
+    }
+
+    /**
+     * 清理缓存
+     *
+     * @param id /
+     */
+    private void delCaches(Long id) {
+        List<Long> users = userMapper.findIdByRoleId(id);
+        if (CollectionUtil.isNotEmpty(users)) {
+            users.forEach(userCacheClean::cleanUserCache);
+            Set<Long> userIds = new HashSet<>(users);
+            redisUtils.delByKeys(CacheKey.DATA_USER, userIds);
+            redisUtils.delByKeys(CacheKey.MENU_USER, userIds);
+            redisUtils.delByKeys(CacheKey.ROLE_AUTH, userIds);
+            redisUtils.delByKeys(CacheKey.ROLE_USER, userIds);
+            redisUtils.delByKeys(CacheKey.USER_ID, userIds);
+        }
+        redisUtils.del(CacheKey.ROLE_ID + id);
+        redisUtils.del(CacheKey.MENU_ROLE + id);
+        redisUtils.del(CacheKey.DEPT_ROLE + id);
     }
 
 }

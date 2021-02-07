@@ -15,14 +15,18 @@ import marchsoft.base.PageVO;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Job;
+import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.JobDTO;
 import marchsoft.modules.system.entity.dto.JobQueryCriteria;
 import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IJobService;
 import marchsoft.modules.system.service.mapstruct.JobMapStruct;
+import marchsoft.utils.CacheKey;
 import marchsoft.utils.FileUtils;
+import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -47,6 +52,7 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     private final JobMapper jobMapper;
     private final UserMapper userMapper;
     private final JobMapStruct jobMapStruct;
+    private final RedisUtils redisUtils;
 
     /**
      * Description:
@@ -73,9 +79,10 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
      **/
     @Override
     public JobDTO findById(Long id) {
-        Job job = getById(id);
+        Job job = jobMapper.selectById(id);
         if (ObjectUtil.isEmpty(job)) {
-            log.error("【查询岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t查询岗位id：" + id);
+            log.error(StrUtil.format("【查询岗位失败】操作人id：{}，查询岗位id：{}", SecurityUtils.getCurrentUserId(),
+                    id));
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         return jobMapStruct.toDto(job);
@@ -129,7 +136,8 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     @Override
     public void download(List<JobDTO> jobDtos, HttpServletResponse response) throws IOException {
         if (CollectionUtil.isEmpty(jobDtos)) {
-            log.error("【导出岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t导出数据集合为空jobDtos：" + jobDtos);
+            log.error(StrUtil.format("【导出岗位失败】操作人id：{}，导出数据集合为空jobDtos：{}", SecurityUtils.getCurrentUserId(),
+                    jobDtos));
             throw new BadRequestException(ResultEnum.FILE_DOWNLOAD_FAIL_NOT_DATA);
         }
 
@@ -140,7 +148,7 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
             map.put("岗位状态", jobDto.getEnabled() ? "启用" : "停用");
             map.put("创建日期", ObjectUtil.isNull(jobDto.getCreateTime()) ? null :
                     LocalDateTimeUtil.format(jobDto.getCreateTime(),
-                    DatePattern.NORM_DATETIME_FORMATTER));
+                            DatePattern.NORM_DATETIME_FORMATTER));
             list.add(map);
         }
         FileUtils.downloadExcel(list, response);
@@ -160,11 +168,13 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         if (count(queryWrapper) > 0) {
-            log.error("【创建岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t创建目标（名称）已存在 job：" + resources);
+            log.error(StrUtil.format("【创建岗位失败】操作人id：{}，创建目标（名称）已存在 job：{}", SecurityUtils.getCurrentUserId(),
+                    resources));
             throw new BadRequestException("已存在：" + resources.getName());
         }
         save(resources);
-        log.info("【创建岗位成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t创建目标job：" + resources);
+        log.info(StrUtil.format("【创建岗位成功】操作人id：{}，创建目标job：{}", SecurityUtils.getCurrentUserId(),
+                resources));
     }
 
     /**
@@ -180,18 +190,23 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     public void update(Job resources) {
         Job job = getById(resources.getId());
         if (ObjectUtil.isEmpty(job)) {
-            log.error("【修改岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标job为空，目标jobId：" + resources.getId());
+            log.error(StrUtil.format("【修改岗位失败】操作人id：{}，修改目标job为空，目标jobId：{}", SecurityUtils.getCurrentUserId(),
+                    resources.getId()));
             throw new BadRequestException("修改失败，当前数据id不存在");
         }
         LambdaQueryWrapper<Job> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Job::getName, resources.getName());
         Job old = getOne(queryWrapper);
-        if (ObjectUtil.isNotNull(old) && ! old.getId().equals(resources.getId())) {
-            log.error("【修改岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标（名称）已存在，修改目标job：" + resources + "\t存在目标job：" + old);
+        if (ObjectUtil.isNotNull(old) && !old.getId().equals(resources.getId())) {
+            log.error(StrUtil.format("【修改岗位失败】操作人id：{}，修改目标（名称）已存在，修改目标job：{}，存在目标job：{}", SecurityUtils.getCurrentUserId(),
+                    resources, old));
             throw new BadRequestException("已存在：" + resources.getName());
         }
         updateById(resources);
-        log.info("【修改岗位成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t修改目标job：" + resources);
+        //清理缓存
+        delCaches(resources.getId());
+        log.info(StrUtil.format("【修改岗位成功】操作人id：{}，修改目标job：{}", SecurityUtils.getCurrentUserId(),
+                resources));
     }
 
     /**
@@ -205,8 +220,13 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
+        //清理缓存
+        for (Long id : ids) {
+            delCaches(id);
+        }
         removeByIds(ids);
-        log.info("【删除岗位成功】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t删除目标jobs：" + ids.toString());
+        log.info(StrUtil.format("【删除岗位成功】操作人id：{}，删除目标jobs：{}", SecurityUtils.getCurrentUserId(),
+                ids.toString()));
     }
 
     /**
@@ -220,8 +240,8 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
     @Override
     public void verification(Set<Long> ids) {
         if (userMapper.countByJobs(ids) > 0) {
-            log.error("【删除岗位失败】" + "操作人id：" + SecurityUtils.getCurrentUserId() + "\t所选的岗位" + ids.toString() +
-                    "中存在用户关联，请解除关联再试！");
+            log.error(StrUtil.format("【删除岗位失败】操作人id：{}，所选的岗位：{}中存在用户关联，请解除关联再试！", SecurityUtils.getCurrentUserId(),
+                    ids.toString()));
             throw new BadRequestException("所选的岗位中存在用户关联，请解除关联再试！");
         }
     }
@@ -250,6 +270,20 @@ public class JobServiceImpl extends BasicServiceImpl<JobMapper, Job> implements 
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
         }
         return wrapper;
+    }
+
+    /**
+     * 清理缓存
+     *
+     * @param id /
+     */
+    private void delCaches(Long id) {
+        List<Long> userIds = userMapper.findByJobId(id);
+        // 删除数据权限
+        redisUtils.delByKeys(CacheKey.JOB_USER, new HashSet<>(userIds));
+        redisUtils.del(CacheKey.JOB_ID + id);
+        //清除 user 缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, new HashSet<>(userIds));
     }
 
 }

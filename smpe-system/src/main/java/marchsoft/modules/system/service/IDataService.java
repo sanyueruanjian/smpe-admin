@@ -22,4 +22,5 @@ public interface IDataService {
      */
     List<Long> getDataScopeWithDeptIds(UserDTO user);
 
+
 }
