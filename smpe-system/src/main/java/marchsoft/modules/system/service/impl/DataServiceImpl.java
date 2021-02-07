@@ -54,11 +54,11 @@ public class DataServiceImpl implements IDataService {
                         add(deptService.getById(user.getDeptId()));
                     }};
                     deptIds.addAll(deptService.getDeptChildren(depts));
-                    continue;
+                    break;
                 case CUSTOMIZE:
                     //当前角色的部门和子部门权限
                     deptIds.addAll(getCustomize(deptIds, role));
-                    continue;
+                    break;
                 default:
                     //默认为全部，返回null
                     return new ArrayList<>(deptIds);
