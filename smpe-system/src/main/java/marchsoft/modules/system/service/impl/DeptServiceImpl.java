@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -291,14 +292,21 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public List<DeptDTO> buildTree(List<DeptDTO> deptDTOList) {
         // MODIFY description: 返回的序列是deptDTOList的顶级节点（没有父节点） @liuxingxing 2021-02-06
         Set<DeptDTO> trees = new LinkedHashSet<>();
+        List<Long> collect = deptDTOList.stream().map(DeptDTO::getId).collect(Collectors.toList());
         for (DeptDTO deptDto : deptDTOList) {
             boolean isRoot = true;
-            if (deptDto.getPid() != 0) {
-                for (DeptDTO it : deptDTOList) {
-                    if (it.getId() == deptDto.getPid()) {
-                        isRoot = false;
+            for (DeptDTO it : deptDTOList) {
+                if (deptDto.getId() == it.getPid()) {
+                    if (ObjectUtil.isNull(deptDto.getChildren())) {
+                        deptDto.setChildren(new ArrayList<>());
+                    }
+                    if (!deptDto.getChildren().contains(it)) {
+                        deptDto.getChildren().add(it);
                     }
                 }
+            }
+            if (collect.contains(deptDto.getPid())) {
+                isRoot = false;
             }
             if (isRoot) {
                 trees.add(deptDto);
