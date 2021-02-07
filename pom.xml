@@ -7,7 +7,7 @@
     <groupId>marchsoft</groupId>
     <artifactId>smpe-admin</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <modules>
         <module>smpe-common</module>
         <module>smpe-system</module>
@@ -15,6 +15,10 @@
     </modules>
 
     <name>SMPE-ADMIN 后台管理</name>
+    <description>SMPE是一个基于EL-ADMIN、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring
+        Security、Redis、Vue的前后端分离的后台管理系统
+    </description>
+    <url>https://github.com/sanyueruanjian/smpe-admin</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -46,6 +50,8 @@
         <xercesImpl.version>2.12.0</xercesImpl.version>
         <aspectjrt.version>1.9.5</aspectjrt.version>
         <fastjson.version>1.2.70</fastjson.version>
+        <knife4j.version>2.0.4</knife4j.version>
+        <inject.version>1</inject.version>
     </properties>
 
     <!-- 锁定jar包版本 -->
@@ -56,12 +62,6 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-json</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!--lombok插件-->
@@ -134,7 +134,7 @@
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-spring-boot-starter</artifactId>
-                <version>2.0.4</version>
+                <version>${knife4j.version}</version>
             </dependency>
 
             <!--监控sql日志-->
@@ -237,21 +237,15 @@
                 <version>${aspectjrt.version}</version>
             </dependency>
 
+            <!-- Java依赖注入标准 -->
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${inject.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <!--        &lt;!&ndash;Java 实体映射工具 —— mapStruct依赖&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.mapstruct</groupId>-->
-        <!--            <artifactId>mapstruct</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.mapstruct</groupId>-->
-        <!--            <artifactId>mapstruct-processor</artifactId>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
-    </dependencies>
 
     <repositories>
         <repository>

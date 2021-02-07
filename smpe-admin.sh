@@ -11,7 +11,7 @@ IMAGE_NAME=centos7_mvn_git_java8
 SERVER_NAME=
 
 #这里的JAR_PATH为jar包所在位置
-JAR_PATH=./smpe_system/target/smpe-system-0.0.1-SNAPSHOT.jar
+JAR_PATH=./smpe-system/target/smpe-system-0.0.1-SNAPSHOT.jar
 
 profile=$2
 port=$3
