@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableTransactionManagement(proxyTargetClass = true)
 @MapperScan({
         "marchsoft.modules.system.mapper",
+        "marchsoft.modules.quartz.mapper",
         "marchsoft.mapper"
 })
 public class AppRun {

@@ -77,7 +77,7 @@ public class AuthorizationController {
         if (StrUtil.isBlank(code)) {
             throw new BadRequestException("验证码不存在或已过期");
         }
-        if (StrUtil.isBlank(authUser.getCode()) || ! authUser.getCode().equalsIgnoreCase(code)) {
+        if (StrUtil.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
             throw new BadRequestException("验证码错误");
         }
         // modify @RenShiWei 2020/11/23 description:生成token（username->id）
@@ -135,7 +135,7 @@ public class AuthorizationController {
         }
         // 保存
         redisUtils.set(uuid, captchaValue, loginProperties.getLoginCode().getExpiration(), TimeUnit.MINUTES);
-        log.info("登录图片验证码结果:" + captchaValue);
+        log.info(StrUtil.format("【登录图片验证码】验证码结果：{}", captchaValue));
         // 验证码信息
         Map<String, Object> imgResult = new HashMap<String, Object>(2) {{
             put("img", captcha.toBase64());
