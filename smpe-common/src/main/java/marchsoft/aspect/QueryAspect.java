@@ -102,7 +102,7 @@ public class QueryAspect {
         //获取需要执行的方法
         String select = query.select();
         //获取关联的列，并转驼峰
-        String column = StringUtils.toCamelCase(query.column());
+        String column = query.column().contains("_")?StringUtils.toCamelCase(query.column()):query.column();
         //关联属性的类型（也为select的参数类型）
         Class<?> columnType;
         //关联列的值
