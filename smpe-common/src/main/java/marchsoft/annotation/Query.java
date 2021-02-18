@@ -17,8 +17,8 @@ import java.lang.annotation.*;
 @Repeatable(Queries.class)
 public @interface Query {
 
-    /** 被关联的列，一般为id，请保证和实体类中属性名称一致，驼峰下划线都可以
-     * 如关联的列为dept_id，填deptId和dept_id都可以*/
+    /** 被关联的列，一般为id；不一定和数据库一致，要保证和实体类中属性名称一致
+     * 驼峰下划线都可以，如实体类属性名为deptId，填deptId和dept_id都可以*/
     String column() default "";
 
     /** 关联的属性 ，和实体类中需要封装的属性名称保持一致*/
