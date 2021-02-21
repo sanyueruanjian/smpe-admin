@@ -52,6 +52,7 @@
         <fastjson.version>1.2.70</fastjson.version>
         <knife4j.version>2.0.4</knife4j.version>
         <inject.version>1</inject.version>
+        <netty.version>4.1.49.Final</netty.version>
     </properties>
 
     <!-- 锁定jar包版本 -->
@@ -242,6 +243,13 @@
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
                 <version>${inject.version}</version>
+            </dependency>
+
+            <!-- netty -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
             </dependency>
 
         </dependencies>

@@ -35,7 +35,7 @@ public class MybatisPlusGenerator {
     /** 数据库账号 */
     private final static String USERNAME = "root";
     /** 数据库密码 */
-    private final static String PASSWORD = "159357asd";
+    private final static String PASSWORD = "12345";
     /** 控制台输入内容n（大小写都可） */
     private final static String NO = "n";
     /** 控制台输入内容y（大小写都可） */

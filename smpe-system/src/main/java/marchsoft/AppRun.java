@@ -1,8 +1,11 @@
 package marchsoft;
 
 import io.swagger.annotations.Api;
+import lombok.AllArgsConstructor;
 import marchsoft.annotation.rest.AnonymousGetMapping;
+import marchsoft.modules.notice.netty.WebSocketRun;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -19,15 +22,19 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 
 @RestController
+@AllArgsConstructor
 @Api(hidden = true)
 @SpringBootApplication
 @EnableTransactionManagement(proxyTargetClass = true)
 @MapperScan({
         "marchsoft.modules.system.mapper",
         "marchsoft.modules.quartz.mapper",
+        "marchsoft.modules.notice.mapper",
         "marchsoft.mapper"
 })
-public class AppRun {
+public class AppRun implements CommandLineRunner {
+
+    private final WebSocketRun webSocketRun;
 
     public static void main(String[] args) {
         SpringApplication.run(AppRun.class, args);
@@ -41,6 +48,16 @@ public class AppRun {
     @AnonymousGetMapping("/")
     public String index() {
         return "Backend service started successfully";
+    }
+
+    /**
+     * 启动netty
+     *
+     * @return /
+     */
+    @Override
+    public void run(String... args) throws Exception {
+        webSocketRun.run();
     }
 
 }

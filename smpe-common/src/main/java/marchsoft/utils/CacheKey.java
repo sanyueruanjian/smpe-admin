@@ -51,4 +51,9 @@ public interface CacheKey {
      */
     String JOB_ID = "job::id:";
     String JOB_USER = "job::user:";
+    /**
+     * 通知信息
+     */
+    String NOTICE_ID = "notice::id:";
+    String NOTICE_TARGET_ID = "notice::target_id:";
 }
