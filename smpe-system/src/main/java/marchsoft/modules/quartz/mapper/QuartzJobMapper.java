@@ -1,10 +1,7 @@
 package marchsoft.modules.quartz.mapper;
 
 import marchsoft.base.BasicMapper;
-import marchsoft.config.mybatisplus.MybatisRedisCache;
 import marchsoft.modules.quartz.entity.QuartzJob;
-import org.apache.ibatis.annotations.CacheNamespace;
-import org.springframework.cache.annotation.CacheConfig;
 
 /**
  * @author lixiangxiang
