@@ -16,6 +16,7 @@ import marchsoft.modules.notice.mapper.NoticeSendMapper;
 import marchsoft.modules.notice.service.INoticeSendService;
 import marchsoft.base.BasicServiceImpl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,11 +34,17 @@ import java.time.LocalDateTime;
 public class NoticeSendServiceImpl extends BasicServiceImpl<NoticeSendMapper, NoticeSend> implements INoticeSendService {
 
     private final NoticeSendMapper noticeSendMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public IPage<NoticeSendBO> queryAll(NoticeSendQueryCriteria criteria, PageVO pageVO) {
         IPage<NoticeSendBO> noticeSendPage = noticeSendMapper.queryPage(pageVO.buildPage(), buildNoticeSendQueryWrapper(criteria));
         return noticeSendPage;
+    }
+
+    @Override
+    public void send(NoticeSend resources) {
+        rabbitTemplate.convertAndSend("notification", resources);
     }
 
     /**

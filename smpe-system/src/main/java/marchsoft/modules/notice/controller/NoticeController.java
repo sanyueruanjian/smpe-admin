@@ -31,7 +31,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@Api(tags = "模块")
+@Api(tags = "通知：通知模板")
 @RequestMapping("/api/notice")
 public class NoticeController {
 

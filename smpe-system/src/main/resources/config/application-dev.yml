@@ -82,9 +82,9 @@ spring:
   rabbitmq:
     host: 139.155.17.127
     port: 5672
-    username: admin
-    password: mingcan123
-    virtual-host: /ems
+    username: smpe
+    password: 123456
+    virtual-host: /smpe
 
 # 登录相关配置
 login:

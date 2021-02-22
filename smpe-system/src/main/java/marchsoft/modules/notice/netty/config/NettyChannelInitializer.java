@@ -7,8 +7,10 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import marchsoft.modules.notice.netty.handler.WebSocketServerHandler;
+import marchsoft.modules.notice.netty.consumer.NotificationConsumer;
+import marchsoft.modules.notice.netty.handler.BasicSocketServerHandler;
 import marchsoft.modules.notice.netty.handler.WebSocketUserHandler;
+
 
 /**
  * @author Wangmingcan
@@ -58,6 +60,6 @@ public class NettyChannelInitializer extends ChannelInitializer {
 //        pipeline.addLast(new IdleStateHandler(3,5,7, TimeUnit.SECONDS));
 
         //自定义的handler，处理业务逻辑
-        pipeline.addLast(new WebSocketServerHandler());
+        pipeline.addLast(new BasicSocketServerHandler());
     }
 }

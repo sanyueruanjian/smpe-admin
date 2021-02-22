@@ -27,7 +27,7 @@ public class WebSocketUserHandler implements ChannelInboundHandler {
             if (origin == null) {
                 ctx.close();
             } else {
-                if (uri != null && uri.contains("/ws") && uri.contains("?")) {
+                if (uri != null && uri.contains("?")) {
                     String[] uriArray = uri.split("\\?");
                     if (uriArray.length > 1) {
                         Channel c = WebSocketUserUtil.get(uriArray[1]);

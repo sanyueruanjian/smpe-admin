@@ -29,4 +29,13 @@ public interface INoticeSendService extends IBasicService<NoticeSend> {
      */
     IPage<NoticeSendBO> queryAll(NoticeSendQueryCriteria criteria, PageVO pageVO);
 
+    /**
+     * @author Wangmingcan
+     * @date 2021-02-22 11:06
+     * @param resources
+     * @return
+     * @description 发送通知
+     */
+    void send(NoticeSend resources);
+
 }

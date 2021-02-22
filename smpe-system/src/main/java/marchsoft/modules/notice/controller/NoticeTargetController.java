@@ -32,7 +32,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@Api(tags = "模块")
+@Api(tags = "通知：通知内容")
 @RequestMapping("/api/noticeTarget")
 public class NoticeTargetController {
 

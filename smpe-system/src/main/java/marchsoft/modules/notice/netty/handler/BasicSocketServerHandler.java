@@ -1,11 +1,16 @@
 package marchsoft.modules.notice.netty.handler;
 
+import cn.hutool.json.JSONUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import marchsoft.modules.notice.entity.NoticeSend;
 import marchsoft.modules.notice.netty.config.WebSocketUserUtil;
+import marchsoft.modules.notice.service.INoticeSendService;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Wangmingcan
@@ -13,15 +18,25 @@ import marchsoft.modules.notice.netty.config.WebSocketUserUtil;
  * @description
  */
 @Slf4j
-public class WebSocketServerHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+public class BasicSocketServerHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) {
+    protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
 
     }
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
 
+    }
+
+    public static void send(NoticeSend msg) {
+        //获取发送对象的通道并进行转发
+        Channel channel = WebSocketUserUtil.get(String.valueOf(msg.getUserId()));
+        if (channel != null) {
+            channel.writeAndFlush(new TextWebSocketFrame(JSONUtil.toJsonStr(msg)));
+            log.info("【Websocket】createBy : " + msg.getCreateBy() + "向userId : "
+                    + msg.getUserId() + "发送了 : " + msg.getId());
+        }
     }
 
     @Override
@@ -58,7 +73,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<TextWebS
                 default:
             }
             log.info(ctx.channel().remoteAddress() + "超时：" + eventType);
-
         }
     }
 }
