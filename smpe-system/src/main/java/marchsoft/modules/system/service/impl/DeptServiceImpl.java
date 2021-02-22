@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.BasicServiceImpl;
@@ -23,9 +24,11 @@ import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
+import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
+import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
@@ -41,7 +44,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * <p>
@@ -195,10 +200,10 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public IPage<DeptDTO> queryAll(DeptQueryCriteria criteria, PageVO pageVO, Boolean isQuery) {
         String dataScopeType = SecurityUtils.getDataScopeType();
         IPage<DeptDTO> returnPage = pageVO.buildPage();
+        List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
         if (isQuery) {
             if (!dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
                 if (ObjectUtil.isNotNull(criteria.getPid())) {
-                    List<Long> currentUserDataScope = SecurityUtils.getCurrentUserDataScope();
                     if (!currentUserDataScope.contains(criteria.getPid())) {
                         // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
 //                        log.error(StrUtil.format("【查询部门失败】操作人id：{}，查询部门目标dept：{}", SecurityUtils.getCurrentUserId(),
@@ -220,23 +225,30 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
                         }
                     }
                     if (isAllNull) {
-                        // 默认查询当前角色的可用部门
-                        Set<Role> userRoles = roleMapper.findRoleByUserId(SecurityUtils.getCurrentUserId());
-                        Set<Dept> hashSet = new HashSet<>();
-                        Set<Dept> reduce = userRoles.stream().map(role ->
-                                deptMapper.findByRoleId(role.getId())
-                        ).reduce(hashSet, (dept1, dept2) -> {
-                            dept1.addAll(dept2);
-                            return dept1;
-                        });
-                        List<DeptDTO> deptDtos = deptMapStruct.toDto(new ArrayList<>(reduce));
+                        // 查询条件为空
+                        // MODIFY description: 默认查询当前用户的可用部门 @liuxingxing 2021-02-06
+                        UserDTO userDTO = new UserDTO();
+                        userDTO.setId(SecurityUtils.getCurrentUserId());
+                        List<Long> dataScopeWithDeptIds = SecurityUtils.getCurrentUserDataScope();
+                        List<Dept> collect = dataScopeWithDeptIds.stream().map(deptMapper::selectById).collect(Collectors.toList());
+                        List<DeptDTO> deptDtos = deptMapStruct.toDto(collect);
+                        deptDtos = buildTree(deptDtos);
                         return returnPage.setRecords(deptDtos).setTotal(deptDtos.size());
                     }
                 }
             }
         }
-        IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), analysisQueryCriteria(criteria));
+        // MODIFY description: 用于给结果添加过滤，防止因名称查询导致越过部门判断 @liuxingxing 2021-02-05
+        LambdaQueryWrapper<Dept> deptLambdaQueryWrapper = analysisQueryCriteria(criteria);
+        if (isQuery && !dataScopeType.equals(DataScopeEnum.ALL.getValue())) {
+            String depts = currentUserDataScope.toString();
+            // 去掉[ ] 字符
+            depts = depts.substring(1, depts.length() - 1);
+            deptLambdaQueryWrapper.inSql(Dept::getId, depts);
+        }
+        IPage<Dept> page = this.deptMapper.selectPage(pageVO.buildPage(), deptLambdaQueryWrapper);
         List<DeptDTO> deptDtos = deptMapStruct.toDto(page.getRecords());
+        deptDtos = buildTree(deptDtos);
         BeanUtil.copyProperties(page, returnPage);
         returnPage.setRecords(deptDtos);
         return returnPage;
@@ -278,33 +290,27 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
      **/
     @Override
     public List<DeptDTO> buildTree(List<DeptDTO> deptDTOList) {
+        // MODIFY description: 返回的序列是deptDTOList的顶级节点（没有父节点） @liuxingxing 2021-02-06
         Set<DeptDTO> trees = new LinkedHashSet<>();
-        Set<DeptDTO> depts = new LinkedHashSet<>();
-        List<String> deptNames = deptDTOList.stream().map(DeptDTO::getName).collect(Collectors.toList());
-        boolean isChild;
+        List<Long> collect = deptDTOList.stream().map(DeptDTO::getId).collect(Collectors.toList());
         for (DeptDTO deptDto : deptDTOList) {
-            isChild = false;
-            if (deptDto.getPid() == 0) {
-                trees.add(deptDto);
-            }
+            boolean isRoot = true;
             for (DeptDTO it : deptDTOList) {
-                if (it.getPid() != 0 && deptDto.getId().equals(it.getPid())) {
-                    isChild = true;
+                if (deptDto.getId() == it.getPid()) {
                     if (ObjectUtil.isNull(deptDto.getChildren())) {
                         deptDto.setChildren(new ArrayList<>());
                     }
-                    deptDto.getChildren().add(it);
+                    if (!deptDto.getChildren().contains(it)) {
+                        deptDto.getChildren().add(it);
+                    }
                 }
             }
-            if (isChild) {
-                depts.add(deptDto);
-            } else if (deptDto.getPid() != 0 && !deptNames.contains(findById(deptDto.getPid()).getName())) {
-                depts.add(deptDto);
+            if (collect.contains(deptDto.getPid())) {
+                isRoot = false;
             }
-        }
-
-        if (CollectionUtil.isEmpty(trees)) {
-            trees = depts;
+            if (isRoot) {
+                trees.add(deptDto);
+            }
         }
         return CollectionUtil.isEmpty(trees) ? deptDTOList : new ArrayList<>(trees);
     }
@@ -465,7 +471,9 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     private LambdaQueryWrapper<Dept> analysisQueryCriteria(DeptQueryCriteria criteria) {
         LambdaQueryWrapper<Dept> wrapper = new LambdaQueryWrapper<>();
         // 查询父部门为pid
-        wrapper.eq(Dept::getPid, ObjectUtil.isNull(criteria.getPid()) ? 0 : criteria.getPid());
+        if (ObjectUtil.isNotNull(criteria.getPid())) {
+            wrapper.eq(Dept::getPid, criteria.getPid());
+        }
         if (StrUtil.isNotBlank(criteria.getName())) {
             // 默认使用Like匹配
             wrapper.like(Dept::getName, criteria.getName());

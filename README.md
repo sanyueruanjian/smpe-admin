@@ -3,7 +3,7 @@
 # 项目简介
 一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
-**[官方文档](https://shiwei-ren.github.io/smpe-admin-doc/)**  
+**[官方文档](https://sanyueruanjian.github.io/smpe-admin-doc/)**  
 
 **默认管理员账号密码：** `admin / 123456`
 
@@ -11,7 +11,7 @@
 
 |     |   后端源码  |   前端源码  |
 |---  |--- | --- |
-|  GitHub  | https://github.com/shiwei-Ren/smpe-admin |   https://github.com/shiwei-Ren/smpe-admin-web  |
+|  GitHub  | https://github.com/sanyueruanjian/smpe-admin |   https://github.com/sanyueruanjian/smpe-admin-web  |
 
 ## 主要特性
 - 使用最新技术栈，社区资源丰富。
@@ -93,8 +93,9 @@
 
 ```
 
+
 # 使用指南
-参考[官方文档](https://shiwei-ren.github.io/smpe-admin-doc/)
+参考[官方文档](https://sanyueruanjian.github.io/smpe-admin-doc/)
 
 ## 服务器部署
 参考：
@@ -104,9 +105,8 @@
 4. [docker 构建centos7+git+nvm镜像，实现自主切换node版本统一部署前端vue项目](https://blog.csdn.net/qq_42937522/article/details/108702775)
 
 # 鸣谢
-- 感谢 [三月软件](http://www.marchsoft.cn/) 提供技术支持
 - 感谢 [EL-ADMIN](https://el-admin.vip/) 开源框架
-- 感谢[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv ](https://github.com/pangyv)、[@jie-fei30)](https://github.com/jie-fei30)、[@Nancy](https://github.com/NancyDancy)参与初版的开发维护
+- 感谢[@shiwei-Ren](https://github.com/shiwei-Ren)、[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv ](https://github.com/pangyv)、[@jie-fei30)](https://github.com/jie-fei30)参与初版的开发维护
 - 感谢每一位为 SMPE-ADMIN 做出过贡献的开发者
 
 # 反馈交流

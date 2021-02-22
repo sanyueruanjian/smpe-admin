@@ -504,6 +504,7 @@ public class RoleServiceImpl extends BasicServiceImpl<RoleMapper, Role> implemen
         }
         redisUtils.del(CacheKey.ROLE_ID + id);
         redisUtils.del(CacheKey.MENU_ROLE + id);
+        redisUtils.del(CacheKey.DEPT_ROLE + id);
     }
 
 }

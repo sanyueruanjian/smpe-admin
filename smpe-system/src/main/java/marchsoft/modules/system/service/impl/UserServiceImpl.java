@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.BasicServiceImpl;
 import marchsoft.config.bean.FileProperties;
+import marchsoft.config.bean.RsaProperties;
+import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.security.service.OnlineUserService;
@@ -22,6 +24,7 @@ import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.*;
+import marchsoft.modules.system.entity.vo.UserPassVo;
 import marchsoft.modules.system.mapper.JobMapper;
 import marchsoft.modules.system.mapper.UserMapper;
 import marchsoft.modules.system.service.IUserService;
@@ -29,6 +32,7 @@ import marchsoft.modules.system.service.mapstruct.UserMapStruct;
 import marchsoft.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,6 +64,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     private final FileProperties fileProperties;
     private final JobMapper jobMapper;
     private final RedisUtils redisUtils;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * description:根据用户名查用户id
@@ -205,6 +210,8 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void insertUserWithDetail(UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
+        // 默认密码 123456
+        userInsertOrUpdateDTO.setPassword(passwordEncoder.encode("123456"));
         userInsertOrUpdateDTO.setEnabled(true);
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         //判断用户名不能重复
@@ -226,12 +233,15 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             throw new BadRequestException(ResultEnum.USER_EMAIL_EXIST);
         }
 
+        // modify @RenShiWei 2021/2/6 description:增加用户部门的权限判断
+        checkDataScope(userInsertOrUpdateDTO.getDeptId());
+
         //属性拷贝
         User user = new User();
         BeanUtil.copyProperties(userInsertOrUpdateDTO, user);
         //新增用户
         boolean save = save(user);
-        if (!save) {
+        if (! save) {
             log.error(StrUtil.format("【新增用户失败】操作人id：{}，用户名：{}", SecurityUtils.getCurrentUserId(),
                     userInsertOrUpdateDTO.getUsername()));
             throw new BadRequestException(ResultEnum.INSERT_OPERATION_FAIL);
@@ -274,7 +284,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
 
         //如果用户名修改了
-        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getUsername()) && !userInsertOrUpdateDTO.getUsername().equals(userBO.getUsername())) {
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getUsername()) && ! userInsertOrUpdateDTO.getUsername().equals(userBO.getUsername())) {
             //判断用户名不能重复
             queryWrapper.eq(User::getUsername, userInsertOrUpdateDTO.getUsername());
             // modify @RenShiWei 2020/11/24 description:list() ——> count()
@@ -286,7 +296,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         }
 
         //如果邮箱修改了
-        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getEmail()) && !userInsertOrUpdateDTO.getEmail().equals(userBO.getEmail())) {
+        if (StrUtil.isNotBlank(userInsertOrUpdateDTO.getEmail()) && ! userInsertOrUpdateDTO.getEmail().equals(userBO.getEmail())) {
             //判断邮箱不能重复
             queryWrapper.clear();
             queryWrapper.eq(User::getEmail, userInsertOrUpdateDTO.getEmail());
@@ -298,12 +308,15 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             }
         }
 
+        // modify @RenShiWei 2021/2/6 description:增加修改用户部门的权限判断
+        checkDataScope(userInsertOrUpdateDTO.getDeptId());
+
         //流操作，获取缓存中的当前用户的角色id集合和岗位id集合
         Set<Long> roleIds = userBO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         Set<Long> jobIds = userBO.getJobs().stream().map(Job::getId).collect(Collectors.toSet());
         //如果角色id集合、岗位id集合与原先不同，先删除再新增（即修改操作）
         //如果角色发生变化
-        if (!CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
+        if (! CollectionUtils.isEqualCollection(roleIds, userInsertOrUpdateDTO.getRoles())) {
             Integer count = userMapper.delUserAtRole(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtRole(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getRoles());
@@ -319,7 +332,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
             }
         }
         //如果岗位发生变化
-        if (!CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
+        if (! CollectionUtils.isEqualCollection(jobIds, userInsertOrUpdateDTO.getJobs())) {
             Integer count = jobMapper.delUserAtJob(userInsertOrUpdateDTO.getId());
             Integer count2 = userMapper.saveUserAtJob(userInsertOrUpdateDTO.getId(),
                     userInsertOrUpdateDTO.getJobs());
@@ -335,18 +348,96 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         User user = new User();
         BeanUtil.copyProperties(userInsertOrUpdateDTO, user);
         boolean isUpdate = this.updateById(user);
-        if (!isUpdate) {
+        if (! isUpdate) {
             log.error(StrUtil.format("【修改用户信息失败】操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
                     userInsertOrUpdateDTO.getId()));
         }
         // 如果用户被禁用，则清除用户登录信息
-        if (!user.getEnabled()) {
+        if (! user.getEnabled()) {
             onlineUserService.kickOutForUsername(userBO.getUsername());
         }
         log.info(StrUtil.format("【修改用户信息成功】操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(),
                 userInsertOrUpdateDTO.getId()));
         //刷新缓存
         delCaches(user.getId());
+    }
+
+    /**
+     * description:检查操作用户的部门权限
+     *
+     * @param deptId 部门id
+     * @author RenShiWei
+     * Date: 2021/2/6 22:42
+     */
+    private void checkDataScope(Long deptId) {
+        if (ObjectUtil.isNotNull(deptId)) {
+            //DataScope不为"",并且不是全部，说明是自定义或者本级
+            if (StrUtil.isBlank(SecurityUtils.getDataScopeType()) && ! SecurityUtils.getDataScopeType().equals(DataScopeEnum.ALL.getValue())) {
+                //修改的部门在数据权限范围之外，抛出异常
+                if (! CollectionUtil.contains(SecurityUtils.getCurrentUserDataScope(),
+                        deptId)) {
+                    log.error(StrUtil.format("【操作失败】操作用户部门的权限不足。操作人id：{}，修改的部门id：{}",
+                            SecurityUtils.getCurrentUserId(), deptId));
+                    throw new BadRequestException("【操作失败】操作用户部门的权限不足。");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void updateUserPersonalInfo(UserPersonalInfoDTO userPersonalInfoDTO) {
+        User user = new User();
+        BeanUtil.copyProperties(userPersonalInfoDTO, user);
+        boolean isUpdate = updateById(user);
+        if (! isUpdate) {
+            log.error(StrUtil.format("【修改用户失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException(ResultEnum.OPERATION_MIDDLE_FAIL);
+        }
+        //清除缓存
+        delCaches(userPersonalInfoDTO.getId());
+    }
+
+    @Override
+    public void delete(Set<Long> ids) {
+        boolean isDel = removeByIds(ids);
+        if (! isDel) {
+            log.error(StrUtil.format("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id集合：{}", SecurityUtils.getCurrentUserId(),
+                    ids));
+            throw new BadRequestException("【删除用户失败】" + "操作人id：" + SecurityUtils.getCurrentUserId());
+        }
+        //清除缓存
+        redisUtils.delByKeys(CacheKey.USER_ID, ids);
+    }
+
+    @Override
+    public void updatePass(UserPassVo passVo) {
+        try {
+            String oldPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getOldPass());
+            String newPass = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, passVo.getNewPass());
+            //获取现在的密码
+            User user = getById(SecurityUtils.getCurrentUserId());
+            String password = user.getPassword();
+            if (! passwordEncoder.matches(oldPass, password)) {
+                log.error(StrUtil.format("【修改密码失败】修改失败，旧密码错误。操作人id：{}", SecurityUtils.getCurrentUserId()));
+                throw new BadRequestException("【修改密码失败】修改失败，旧密码错误");
+            }
+            if (passwordEncoder.matches(newPass, password)) {
+                log.error(StrUtil.format("【修改密码失败】新密码不能与旧密码相同。操作人id：{}", SecurityUtils.getCurrentUserId()));
+                throw new BadRequestException("【修改密码失败】新密码不能与旧密码相同");
+            }
+            boolean isUpdate = updateById(user.setPassword(passwordEncoder.encode(newPass)));
+
+            if (! isUpdate) {
+                log.error(StrUtil.format("【修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+                throw new BadRequestException("【修改密码失败】");
+            }
+
+            //清除缓存
+            delCaches(user.getId());
+        } catch (Exception e) {
+            log.error(StrUtil.format("【修改密码失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            throw new BadRequestException("【修改密码失败】" + e.getMessage());
+        }
     }
 
     /**
@@ -371,12 +462,12 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
         if (ObjectUtil.isNull(user)) {
             throw new BadRequestException(ResultEnum.USER_NOT_EXIST);
         }
-        //刷新缓存
-        delCaches(user.getId());
         Map<String, String> map = new HashMap<>(1);
         map.put("avatar", file.getName());
         log.info(StrUtil.format("【修改用户头像成功】用户id：{}，上传文件名：{}", SecurityUtils.getCurrentUserId(),
                 file.getName()));
+        //刷新缓存
+        delCaches(user.getId());
         return map;
     }
 
@@ -387,6 +478,7 @@ public class UserServiceImpl extends BasicServiceImpl<UserMapper, User> implemen
      */
     private void delCaches(Long id) {
         redisUtils.del(CacheKey.USER_ID + id);
+        redisUtils.del(CacheKey.DATA_USER + id);
         flushCache(id);
     }
 

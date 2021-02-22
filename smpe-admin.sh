@@ -16,6 +16,7 @@ version=version=`awk '/<version>[^<]+<\/version>/{gsub(/<version>|<\/version>/,"
 #这里的JAR_PATH为jar包所在位置
 JAR_PATH=./smpe_system/target/$version
 
+
 profile=$2
 port=$3
 

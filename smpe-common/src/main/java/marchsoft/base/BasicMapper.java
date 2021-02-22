@@ -14,7 +14,9 @@ import java.util.Collection;
 public interface BasicMapper<T> extends BaseMapper<T> {
 
     /**
-     * description:批量新增，一条sql插入所有的sql语句
+     * description:批量新增，一条sql插入所有的sql语句<br>
+     * 批量新增，直接传实体的集合对象，底层执行的是类似于如下的sql:<br>
+     * insert into user(id, name, age) values (1, "a", 17), (2,"b", 18),(3,"c",19);
      *
      * @param batchList 新增数据的集合对象
      * @return 新增的执行条数（正常情况下 >= 1）
