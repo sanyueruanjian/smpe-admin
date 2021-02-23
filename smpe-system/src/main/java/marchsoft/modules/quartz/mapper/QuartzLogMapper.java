@@ -2,7 +2,6 @@ package marchsoft.modules.quartz.mapper;
 
 import marchsoft.base.BasicMapper;
 import marchsoft.modules.quartz.entity.QuartzLog;
-import org.springframework.cache.annotation.CacheConfig;
 
 /**
  * @author lixiangxiang

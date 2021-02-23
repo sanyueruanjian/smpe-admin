@@ -5,6 +5,8 @@
 
 **[官方文档](https://sanyueruanjian.github.io/smpe-admin-doc/)**  
 
+**[项目预览地址](http://39.106.101.156:8013/system/role)**
+
 **默认管理员账号密码：** `admin / 123456`
 
 ## 项目源码

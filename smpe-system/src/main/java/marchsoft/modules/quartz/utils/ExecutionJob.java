@@ -13,12 +13,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Method;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author lixiangxiang
- * @description 定时任务具体实现 与持久层结合
+ * @description 定时任务具体实现
  * @date 2021/1/14 21:32
  */
 @Async
@@ -54,7 +57,7 @@ public class ExecutionJob extends QuartzJobBean {
             log.info(StrUtil.format("【定时任务开始执行】 任务名称: {} ", quartzJob.getJobName()));
             //创建定时任务线程
             QuartzRunnable task = new QuartzRunnable(quartzJob.getBeanName(),quartzJob.getMethodName(),quartzJob.getParams());
-           //用future管理task
+            //用future管理task
             Future<?> future = EXECUTOR.submit(task);
             future.get();
             //计算运行时间
