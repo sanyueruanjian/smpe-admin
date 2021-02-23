@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import marchsoft.modules.notice.entity.NoticeSend;
 import marchsoft.modules.notice.netty.handler.BasicSocketServerHandler;
 import marchsoft.modules.notice.service.INoticeSendService;
-import marchsoft.modules.notice.service.impl.NoticeSendServiceImpl;
-import marchsoft.utils.SpringContextHolder;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -38,7 +36,6 @@ public class NotificationConsumer{
 
     @Transactional(rollbackFor = Exception.class)
     public void saveAndSend(NoticeSend msg){
-        msg.setRead(0);
         BasicSocketServerHandler.send(msg);
         noticeSendService.save(msg);
     }

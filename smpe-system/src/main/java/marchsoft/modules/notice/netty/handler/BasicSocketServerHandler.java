@@ -9,8 +9,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.modules.notice.entity.NoticeSend;
 import marchsoft.modules.notice.netty.config.WebSocketUserUtil;
-import marchsoft.modules.notice.service.INoticeSendService;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Wangmingcan

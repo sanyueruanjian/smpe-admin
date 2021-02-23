@@ -38,7 +38,7 @@ public class NoticeSend extends BasicModel<NoticeSend> {
     @ApiModelProperty(value = "消息内容id")
     private Long targetId;
 
-    @ApiModelProperty(value = "接收者id，0为全部")
+    @ApiModelProperty(value = "接收者id集合")
     private Long userId;
 
     @ApiModelProperty(value = "通知类型like,reply,recommand,notification")

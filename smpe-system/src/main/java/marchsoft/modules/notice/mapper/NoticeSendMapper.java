@@ -8,6 +8,7 @@ import marchsoft.annotation.Query;
 import marchsoft.modules.notice.entity.NoticeSend;
 import marchsoft.base.BasicMapper;
 import marchsoft.modules.notice.entity.bo.NoticeSendBO;
+import marchsoft.modules.notice.entity.dto.NoticeSendDTO;
 import marchsoft.modules.system.entity.bo.UserBO;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
@@ -26,17 +27,15 @@ import java.util.Set;
 public interface NoticeSendMapper extends BasicMapper<NoticeSend> {
 
     @Select("SELECT " +
-            " id,notice_id,target_id,user_id,type,is_read,create_by,update_by,create_time,update_time,is_deleted" +
+            " id,notice_id,target_id,user_id,type,is_read,create_by,update_by,create_time,update_time" +
             " FROM notice_send ${ew.customSqlSegment}")
     @Results({
             @Result(column = "notice_id", property = "noticeId"),
             @Result(column = "target_id", property = "targetId"),
             @Result(column = "user_id", property = "userId"),
-            @Result(column = "is_read", property = "read"),
-            @Result(column = "is_deleted", property = "deleted")
+            @Result(column = "is_read", property = "read")
     })
     @Queries({
-            @Query(column = "user_id", property = "user", select = "marchsoft.modules.system.mapper.UserMapper.findUserDetailById"),
             @Query(column = "notice_id", property = "notice", select = "marchsoft.modules.notice.mapper.NoticeMapper.selectById"),
             @Query(column = "target_id", property = "noticeTarget", select = "marchsoft.modules.notice.mapper.NoticeTargetMapper.selectById")
     })

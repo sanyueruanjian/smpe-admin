@@ -2,6 +2,7 @@ package marchsoft.base;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -29,24 +30,25 @@ import java.util.Collection;
 @ApiModel
 public class BasicModel<T extends Model<?>> extends Model<T> implements Serializable {
 
-    @ApiModelProperty(value = "创建者")
+    @ApiModelProperty(value = "创建者", hidden = true)
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 
-    @ApiModelProperty(value = "更新者")
+    @ApiModelProperty(value = "更新者", hidden = true)
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 
-    @ApiModelProperty(value = "创建日期")
+    @ApiModelProperty(value = "创建日期", hidden = true)
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "更新时间", hidden = true)
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "是否已删除")
     @TableField(value = "is_deleted")
+    @TableLogic
     private Boolean deleted;
 
     /**

@@ -131,6 +131,7 @@ public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper
             wrapper.between(NoticeTarget::getCreateTime, criteria.getStratTime(),
                     ObjectUtil.isNull(criteria.getEndTime()) ? LocalDateTime.now() : criteria.getEndTime());
         }
+        wrapper.orderByDesc(NoticeTarget::getId);
         return wrapper;
     }
 
