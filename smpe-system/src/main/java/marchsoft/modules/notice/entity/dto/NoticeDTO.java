@@ -3,7 +3,7 @@ package marchsoft.modules.notice.entity.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import marchsoft.base.BaseDTO;
-import marchsoft.modules.notice.entity.Notice;
+import marchsoft.modules.notice.entity.NoticeTemplate;
 import marchsoft.modules.notice.entity.NoticeTarget;
 
 import java.io.Serializable;
@@ -16,13 +16,13 @@ import java.util.List;
  */
 
 @Data
-public class NoticeSendDTO extends BaseDTO implements Serializable {
+public class NoticeDTO extends BaseDTO implements Serializable {
 
     @ApiModelProperty(hidden = true)
     private Long id;
 
     @ApiModelProperty(value = "消息模板id")
-    private Long noticeId;
+    private Long templateId;
 
     @ApiModelProperty(value = "消息内容id")
     private Long targetId;
@@ -34,7 +34,7 @@ public class NoticeSendDTO extends BaseDTO implements Serializable {
     private String type;
 
     @ApiModelProperty(hidden = true)
-    private Notice notice;
+    private NoticeTemplate noticeTemplate;
 
     @ApiModelProperty(hidden = true)
     private NoticeTarget noticeTarget;

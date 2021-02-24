@@ -80,7 +80,7 @@ spring:
 
   # rabbitmq
   rabbitmq:
-    host: 127.0.0.1
+    host: 139.155.17.127
     port: 5672
     username: smpe
     password: 123456

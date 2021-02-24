@@ -2,10 +2,9 @@ package marchsoft.modules.notice.entity.bo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import marchsoft.modules.notice.entity.NoticeTemplate;
 import marchsoft.modules.notice.entity.Notice;
-import marchsoft.modules.notice.entity.NoticeSend;
 import marchsoft.modules.notice.entity.NoticeTarget;
-import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.bo.UserBO;
 
 /**
@@ -15,9 +14,9 @@ import marchsoft.modules.system.entity.bo.UserBO;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class NoticeSendBO extends NoticeSend {
+public class NoticeBO extends Notice {
 
-    private Notice notice;
+    private NoticeTemplate noticeTemplate;
 
     private NoticeTarget noticeTarget;
 

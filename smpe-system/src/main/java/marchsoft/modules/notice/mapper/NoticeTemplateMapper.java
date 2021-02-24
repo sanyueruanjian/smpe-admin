@@ -1,6 +1,6 @@
 package marchsoft.modules.notice.mapper;
 
-import marchsoft.modules.notice.entity.NoticeTarget;
+import marchsoft.modules.notice.entity.NoticeTemplate;
 import marchsoft.base.BasicMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.cache.annotation.CacheConfig;
@@ -16,9 +16,9 @@ import org.springframework.cache.annotation.Cacheable;
 */
 @Mapper
 @CacheConfig(cacheNames = "notice")
-public interface NoticeTargetMapper extends BasicMapper<NoticeTarget> {
+public interface NoticeTemplateMapper extends BasicMapper<NoticeTemplate> {
 
-    @Cacheable(key = "'target_id:' + #p0")
-    NoticeTarget selectById(Long id);
+    @Cacheable(key = "'template_id:' + #p0")
+    NoticeTemplate selectById(Long id);
 
 }

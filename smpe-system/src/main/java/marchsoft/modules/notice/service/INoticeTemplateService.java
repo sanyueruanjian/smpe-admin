@@ -2,9 +2,9 @@ package marchsoft.modules.notice.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import marchsoft.base.PageVO;
-import marchsoft.modules.notice.entity.NoticeTarget;
+import marchsoft.modules.notice.entity.NoticeTemplate;
 import marchsoft.base.IBasicService;
-import marchsoft.modules.notice.entity.dto.NoticeTargetQueryCriteria;
+import marchsoft.modules.notice.entity.dto.NoticeTemplateQueryCriteria;
 
 import java.util.Set;
 
@@ -16,42 +16,43 @@ import java.util.Set;
  * @author wangmingcan
  * @since 2021-02-19
  */
-public interface INoticeTargetService extends IBasicService<NoticeTarget> {
+public interface INoticeTemplateService extends IBasicService<NoticeTemplate> {
 
     /**
      * @author Wangmingcan
-     * @date 2021-02-19 16:02
+     * @date 2021-02-19 11:15
      * @param criteria
      * @param pageVO
-     * @return
-     * @description
+     * @return IPage<NoticeTemplate>
+     * @description 查询通知模板
      */
-    IPage<NoticeTarget> queryAll(NoticeTargetQueryCriteria criteria, PageVO pageVO);
+    IPage<NoticeTemplate> queryAll(NoticeTemplateQueryCriteria criteria, PageVO pageVO);
+
 
     /**
      * @author Wangmingcan
      * @date 15:27
      * @param resources
      * @return void
-     * @description 新增通知内容
+     * @description 新增通知模板
      */
-    void create(NoticeTarget resources);
+    void create(NoticeTemplate resources);
 
     /**
      * @author Wangmingcan
      * @date 2021-02-21 15:33
      * @param resources
      * @return void
-     * @description 修改通知内容
+     * @description 修改通知模板
      */
-    void update(NoticeTarget resources);
+    void update(NoticeTemplate resources);
 
     /**
      * @author Wangmingcan
      * @date 2021-02-21 15:44
      * @param ids
      * @return
-     * @description 验证通知内容是否被关联
+     * @description 验证通知模板是否被关联
      */
     void verification(Set<Long> ids);
 
@@ -60,7 +61,7 @@ public interface INoticeTargetService extends IBasicService<NoticeTarget> {
      * @date 2021-02-21 15:44
      * @param ids
      * @return
-     * @description 删除通知内容
+     * @description 删除通知模板
      */
     void delete(Set<Long> ids);
 

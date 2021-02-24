@@ -6,26 +6,26 @@ import java.time.LocalDateTime;
 
 /**
  * @author Wangmingcan
- * @date 2021/2/19 11:05
+ * @date 2021/2/19 16:20
  * @description
  */
 @Data
 public class NoticeQueryCriteria {
 
     /**
-     * 通知模板标题
+     * 用户id
      */
-    private String title;
+    private Long userId;
 
     /**
-     * 通知模板内容
-     */
-    private String content;
-
-    /**
-     * 通知模板类型
+     * 通知类型
      */
     private String type;
+
+    /**
+     * 是否已读，1已读，0未读
+     */
+    private Integer read = 0;
 
     /**
      * 开始时间

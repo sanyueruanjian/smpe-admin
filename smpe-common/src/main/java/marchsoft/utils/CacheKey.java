@@ -54,6 +54,6 @@ public interface CacheKey {
     /**
      * 通知信息
      */
-    String NOTICE_ID = "notice::id:";
+    String NOTICE_TEMPLATE_ID = "notice::template_id:";
     String NOTICE_TARGET_ID = "notice::target_id:";
 }

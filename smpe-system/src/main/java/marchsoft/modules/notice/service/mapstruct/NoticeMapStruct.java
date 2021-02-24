@@ -1,8 +1,8 @@
 package marchsoft.modules.notice.service.mapstruct;
 
 import marchsoft.base.BaseMapStruct;
-import marchsoft.modules.notice.entity.bo.NoticeSendBO;
-import marchsoft.modules.notice.entity.dto.NoticeSendDTO;
+import marchsoft.modules.notice.entity.bo.NoticeBO;
+import marchsoft.modules.notice.entity.dto.NoticeDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -13,6 +13,6 @@ import org.mapstruct.ReportingPolicy;
  */
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface NoticeSendMapStruct extends BaseMapStruct<NoticeSendDTO, NoticeSendBO> {
+public interface NoticeMapStruct extends BaseMapStruct<NoticeDTO, NoticeBO> {
 
 }

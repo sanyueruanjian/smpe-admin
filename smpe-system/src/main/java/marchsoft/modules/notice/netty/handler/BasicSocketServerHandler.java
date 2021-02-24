@@ -7,7 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import marchsoft.modules.notice.entity.NoticeSend;
+import marchsoft.modules.notice.entity.Notice;
 import marchsoft.modules.notice.netty.config.WebSocketUserUtil;
 
 /**
@@ -27,7 +27,7 @@ public class BasicSocketServerHandler extends SimpleChannelInboundHandler<TextWe
 
     }
 
-    public static void send(NoticeSend msg) {
+    public static void send(Notice msg) {
         //获取发送对象的通道并进行转发
         Channel channel = WebSocketUserUtil.get(String.valueOf(msg.getUserId()));
         if (channel != null) {

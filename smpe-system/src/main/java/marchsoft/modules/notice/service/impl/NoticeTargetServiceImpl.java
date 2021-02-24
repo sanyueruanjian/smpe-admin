@@ -8,15 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.PageVO;
 import marchsoft.exception.BadRequestException;
-import marchsoft.modules.notice.entity.Notice;
 import marchsoft.modules.notice.entity.NoticeTarget;
-import marchsoft.modules.notice.entity.dto.NoticeQueryCriteria;
 import marchsoft.modules.notice.entity.dto.NoticeTargetQueryCriteria;
-import marchsoft.modules.notice.mapper.NoticeSendMapper;
+import marchsoft.modules.notice.mapper.NoticeMapper;
 import marchsoft.modules.notice.mapper.NoticeTargetMapper;
 import marchsoft.modules.notice.service.INoticeTargetService;
 import marchsoft.base.BasicServiceImpl;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import marchsoft.utils.CacheKey;
 import marchsoft.utils.RedisUtils;
 import marchsoft.utils.SecurityUtils;
@@ -40,7 +37,7 @@ import java.util.Set;
 public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper, NoticeTarget> implements INoticeTargetService {
 
     private final NoticeTargetMapper noticeTargetMapper;
-    private final NoticeSendMapper noticeSendMapper;
+    private final NoticeMapper noticeMapper;
     private final RedisUtils redisUtils;
 
     @Override
@@ -56,13 +53,13 @@ public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper
         queryWrapper.eq(NoticeTarget::getContent, resources.getContent())
                 .eq(NoticeTarget::getLink, resources.getLink());
         if (count(queryWrapper) > 0) {
-            log.error(StrUtil.format("【创建通知内容】操作人id：{}，创建目标（名称）已存在 noticeTarget：{}", SecurityUtils.getCurrentUserId(),
-                    resources));
+            log.error(StrUtil.format("【创建通知内容】操作人id：{}，创建目标（名称）已存在 noticeTarget：{}",
+                    SecurityUtils.getCurrentUserId(), resources));
             throw new BadRequestException("已存在：" + resources.getContent() + "  " + resources.getLink());
         }
         save(resources);
-//        log.info(StrUtil.format("【创建通知内容成功】操作人id：{}，创建目标 noticeTarget：{}", SecurityUtils.getCurrentUserId(),
-//                resources));
+        log.info(StrUtil.format("【创建通知内容成功】操作人id：{}，创建目标 noticeTarget：{}",
+                SecurityUtils.getCurrentUserId(), resources));
     }
 
     @Override
@@ -70,8 +67,8 @@ public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper
     public void update(NoticeTarget resources) {
         NoticeTarget noticeTarget = getById(resources.getId());
         if (ObjectUtil.isEmpty(noticeTarget)) {
-            log.error(StrUtil.format("【修改通知内容失败】操作人id：{}，修改目标noticeTarget为空，目标noticeTargetId：{}", SecurityUtils.getCurrentUserId(),
-                    resources.getId()));
+            log.error(StrUtil.format("【修改通知内容失败】操作人id：{}，修改目标noticeTarget为空，目标noticeTargetId：{}",
+                    SecurityUtils.getCurrentUserId(), resources.getId()));
             throw new BadRequestException("修改失败，当前数据id不存在");
         }
         LambdaQueryWrapper<NoticeTarget> queryWrapper = new LambdaQueryWrapper<>();
@@ -79,22 +76,22 @@ public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper
                 .eq(NoticeTarget::getLink, resources.getLink());
         NoticeTarget old = getOne(queryWrapper);
         if (ObjectUtil.isNotNull(old) && !old.getId().equals(resources.getId())) {
-            log.error(StrUtil.format("【修改通知内容失败】操作人id：{}，修改目标已存在，修改目标noticeTarget：{}，存在目标通知内容：{}", SecurityUtils.getCurrentUserId(),
-                    resources, old));
+            log.error(StrUtil.format("【修改通知内容失败】操作人id：{}，修改目标已存在，修改目标noticeTarget：{}，存在目标通知内容：{}",
+                    SecurityUtils.getCurrentUserId(), resources, old));
             throw new BadRequestException("已存在：" + resources.getContent() + "  " + resources.getLink());
         }
         updateById(resources);
         //清理缓存
         delCaches(resources.getId());
-//        log.info(StrUtil.format("【修改通知内容成功】操作人id：{}，修改目标noticeTarget：{}", SecurityUtils.getCurrentUserId(),
-//                resources));
+        log.info(StrUtil.format("【修改通知内容成功】操作人id：{}，修改目标noticeTarget：{}",
+                SecurityUtils.getCurrentUserId(), resources));
     }
 
     @Override
     public void verification(Set<Long> ids) {
-        if (noticeSendMapper.countByNoticeTargetIds(ids) > 0) {
-            log.error(StrUtil.format("【删除通知内容失败】操作人id：{}，所选的通知内容：{}中存在已发消息！", SecurityUtils.getCurrentUserId(),
-                    ids.toString()));
+        if (noticeMapper.countByNoticeTargetIds(ids) > 0) {
+            log.error(StrUtil.format("【删除通知内容失败】操作人id：{}，所选的通知内容：{}中存在已发消息！",
+                    SecurityUtils.getCurrentUserId(), ids.toString()));
             throw new BadRequestException("所选的通知内容中存在已发送消息！");
         }
     }
@@ -107,8 +104,8 @@ public class NoticeTargetServiceImpl extends BasicServiceImpl<NoticeTargetMapper
             delCaches(id);
         }
         removeByIds(ids);
-        log.info(StrUtil.format("【删除通知内容成功】操作人id：{}，删除目标noticeTargets：{}", SecurityUtils.getCurrentUserId(),
-                ids.toString()));
+        log.info(StrUtil.format("【删除通知内容成功】操作人id：{}，删除目标noticeTargets：{}",
+                SecurityUtils.getCurrentUserId(), ids.toString()));
     }
 
     /**
