@@ -10,15 +10,19 @@ IMAGE_NAME=centos7_mvn_git_java8
 # docker 容器名字或者jar名字，这里都命名为这个
 SERVER_NAME=
 
+# 项目版本号
+version=`awk '/<version>[^<]+<\/version>/{gsub(/<version>|<\/version>/,"",$1);print $1;exit;}' pom.xml`
+
 #这里的JAR_PATH为jar包所在位置
-JAR_PATH=./smpe-system/target/smpe-system-0.0.1-SNAPSHOT.jar
+JAR_PATH=./smpe-system/target/smpe_system$version.jar
+
 
 profile=$2
 port=$3
 
 #使用说明，用来提示输入参数X
 usage() {
-    echo "Usage: sh 执行脚本.s h [init|start|stop|restart|status|pull] [profile] [port]"
+    echo "Usage: sh 执行脚本.sh [init|start|stop|restart|status|pull] [profile] [port]"
     exit 1
 }
 

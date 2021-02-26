@@ -73,7 +73,8 @@ spring:
       max-file-size: 200MB
       # 最大请求大小
       max-request-size: 215MB
-
+  logging:
+    test: false
 # 登录相关配置
 login:
   # 登录缓存
