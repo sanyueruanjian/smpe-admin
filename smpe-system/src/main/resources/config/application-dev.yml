@@ -1,6 +1,7 @@
 server:
   port: 8000
-
+netty:
+  port: 7000
 spring:
   #druid数据源
   datasource:
@@ -9,7 +10,7 @@ spring:
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
       url: jdbc:log4jdbc:mysql://127.0.0.1:3306/smpe?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       username: root
-      password: 159357asd
+      password: 12345
       # 初始连接数
       initial-size: 5
       # 最小连接数
@@ -76,6 +77,14 @@ spring:
   logging:
     test: false
     # 开发环境不进行日志实例化
+
+  # rabbitmq
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: smpe
+    password: 123456
+    virtual-host: /smpe
 
 # 登录相关配置
 login:
