@@ -2,7 +2,6 @@ package marchsoft.modules.system.controller;
 
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +42,8 @@ public class JobController {
     @GetMapping(value = "/download")
     @PreAuthorize("@smpe.check('job:list')")
     public void download(HttpServletResponse response, JobQueryCriteria criteria) throws IOException {
-        log.info(StrUtil.format("【导出岗位数据 /api/job/download】操作人id：{}，岗位查询条件 criteria：{}", SecurityUtils.getCurrentUserId(),
-                criteria));
+        log.info("【导出岗位数据 /api/job/download】操作人id：{}，岗位查询条件 criteria：{}", SecurityUtils.getCurrentUserId(),
+                criteria);
         jobService.download(jobService.queryAll(criteria), response);
     }
 
@@ -52,8 +51,8 @@ public class JobController {
     @GetMapping
     @PreAuthorize("@smpe.check('job:list','user:list')")
     public Result<Object> query(JobQueryCriteria criteria, PageVO pageVO) {
-        log.info(StrUtil.format("【查询岗位 /api/job】操作人id：{}，岗位查询条件 criteria：{}", SecurityUtils.getCurrentUserId(),
-                criteria));
+        log.info("【查询岗位 /api/job】操作人id：{}，岗位查询条件 criteria：{}", SecurityUtils.getCurrentUserId(),
+                criteria);
         return Result.success(jobService.queryAll(criteria, pageVO));
     }
 
@@ -61,11 +60,11 @@ public class JobController {
     @PostMapping
     @PreAuthorize("@smpe.check('job:add')")
     public Result<Object> create(@RequestBody Job resources) {
-        log.info(StrUtil.format("【新增岗位 /api/job】操作人id：{}，岗位名称：{}", SecurityUtils.getCurrentUserId(),
-                resources.getName()));
+        log.info("【新增岗位 /api/job】操作人id：{}，岗位名称：{}", SecurityUtils.getCurrentUserId(),
+                resources.getName());
         if (ObjectUtil.isNotNull(resources.getId())) {
-            log.error(StrUtil.format("【新增岗位失败】操作人id：{}，新增岗位实体默认id应该为空，Job：{}", SecurityUtils.getCurrentUserId(),
-                    resources));
+            log.error("【新增岗位失败】操作人id：{}，新增岗位实体默认id应该为空，Job：{}", SecurityUtils.getCurrentUserId(),
+                    resources);
             throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
         jobService.create(resources);
@@ -76,8 +75,8 @@ public class JobController {
     @PutMapping
     @PreAuthorize("@smpe.check('job:edit')")
     public Result<Object> update(@RequestBody Job resources) {
-        log.info(StrUtil.format("【修改岗位 /api/job】操作人id：{}，被修改岗位id：{}", SecurityUtils.getCurrentUserId(),
-                resources.getId()));
+        log.info("【修改岗位 /api/job】操作人id：{}，被修改岗位id：{}", SecurityUtils.getCurrentUserId(),
+                resources.getId());
         jobService.update(resources);
         return Result.success();
     }
@@ -86,7 +85,7 @@ public class JobController {
     @DeleteMapping
     @PreAuthorize("@smpe.check('job:del')")
     public Result<Object> delete(@RequestBody Set<Long> ids) {
-        log.info(StrUtil.format("【删除岗位 /api/job】操作人id：{}，被删除岗位id：{}", SecurityUtils.getCurrentUserId(), ids.toString()));
+        log.info("【删除岗位 /api/job】操作人id：{}，被删除岗位id：{}", SecurityUtils.getCurrentUserId(), ids.toString());
         // 验证是否被用户关联
         jobService.verification(ids);
         jobService.delete(ids);
