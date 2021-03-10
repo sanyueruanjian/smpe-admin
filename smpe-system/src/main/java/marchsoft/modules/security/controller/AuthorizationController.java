@@ -135,7 +135,7 @@ public class AuthorizationController {
         }
         // 保存
         redisUtils.set(uuid, captchaValue, loginProperties.getLoginCode().getExpiration(), TimeUnit.MINUTES);
-        log.info(StrUtil.format("【登录图片验证码】验证码结果：{}", captchaValue));
+        log.info("【登录图片验证码】验证码结果：{}", captchaValue);
         // 验证码信息
         Map<String, Object> imgResult = new HashMap<String, Object>(2) {{
             put("img", captcha.toBase64());

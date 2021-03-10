@@ -65,8 +65,7 @@ public class TokenFilter extends GenericFilterBean {
                 //从redis中获取一条用户信息
                 onlineUserDto = onlineUserService.getOne(properties.getOnlineKey() + token);
             } catch (ExpiredJwtException e) {
-                log.error(StrUtil.format("【从redis中获取用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(),
-                        e.getMessage()));
+                log.error("【从redis中获取用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(), e.getMessage());
                 cleanUserCache = true;
             } finally {
                 //出现异常或者用户信息为空时，清除用户缓存
@@ -102,7 +101,7 @@ public class TokenFilter extends GenericFilterBean {
             return bearerToken.replace(properties.getTokenStartWith(), "");
         } else {
             //未携带token会进行记录
-            log.debug(StrUtil.format("非法Token：{}", bearerToken));
+            log.debug("非法Token：{}", bearerToken);
         }
         return null;
     }

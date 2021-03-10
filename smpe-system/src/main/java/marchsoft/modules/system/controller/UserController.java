@@ -1,31 +1,22 @@
 package marchsoft.modules.system.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.PageVO;
-import marchsoft.config.bean.RsaProperties;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
-import marchsoft.modules.security.service.UserCacheClean;
-import marchsoft.modules.system.entity.User;
 import marchsoft.modules.system.entity.dto.*;
 import marchsoft.modules.system.entity.vo.UserPassVo;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IRoleService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.response.Result;
-import marchsoft.utils.CacheKey;
-import marchsoft.utils.RedisUtils;
-import marchsoft.utils.RsaUtils;
 import marchsoft.utils.SecurityUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,7 +53,7 @@ public class UserController {
     @GetMapping(value = "/download")
     @PreAuthorize("@smpe.check('user:list')")
     public void download(HttpServletResponse response, UserQueryCriteria criteria) throws IOException {
-        log.info(StrUtil.format("【导出用户数据】操作人id:{}", SecurityUtils.getCurrentUserId()));
+        log.info("【导出用户数据】操作人id:{}", SecurityUtils.getCurrentUserId());
         //每页条数设置为-1，是查询全部
         PageVO pageVO = new PageVO();
         pageVO.setSize(-1);
@@ -114,7 +105,7 @@ public class UserController {
     @PreAuthorize("@smpe.check('user:add')")
     public Result<Void> insertUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
         if (!checkLevel(userInsertOrUpdateDTO.getRoles())) {
-            log.error(StrUtil.format("【新增用户失败】用户角色权限不足。操作人id：{}，新增用户用户名：{}", SecurityUtils.getCurrentUserId(), userInsertOrUpdateDTO.getUsername()));
+            log.error("【新增用户失败】用户角色权限不足。操作人id：{}，新增用户用户名：{}", SecurityUtils.getCurrentUserId(), userInsertOrUpdateDTO.getUsername());
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
         userService.insertUserWithDetail(userInsertOrUpdateDTO);
@@ -127,7 +118,7 @@ public class UserController {
     @PreAuthorize("@smpe.check('user:edit')")
     public Result<Void> updateUserWithDetail(@RequestBody UserInsertOrUpdateDTO userInsertOrUpdateDTO) {
         if (!checkLevel(userInsertOrUpdateDTO.getRoles())) {
-            log.error(StrUtil.format("【修改用户失败】用户角色权限不足。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(), userInsertOrUpdateDTO.getId()));
+            log.error("【修改用户失败】用户角色权限不足。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(), userInsertOrUpdateDTO.getId());
             throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
         }
         userService.updateUserWithDetail(userInsertOrUpdateDTO);
@@ -139,7 +130,7 @@ public class UserController {
     @PutMapping(value = "center")
     public Result<Void> updateUserPersonalInfo(@RequestBody UserPersonalInfoDTO userPersonalInfoDTO) {
         if (!userPersonalInfoDTO.getId().equals(SecurityUtils.getCurrentUserId())) {
-            log.error(StrUtil.format("【修改用户个人资料失败】不能修改他人资料。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(), userPersonalInfoDTO.getId()));
+            log.error("【修改用户个人资料失败】不能修改他人资料。操作人id：{}，修改用户id：{}", SecurityUtils.getCurrentUserId(), userPersonalInfoDTO.getId());
             throw new BadRequestException("不能修改他人资料");
         }
         userService.updateUserPersonalInfo(userPersonalInfoDTO);
@@ -153,7 +144,7 @@ public class UserController {
     public Result<Void> delete(@RequestBody Set<Long> ids) {
         for (Long id : ids) {
             if (!checkLevel(id)) {
-                log.error(StrUtil.format("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id：{}", SecurityUtils.getCurrentUserId(), id));
+                log.error("【删除用户失败】角色权限不足，不能删除。操作人id：{}，预删除用户id：{}", SecurityUtils.getCurrentUserId(), id);
                 throw new BadRequestException("角色权限不足，不能删除：" + userService.getById(id).getUsername());
             }
         }
@@ -163,9 +154,9 @@ public class UserController {
 
     @ApiOperation("修改密码")
     @PostMapping(value = "/updatePass")
-    public Result<Void> updatePass(@RequestBody UserPassVo passVo){
+    public Result<Void> updatePass(@RequestBody UserPassVo passVo) {
         userService.updatePass(passVo);
-        log.info(StrUtil.format("【修改密码成功】操作人id：{}", SecurityUtils.getCurrentUserId()));
+        log.info("【修改密码成功】操作人id：{}", SecurityUtils.getCurrentUserId());
         return Result.success();
     }
 

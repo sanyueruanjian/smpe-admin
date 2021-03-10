@@ -378,7 +378,7 @@ public class RedisUtils {
      * @return
      */
     public double hdecr(String key, String item, double by) {
-        return redisTemplate.opsForHash().increment(key, item, - by);
+        return redisTemplate.opsForHash().increment(key, item, -by);
     }
 
     // ============================set=============================
@@ -703,8 +703,8 @@ public class RedisUtils {
         long count = redisTemplate.delete(keys);
         // 此处提示可自行删除
         log.debug("--------------------------------------------");
-        log.debug("成功删除缓存：" + keys.toString());
-        log.debug("缓存删除数量：" + count + "个");
+        log.debug("成功删除缓存：{}", keys.toString());
+        log.debug("缓存删除数量：{}个", count);
         log.debug("--------------------------------------------");
     }
 
