@@ -2,7 +2,6 @@ package marchsoft.modules.system.controller;
 
 
 import cn.hutool.core.lang.Dict;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +86,7 @@ public class RoleController {
     @PreAuthorize("@smpe.check('roles:add')")
     public Result<Void> create(@RequestBody RoleInsertOrUpdateDTO roleInsertOrUpdateDTO) {
         if (roleInsertOrUpdateDTO.getId() != null) {
-            log.error(StrUtil.format("【新增角色失败】新增角色不应该传入角色id。操作人id:{}", SecurityUtils.getCurrentUserId()));
+            log.error("【新增角色失败】新增角色不应该传入角色id。操作人id:{}", SecurityUtils.getCurrentUserId());
             throw new BadRequestException("角色id已存在");
         }
         getLevels(roleInsertOrUpdateDTO.getLevel());
@@ -125,7 +124,7 @@ public class RoleController {
             RoleDTO role = roleService.findById(id);
             getLevels(role.getLevel());
             if (role.getProtection()) {
-                log.error(StrUtil.format("【删除角色失败】存在内置角色。操作人id:{}，roleId：{}", SecurityUtils.getCurrentUserId(), id));
+                log.error("【删除角色失败】存在内置角色。操作人id:{}，roleId：{}", SecurityUtils.getCurrentUserId(), id);
                 throw new BadRequestException("存在内置角色，不能删除");
             }
         }
@@ -151,8 +150,8 @@ public class RoleController {
         int min = Collections.min(levelList);
         if (level != null) {
             if (level < min) {
-                log.error(StrUtil.format("【权限不足】操作人id：{}，您的角色级别：{}，低于操作的角色级别：",
-                        SecurityUtils.getCurrentUserId(), min, level));
+                log.error("【权限不足】操作人id：{}，您的角色级别：{}，低于操作的角色级别：{}",
+                        SecurityUtils.getCurrentUserId(), min, level);
                 throw new BadRequestException(ResultEnum.IDENTITY_NOT_POW);
             }
         }
