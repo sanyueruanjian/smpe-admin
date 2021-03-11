@@ -113,7 +113,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods();
         // 获取匿名标记
         Map<String, Set<String>> anonymousUrls = getAnonymousUrl(handlerMethodMap);
-        log.info("放行的接口(匿名访问)" + anonymousUrls);
+        log.info("放行的接口(匿名访问):{}", anonymousUrls);
 
         httpSecurity
                 // 禁用 CSRF

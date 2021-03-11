@@ -48,8 +48,8 @@ public class OnlineUserService {
             onlineUserDto = new OnlineUserDto(jwtUserDto.getUsername(), jwtUserDto.getUser().getNickName(), dept,
                     browser, ip, address, EncryptUtils.desEncrypt(token), new Date());
         } catch (Exception e) {
-            log.error(StrUtil.format("【保存在线用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(),
-                    e.getMessage()));
+            log.error("【保存在线用户信息失败】操作人id：{}，错误信息：{}", SecurityUtils.getCurrentUserId(),
+                    e.getMessage());
         }
         redisUtils.set(properties.getOnlineKey() + token, onlineUserDto, properties.getTokenValidityInSeconds() / 1000);
     }
@@ -164,7 +164,7 @@ public class OnlineUserService {
                         this.kickOut(token);
                     }
                 } catch (Exception e) {
-                    log.error(StrUtil.format("【checkUser is error】操作人id：{}，异常信息：{}", SecurityUtils.getCurrentUserId(), e));
+                    log.error("【checkUser is error】操作人id：{}，异常信息：{}", SecurityUtils.getCurrentUserId(), e);
                 }
             }
         }

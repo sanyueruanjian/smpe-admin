@@ -10,7 +10,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import marchsoft.base.BasicServiceImpl;
@@ -19,16 +18,13 @@ import marchsoft.enums.DataScopeEnum;
 import marchsoft.enums.ResultEnum;
 import marchsoft.exception.BadRequestException;
 import marchsoft.modules.system.entity.Dept;
-import marchsoft.modules.system.entity.Role;
 import marchsoft.modules.system.entity.User;
-import marchsoft.modules.system.entity.bo.UserBO;
 import marchsoft.modules.system.entity.dto.DeptDTO;
 import marchsoft.modules.system.entity.dto.DeptQueryCriteria;
 import marchsoft.modules.system.entity.dto.UserDTO;
 import marchsoft.modules.system.mapper.DeptMapper;
 import marchsoft.modules.system.mapper.RoleMapper;
 import marchsoft.modules.system.mapper.UserMapper;
-import marchsoft.modules.system.service.IDataService;
 import marchsoft.modules.system.service.IDeptService;
 import marchsoft.modules.system.service.IUserService;
 import marchsoft.modules.system.service.mapstruct.DeptMapStruct;
@@ -44,9 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -95,7 +89,7 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public DeptDTO findById(Long id) {
         Dept dept = deptMapper.selectById(id);
         if (ObjectUtil.isEmpty(dept)) {
-            log.error(StrUtil.format("【查找部门失败】操作人id：{}，查找目标id：{}", SecurityUtils.getCurrentUserId(), id));
+            log.error("【查找部门失败】操作人id：{}，查找目标id：{}", SecurityUtils.getCurrentUserId(), id);
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         return deptMapStruct.toDto(dept);
@@ -206,8 +200,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
                 if (ObjectUtil.isNotNull(criteria.getPid())) {
                     if (!currentUserDataScope.contains(criteria.getPid())) {
                         // MODIFY description:是返回空还是报错,视具体情况而定 @liuxingxing 2020/12/4
-//                        log.error(StrUtil.format("【查询部门失败】操作人id：{}，查询部门目标dept：{}", SecurityUtils.getCurrentUserId(),
-//                                criteria.getPid() ));
+//                        log.error("【查询部门失败】操作人id：{}，查询部门目标dept：{}", SecurityUtils.getCurrentUserId(),
+//                                criteria.getPid());
 //                        throw new BadRequestException("您没有查询部门目标dept：" + criteria.getPid() + "的权限。");
                         return returnPage;
                     }
@@ -328,8 +322,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public void create(Dept dept) {
         save(dept.setSubCount(0));
         updateSubCnt(ObjectUtil.isNull(dept.getPid()) ? 0 : dept.getPid());
-        log.info(StrUtil.format("【添加部门成功】操作人id：{}，新增目标dept：{}", SecurityUtils.getCurrentUserId(),
-                dept));
+        log.info("【添加部门成功】操作人id：{}，新增目标dept：{}", SecurityUtils.getCurrentUserId(),
+                dept);
     }
 
     /**
@@ -348,8 +342,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             LambdaUpdateWrapper<Dept> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(Dept::getSubCount, count).eq(Dept::getId, deptId);
             update(updateWrapper);
-            log.info(StrUtil.format("【修改部门成功】操作人id：{}，修改目标dept：{}的子部门数量：{}", SecurityUtils.getCurrentUserId(),
-                    deptId, count));
+            log.info("【修改部门成功】操作人id：{}，修改目标dept：{}的子部门数量：{}", SecurityUtils.getCurrentUserId(),
+                    deptId, count);
         }
     }
 
@@ -366,24 +360,24 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
     public void updateDept(Dept resources) {
         Dept dept = getById(resources.getId());
         if (ObjectUtil.isEmpty(dept)) {
-            log.error(StrUtil.format("【修改部门失败】操作人id：{}，修改目标不存在,修改目标deptId：{}", SecurityUtils.getCurrentUserId(),
-                    resources.getId()));
+            log.error("【修改部门失败】操作人id：{}，修改目标不存在,修改目标deptId：{}", SecurityUtils.getCurrentUserId(),
+                    resources.getId());
             throw new BadRequestException(ResultEnum.DATA_NOT_FOUND);
         }
         // 旧部门 pid
         Long oldPid = dept.getPid();
         Long newPid = resources.getPid();
         if (resources.getPid() != 0 && resources.getId().equals(resources.getPid())) {
-            log.error(StrUtil.format("【修改部门失败】操作人id：{}，修改目标的上级不能是自己,当前dept：{}", SecurityUtils.getCurrentUserId(),
-                    resources));
+            log.error("【修改部门失败】操作人id：{}，修改目标的上级不能是自己,当前dept：{}", SecurityUtils.getCurrentUserId(),
+                    resources);
             throw new BadRequestException("上级不能为自己");
         }
         resources.insertOrUpdate();
         // 更新父节点中子节点数目
         updateSubCnt(oldPid);
         updateSubCnt(newPid);
-        log.info(StrUtil.format("【修改部门成功】操作人id：{}，修改目标dept：{}", SecurityUtils.getCurrentUserId(),
-                resources));
+        log.info("【修改部门成功】操作人id：{}，修改目标dept：{}", SecurityUtils.getCurrentUserId(),
+                resources);
         //清理缓存
         delCaches(resources.getId());
     }
@@ -427,13 +421,13 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.in(User::getDeptId, deptIds);
         if (userService.count(userLambdaQueryWrapper) > 0) {
-            log.error(StrUtil.format("【删除部门失败】操作人id：{}，所选部门：{}存在用户关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
-                    deptIds.toString()));
+            log.error("【删除部门失败】操作人id：{}，所选部门：{}存在用户关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
+                    deptIds.toString());
             throw new BadRequestException("所选部门存在用户关联，请解除后再试！");
         }
         if (roleMapper.countByDeptIds(deptIds) > 0) {
-            log.error(StrUtil.format("【删除部门失败】操作人id：{}，所选部门：{}存在角色关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
-                    deptIds.toString()));
+            log.error("【删除部门失败】操作人id：{}，所选部门：{}存在角色关联，请解除后再试！", SecurityUtils.getCurrentUserId(),
+                    deptIds.toString());
             throw new BadRequestException("所选部门存在角色关联，请解除后再试！");
         }
     }
@@ -454,8 +448,8 @@ public class DeptServiceImpl extends BasicServiceImpl<DeptMapper, Dept> implemen
             delCaches(deptDTO.getId());
             this.removeById(deptDTO.getId());
             updateSubCnt(deptDTO.getPid());
-            log.info(StrUtil.format("【删除部门成功】操作人id：{}，删除目标dept：{}", SecurityUtils.getCurrentUserId(),
-                    deptDTO));
+            log.info("【删除部门成功】操作人id：{}，删除目标dept：{}", SecurityUtils.getCurrentUserId(),
+                    deptDTO);
         }
     }
 

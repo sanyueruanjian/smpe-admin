@@ -89,7 +89,7 @@ public class SysSysLogServiceImpl extends BasicServiceImpl<SysLogMapper, SysLog>
 
         int count = sysLogMapper.insert(sysLog);
         if (count <= 0) {
-            log.error(StrUtil.format("【接口切面日志保存失败】操作人id：{}", SecurityUtils.getCurrentUserId()));
+            log.error("【接口切面日志保存失败】操作人id：{}", SecurityUtils.getCurrentUserId());
         }
     }
 
