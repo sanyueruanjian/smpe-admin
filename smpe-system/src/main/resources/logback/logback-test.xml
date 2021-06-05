@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
     <contextName>SMPE-ADMIN</contextName>
-    <property name="LOG_HOME" value="logs/%d{yyyy-MM}/"/>
+    <property name="LOG_HOME" value="logs/%d{yyyy-MM,aux}/"/>
     <property name="LOG_" value="logs/"/>
     <property name="log.charset" value="utf-8"/>
     <property name="log.pattern"
