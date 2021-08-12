@@ -1,7 +1,7 @@
 # SMPE-ADMIN后台管理系统
 
 # 项目简介
-一个基于[EL-ADMIN](https://el-admin.vip/)、Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
+一个基于Spring Boot 2.1.0、JDK1.8+ 、 Mybatis Plus、JWT + Spring Security、Redis、Vue的前后端分离的后台管理系统
 
 **[官方文档](https://sanyueruanjian.github.io/smpe-admin-doc/)**  
 
@@ -106,7 +106,7 @@
 
 # 鸣谢
 - 感谢 [EL-ADMIN](https://el-admin.vip/) 开源框架
-- 感谢[@shiwei-Ren](https://github.com/shiwei-Ren)、[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv ](https://github.com/pangyv)、[@jie-fei30)](https://github.com/jie-fei30)参与初版的开发维护
+- 感谢[@duktig666](https://github.com/duktig666)、[@jiaoqianjin](https://github.com/jiaoqianjin)、[@pangyv ](https://github.com/pangyv)、[@jie-fei30)](https://github.com/jie-fei30)参与初版的开发维护
 - 感谢每一位为 SMPE-ADMIN 做出过贡献的开发者
 
 # 反馈交流
