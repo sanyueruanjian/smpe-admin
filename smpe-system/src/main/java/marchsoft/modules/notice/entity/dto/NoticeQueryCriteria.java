@@ -25,7 +25,7 @@ public class NoticeQueryCriteria {
     /**
      * 是否已读，1已读，0未读
      */
-    private Integer read = 0;
+    private Integer read;
 
     /**
      * 开始时间
